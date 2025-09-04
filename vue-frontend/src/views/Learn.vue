@@ -22,70 +22,125 @@
         <!-- 页面标题 -->
         <div class="text-center mb-12">
           <h1 class="text-4xl font-bold text-gray-900 mb-4">📚 手语学习中心</h1>
-          <p class="text-xl text-gray-600">系统化学习手语基础知识，从字母到词汇</p>
+          <p class="text-xl text-gray-600">系统化学习手语基础知识，从文化到实践</p>
+        </div>
+
+        <!-- 聋人文化板块 -->
+        <div class="mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">🏛️ 聋人文化</h2>
+          <el-card shadow="hover" class="cursor-pointer">
+            <div class="text-center">
+              <div class="text-6xl mb-4">🏛️</div>
+              <h3 class="text-2xl font-bold mb-3">聋人文化</h3>
+              <p class="text-gray-600 mb-4">了解聋人文化的发展历程、艺术表达和社区特色</p>
+              <el-button type="primary" size="large">开始了解</el-button>
+            </div>
+          </el-card>
         </div>
 
         <!-- 学习模块 -->
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          <!-- 字母学习 -->
-          <el-card shadow="hover" class="cursor-pointer">
-            <div class="text-center">
-              <div class="text-6xl mb-4">🔤</div>
-              <h3 class="text-xl font-bold mb-2">手语字母</h3>
-              <p class="text-gray-600 mb-4">学习26个手语字母的基础手势</p>
-              <el-button type="primary" size="small">开始学习</el-button>
-            </div>
-          </el-card>
+        <div class="mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">📖 核心学习模块</h2>
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- 手语基础（合并字母和数字） -->
+            <el-card shadow="hover" class="cursor-pointer">
+              <div class="text-center">
+                <div class="text-6xl mb-4">🔤</div>
+                <h3 class="text-xl font-bold mb-2">手语基础</h3>
+                <p class="text-gray-600 mb-4">学习26个手语字母和0-9数字手势</p>
+                <el-button type="primary" size="small">开始学习</el-button>
+              </div>
+            </el-card>
 
-          <!-- 数字学习 -->
-          <el-card shadow="hover" class="cursor-pointer">
-            <div class="text-center">
-              <div class="text-6xl mb-4">🔢</div>
-              <h3 class="text-xl font-bold mb-2">手语数字</h3>
-              <p class="text-gray-600 mb-4">掌握0-9的手语数字表达</p>
-              <el-button type="primary" size="small">开始学习</el-button>
-            </div>
-          </el-card>
+            <!-- 词汇积累 -->
+            <el-card shadow="hover" class="cursor-pointer">
+              <div class="text-center">
+                <div class="text-6xl mb-4">📝</div>
+                <h3 class="text-xl font-bold mb-2">词汇积累</h3>
+                <p class="text-gray-600 mb-4">学习日常生活中的常用手语词汇</p>
+                <el-button type="primary" size="small">开始学习</el-button>
+              </div>
+            </el-card>
 
-          <!-- 基础词汇 -->
-          <el-card shadow="hover" class="cursor-pointer">
-            <div class="text-center">
-              <div class="text-6xl mb-4">📝</div>
-              <h3 class="text-xl font-bold mb-2">基础词汇</h3>
-              <p class="text-gray-600 mb-4">学习日常生活中的常用手语词汇</p>
-              <el-button type="primary" size="small">开始学习</el-button>
-            </div>
-          </el-card>
+            <!-- 手语语法 -->
+            <el-card shadow="hover" class="cursor-pointer">
+              <div class="text-center">
+                <div class="text-6xl mb-4">📚</div>
+                <h3 class="text-xl font-bold mb-2">手语语法</h3>
+                <p class="text-gray-600 mb-4">掌握手语的基本语法结构</p>
+                <el-button type="primary" size="small">开始学习</el-button>
+              </div>
+            </el-card>
 
-          <!-- 句子练习 -->
-          <el-card shadow="hover" class="cursor-pointer">
-            <div class="text-center">
-              <div class="text-6xl mb-4">💬</div>
-              <h3 class="text-xl font-bold mb-2">句子练习</h3>
-              <p class="text-gray-600 mb-4">练习简单的手语句子表达</p>
-              <el-button type="primary" size="small">开始学习</el-button>
-            </div>
-          </el-card>
+            <!-- 句子练习 -->
+            <el-card shadow="hover" class="cursor-pointer">
+              <div class="text-center">
+                <div class="text-6xl mb-4">💬</div>
+                <h3 class="text-xl font-bold mb-2">句子练习</h3>
+                <p class="text-gray-600 mb-4">练习简单的手语句子表达</p>
+                <el-button type="primary" size="small">开始学习</el-button>
+              </div>
+            </el-card>
 
-          <!-- 情景对话 -->
-          <el-card shadow="hover" class="cursor-pointer">
-            <div class="text-center">
-              <div class="text-6xl mb-4">🎭</div>
-              <h3 class="text-xl font-bold mb-2">情景对话</h3>
-              <p class="text-gray-600 mb-4">在不同场景下的手语对话练习</p>
-              <el-button type="primary" size="small">开始学习</el-button>
-            </div>
-          </el-card>
+            <!-- 情景对话 -->
+            <el-card shadow="hover" class="cursor-pointer">
+              <div class="text-center">
+                <div class="text-6xl mb-4">🎭</div>
+                <h3 class="text-xl font-bold mb-2">情景对话</h3>
+                <p class="text-gray-600 mb-4">在不同场景下的手语对话练习</p>
+                <el-button type="primary" size="small">开始学习</el-button>
+              </div>
+            </el-card>
 
-          <!-- 测试评估 -->
-          <el-card shadow="hover" class="cursor-pointer">
-            <div class="text-center">
-              <div class="text-6xl mb-4">📊</div>
-              <h3 class="text-xl font-bold mb-2">测试评估</h3>
-              <p class="text-gray-600 mb-4">检验学习成果，获得学习建议</p>
-              <el-button type="success" size="small">开始测试</el-button>
-            </div>
-          </el-card>
+            <!-- 测试评估 -->
+            <el-card shadow="hover" class="cursor-pointer">
+              <div class="text-center">
+                <div class="text-6xl mb-4">📊</div>
+                <h3 class="text-xl font-bold mb-2">测试评估</h3>
+                <p class="text-gray-600 mb-4">检验学习成果，获得学习建议</p>
+                <el-button type="success" size="small">开始测试</el-button>
+              </div>
+            </el-card>
+          </div>
+        </div>
+
+        <!-- 学习资源与工具 -->
+        <div class="mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">🛠️ 学习资源与工具</h2>
+          <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <el-card shadow="hover" class="cursor-pointer">
+              <div class="text-center">
+                <div class="text-4xl mb-3">🎥</div>
+                <h3 class="text-lg font-bold mb-2">视频课程</h3>
+                <p class="text-gray-600 text-sm">专业手语教学视频</p>
+                <el-button type="info" size="small">观看课程</el-button>
+              </div>
+            </el-card>
+            <el-card shadow="hover" class="cursor-pointer">
+              <div class="text-center">
+                <div class="text-4xl mb-3">📱</div>
+                <h3 class="text-lg font-bold mb-2">移动应用</h3>
+                <p class="text-gray-600 text-sm">随时随地学习手语</p>
+                <el-button type="info" size="small">下载应用</el-button>
+              </div>
+            </el-card>
+            <el-card shadow="hover" class="cursor-pointer">
+              <div class="text-center">
+                <div class="text-4xl mb-3">📖</div>
+                <h3 class="text-lg font-bold mb-2">电子书籍</h3>
+                <p class="text-gray-600 text-sm">手语学习电子教材</p>
+                <el-button type="info" size="small">阅读书籍</el-button>
+              </div>
+            </el-card>
+            <el-card shadow="hover" class="cursor-pointer">
+              <div class="text-center">
+                <div class="text-4xl mb-3">🎯</div>
+                <h3 class="text-lg font-bold mb-2">练习工具</h3>
+                <p class="text-gray-600 text-sm">手语练习辅助工具</p>
+                <el-button type="info" size="small">使用工具</el-button>
+              </div>
+            </el-card>
+          </div>
         </div>
 
         <!-- 学习进度 -->
@@ -99,24 +154,24 @@
           <div class="space-y-4">
             <div>
               <div class="flex justify-between mb-2">
-                <span>字母学习</span>
-                <span>5/26</span>
+                <span>手语基础</span>
+                <span>8/36</span>
               </div>
-              <el-progress :percentage="19" color="#409EFF"></el-progress>
+              <el-progress :percentage="22" color="#409EFF"></el-progress>
             </div>
             <div>
               <div class="flex justify-between mb-2">
-                <span>数字学习</span>
-                <span>3/10</span>
-              </div>
-              <el-progress :percentage="30" color="#67C23A"></el-progress>
-            </div>
-            <div>
-              <div class="flex justify-between mb-2">
-                <span>基础词汇</span>
+                <span>词汇积累</span>
                 <span>12/50</span>
               </div>
-              <el-progress :percentage="24" color="#E6A23C"></el-progress>
+              <el-progress :percentage="24" color="#67C23A"></el-progress>
+            </div>
+            <div>
+              <div class="flex justify-between mb-2">
+                <span>手语语法</span>
+                <span>3/20</span>
+              </div>
+              <el-progress :percentage="15" color="#E6A23C"></el-progress>
             </div>
           </div>
         </el-card>

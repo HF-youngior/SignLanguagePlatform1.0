@@ -137,6 +137,26 @@
                 </div>
               </div>
             </el-card>
+
+            <!-- 聋健互通组别 -->
+            <el-card>
+              <template #header>
+                <span class="text-lg font-semibold">🤝 聋健互通</span>
+              </template>
+              <div class="space-y-3">
+                <div v-for="group in deafHearingGroups" :key="group.id" class="flex items-center space-x-3">
+                  <el-avatar :size="40" :src="group.avatar" :class="group.type === 'deaf' ? 'ring-2 ring-green-500' : 'ring-2 ring-blue-500'">
+                    {{ group.name.charAt(0) }}
+                  </el-avatar>
+                  <div class="flex-1">
+                    <div class="font-medium">{{ group.name }}</div>
+                    <div class="text-sm text-gray-500">{{ group.members }} 成员</div>
+                    <div class="text-xs text-gray-400">{{ group.description }}</div>
+                  </div>
+                  <el-button size="small" type="success" plain>加入</el-button>
+                </div>
+              </div>
+            </el-card>
           </div>
         </div>
       </div>
@@ -206,13 +226,23 @@ export default {
       { id: 2, name: '#日常对话', count: 89 },
       { id: 3, name: '#学习心得', count: 67 },
       { id: 4, name: '#AI翻译', count: 45 },
-      { id: 5, name: '#学习计划', count: 32 }
+      { id: 5, name: '#学习计划', count: 32 },
+      { id: 6, name: '#聋健交流', count: 78 },
+      { id: 7, name: '#聋人文化', count: 56 },
+      { id: 8, name: '#手语差异', count: 43 }
     ])
 
     const studyGroups = ref([
       { id: 1, name: '初学者互助组', members: 156, avatar: '' },
       { id: 2, name: '中级进阶组', members: 89, avatar: '' },
       { id: 3, name: '高级交流组', members: 45, avatar: '' }
+    ])
+
+    const deafHearingGroups = ref([
+      { id: 1, name: '聋健交流组', members: 120, avatar: '', type: 'mixed', description: '聋人朋友与听力正常朋友交流的平台' },
+      { id: 2, name: '聋人文化分享组', members: 80, avatar: '', type: 'deaf', description: '分享聋人文化、艺术、生活经验' },
+      { id: 3, name: '手语差异讨论组', members: 95, avatar: '', type: 'mixed', description: '讨论教学手语与聋人实际使用手语的差异' },
+      { id: 4, name: '聋人生活现状组', members: 65, avatar: '', type: 'mixed', description: '了解聋人的日常生活、工作、学习现状' }
     ])
 
     const publishPost = () => {
@@ -229,6 +259,7 @@ export default {
       leaderboard,
       hotTopics,
       studyGroups,
+      deafHearingGroups,
       publishPost
     }
   },
