@@ -111,7 +111,7 @@
               <h3 class="text-2xl font-bold text-gray-900 mb-4">社区</h3>
               <p class="text-gray-600 mb-6">与其他学习者交流，分享学习心得</p>
               <div class="inline-flex items-center text-blue-600 font-medium">
-                加入社区
+                进入社区
                 <el-icon class="ml-2"><ArrowRight /></el-icon>
               </div>
             </el-card>

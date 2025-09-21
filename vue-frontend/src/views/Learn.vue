@@ -28,7 +28,7 @@
         <!-- 聋人文化板块 -->
         <div class="mb-12">
           <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">🏛️ 聋人文化</h2>
-          <el-card shadow="hover" class="cursor-pointer">
+          <el-card shadow="hover" class="cursor-pointer mb-8">
             <div class="text-center">
               <div class="text-6xl mb-4">🏛️</div>
               <h3 class="text-2xl font-bold mb-3">聋人文化</h3>
@@ -36,6 +36,39 @@
               <el-button type="primary" size="large">开始了解</el-button>
             </div>
           </el-card>
+
+          <!-- 聋人文化子板块 -->
+          <div class="grid md:grid-cols-3 gap-6">
+            <!-- 发展历程 -->
+            <el-card shadow="hover" class="cursor-pointer">
+              <div class="text-center">
+                <div class="text-5xl mb-4">📈</div>
+                <h3 class="text-xl font-bold mb-3">发展历程</h3>
+                <p class="text-gray-600 mb-4">探索聋人文化的历史发展脉络，了解重要里程碑和变革</p>
+                <el-button type="info" size="small">了解历史</el-button>
+              </div>
+            </el-card>
+
+            <!-- 艺术表达 -->
+            <el-card shadow="hover" class="cursor-pointer">
+              <div class="text-center">
+                <div class="text-5xl mb-4">🎨</div>
+                <h3 class="text-xl font-bold mb-3">艺术表达</h3>
+                <p class="text-gray-600 mb-4">欣赏聋人艺术家的作品，感受视觉语言的独特魅力</p>
+                <el-button type="info" size="small">欣赏艺术</el-button>
+              </div>
+            </el-card>
+
+            <!-- 社区特色 -->
+            <el-card shadow="hover" class="cursor-pointer">
+              <div class="text-center">
+                <div class="text-5xl mb-4">🏘️</div>
+                <h3 class="text-xl font-bold mb-3">社区特色</h3>
+                <p class="text-gray-600 mb-4">体验聋人社区的独特文化氛围和生活方式</p>
+                <el-button type="info" size="small">探索社区</el-button>
+              </div>
+            </el-card>
+          </div>
         </div>
 
         <!-- 学习模块 -->

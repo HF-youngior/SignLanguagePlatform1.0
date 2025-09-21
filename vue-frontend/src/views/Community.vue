@@ -11,6 +11,9 @@
             <router-link to="/" class="text-gray-600 hover:text-blue-600">首页</router-link>
             <router-link to="/learn" class="text-gray-600 hover:text-blue-600">学习</router-link>
             <router-link to="/translate" class="text-gray-600 hover:text-blue-600">翻译</router-link>
+            <router-link to="/profile" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+              我的
+            </router-link>
           </div>
         </div>
       </div>
@@ -21,8 +24,8 @@
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- 页面标题 -->
         <div class="text-center mb-12">
-          <h1 class="text-4xl font-bold text-gray-900 mb-4">👥 学习社区</h1>
-          <p class="text-xl text-gray-600">与其他学习者交流，分享学习心得</p>
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">👥 我的社区</h1>
+          <p class="text-xl text-gray-600">我在这里有话说</p>
         </div>
 
         <div class="grid lg:grid-cols-3 gap-8">
@@ -88,22 +91,22 @@
 
           <!-- 侧边栏 -->
           <div class="space-y-6">
-            <!-- 学习排行榜 -->
+            <!-- 聋健互通组别 -->
             <el-card>
               <template #header>
-                <span class="text-lg font-semibold">🏆 学习排行榜</span>
+                <span class="text-lg font-semibold">🤝 聋健互通</span>
               </template>
               <div class="space-y-3">
-                <div v-for="(user, index) in leaderboard" :key="user.id" class="flex items-center space-x-3">
-                  <div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold"
-                       :class="index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-gray-400' : index === 2 ? 'bg-orange-500' : 'bg-blue-500'">
-                    {{ index + 1 }}
-                  </div>
-                  <el-avatar :size="32" :src="user.avatar">{{ user.name.charAt(0) }}</el-avatar>
+                <div v-for="group in deafHearingGroups" :key="group.id" class="flex items-center space-x-3">
+                  <el-avatar :size="40" :src="group.avatar" :class="group.type === 'deaf' ? 'ring-2 ring-green-500' : 'ring-2 ring-blue-500'">
+                    {{ group.name.charAt(0) }}
+                  </el-avatar>
                   <div class="flex-1">
-                    <div class="font-medium">{{ user.name }}</div>
-                    <div class="text-sm text-gray-500">{{ user.points }} 积分</div>
+                    <div class="font-medium">{{ group.name }}</div>
+                    <div class="text-sm text-gray-500">{{ group.members }} 成员</div>
+                    <div class="text-xs text-gray-400">{{ group.description }}</div>
                   </div>
+                  <el-button size="small" type="success" plain>加入</el-button>
                 </div>
               </div>
             </el-card>
@@ -121,39 +124,19 @@
               </div>
             </el-card>
 
-            <!-- 学习小组 -->
+            <!-- 热门群聊 -->
             <el-card>
               <template #header>
-                <span class="text-lg font-semibold">👥 学习小组</span>
+                <span class="text-lg font-semibold">🔥 热门群聊</span>
               </template>
               <div class="space-y-3">
-                <div v-for="group in studyGroups" :key="group.id" class="flex items-center space-x-3">
+                <div v-for="group in hotChatGroups" :key="group.id" class="flex items-center space-x-3">
                   <el-avatar :size="40" :src="group.avatar">{{ group.name.charAt(0) }}</el-avatar>
                   <div class="flex-1">
                     <div class="font-medium">{{ group.name }}</div>
-                    <div class="text-sm text-gray-500">{{ group.members }} 成员</div>
+                    <div class="text-sm text-gray-500">{{ group.members }} 成员 · {{ group.activeToday }} 今日活跃</div>
                   </div>
                   <el-button size="small" type="primary" plain>加入</el-button>
-                </div>
-              </div>
-            </el-card>
-
-            <!-- 聋健互通组别 -->
-            <el-card>
-              <template #header>
-                <span class="text-lg font-semibold">🤝 聋健互通</span>
-              </template>
-              <div class="space-y-3">
-                <div v-for="group in deafHearingGroups" :key="group.id" class="flex items-center space-x-3">
-                  <el-avatar :size="40" :src="group.avatar" :class="group.type === 'deaf' ? 'ring-2 ring-green-500' : 'ring-2 ring-blue-500'">
-                    {{ group.name.charAt(0) }}
-                  </el-avatar>
-                  <div class="flex-1">
-                    <div class="font-medium">{{ group.name }}</div>
-                    <div class="text-sm text-gray-500">{{ group.members }} 成员</div>
-                    <div class="text-xs text-gray-400">{{ group.description }}</div>
-                  </div>
-                  <el-button size="small" type="success" plain>加入</el-button>
                 </div>
               </div>
             </el-card>
@@ -213,13 +196,6 @@ export default {
       }
     ])
 
-    const leaderboard = ref([
-      { id: 1, name: '小明', points: 1250, avatar: '' },
-      { id: 2, name: '小红', points: 1180, avatar: '' },
-      { id: 3, name: '老师', points: 1100, avatar: '' },
-      { id: 4, name: '小李', points: 980, avatar: '' },
-      { id: 5, name: '小王', points: 850, avatar: '' }
-    ])
 
     const hotTopics = ref([
       { id: 1, name: '#手语字母学习', count: 156 },
@@ -232,10 +208,12 @@ export default {
       { id: 8, name: '#手语差异', count: 43 }
     ])
 
-    const studyGroups = ref([
-      { id: 1, name: '初学者互助组', members: 156, avatar: '' },
-      { id: 2, name: '中级进阶组', members: 89, avatar: '' },
-      { id: 3, name: '高级交流组', members: 45, avatar: '' }
+    const hotChatGroups = ref([
+      { id: 1, name: '手语日常对话', members: 234, activeToday: 45, avatar: '' },
+      { id: 2, name: 'AI翻译讨论组', members: 189, activeToday: 38, avatar: '' },
+      { id: 3, name: '聋人文化分享', members: 167, activeToday: 32, avatar: '' },
+      { id: 4, name: '手语学习打卡', members: 298, activeToday: 67, avatar: '' },
+      { id: 5, name: '新手指南群', members: 145, activeToday: 28, avatar: '' }
     ])
 
     const deafHearingGroups = ref([
@@ -256,15 +234,14 @@ export default {
     return {
       newPost,
       posts,
-      leaderboard,
       hotTopics,
-      studyGroups,
+      hotChatGroups,
       deafHearingGroups,
       publishPost
     }
   },
   mounted() {
-    document.title = '学习社区 - 手语教学平台'
+    document.title = '我的社区 - 手语教学平台'
   }
 }
 </script>
