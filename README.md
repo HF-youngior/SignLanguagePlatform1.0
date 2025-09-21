@@ -1,5 +1,5 @@
 # 手语教学平台 (Sign Language Learning Platform)
-
+1.0
 一个基于现代Web技术栈的手语教学平台，帮助用户学习手语、进行手语翻译和社区交流。
 
 ## 项目架构
