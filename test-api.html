@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API连接测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔌 手语识别API连接测试</h1>
+        
+        <h2>测试说明：</h2>
+        <ol>
+            <li>确保后端服务正在运行（端口5000）</li>
+            <li>点击下方按钮测试API连接</li>
+            <li>查看测试结果</li>
+        </ol>
+
+        <button onclick="testHealthAPI()">测试健康检查API</button>
+        <button onclick="testModelInfo()">测试模型信息API</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:5000/api';
+        
+        function showResult(message, isSuccess = true) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = isSuccess ? 'success' : 'error';
+            resultDiv.textContent = message;
+        }
+
+        async function testHealthAPI() {
+            showResult('正在测试健康检查API...', true);
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                if (!response.ok) {
+                    throw new Error(`HTTP错误! 状态: ${response.status}`);
+                }
+                const data = await response.json();
+                showResult(`✅ API连接成功！\n\n响应数据:\n${JSON.stringify(data, null, 2)}`, true);
+            } catch (error) {
+                showResult(`❌ API连接失败！\n\n错误信息:\n${error.message}\n\n请检查：\n1. 后端服务是否正在运行？\n2. 端口5000是否被占用？\n3. 防火墙是否阻止了连接？`, false);
+            }
+        }
+
+        async function testModelInfo() {
+            showResult('正在获取模型信息...', true);
+            try {
+                const response = await fetch(`${API_BASE}/models/info`);
+                if (!response.ok) {
+                    throw new Error(`HTTP错误! 状态: ${response.status}`);
+                }
+                const data = await response.json();
+                showResult(`✅ 模型信息获取成功！\n\n${JSON.stringify(data, null, 2)}`, true);
+            } catch (error) {
+                showResult(`❌ 获取模型信息失败！\n\n错误信息:\n${error.message}`, false);
+            }
+        }
+
+        // 页面加载时自动测试
+        window.onload = function() {
+            showResult('请点击按钮开始测试API连接...', true);
+        };
+    </script>
+</body>
+</html>

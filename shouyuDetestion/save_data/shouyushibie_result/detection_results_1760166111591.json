@@ -1,0 +1,14 @@
+[
+  {
+    "index": 1,
+    "className": "有",
+    "confidence": 93.85,
+    "coordinates": {
+      "xmax": 220,
+      "xmin": 61,
+      "ymax": 411,
+      "ymin": 312
+    },
+    "filePath": "blob"
+  }
+]
