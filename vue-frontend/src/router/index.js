@@ -5,6 +5,10 @@ import Translate from '@/views/Translate.vue'
 import Community from '@/views/Community.vue'
 import Profile from '@/views/Profile.vue'
 import PostDetail from '@/views/PostDetail.vue'
+import GroupChat from '@/views/GroupChat.vue'
+import ChatGroup from '@/views/ChatGroup.vue'
+import HashtagPage from '@/views/HashtagPage.vue'
+import PrivateChat from '@/views/PrivateChat.vue'
 
 const routes = [
   {
@@ -36,6 +40,31 @@ const routes = [
     path: '/post/:id',
     name: 'PostDetail',
     component: PostDetail
+  },
+  {
+    path: '/group-chat/:id',
+    name: 'GroupChat',
+    component: GroupChat
+  },
+  {
+    path: '/chat-group/:id',
+    name: 'ChatGroup',
+    component: ChatGroup
+  },
+  {
+    path: '/profile/:id',
+    name: 'UserProfile',
+    component: Profile
+  },
+  {
+    path: '/hashtag/:name',
+    name: 'HashtagPage',
+    component: HashtagPage
+  },
+  {
+    path: '/private-chat/:id',
+    name: 'PrivateChat',
+    component: PrivateChat
   }
 ]
 

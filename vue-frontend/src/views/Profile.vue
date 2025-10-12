@@ -55,7 +55,10 @@
                 </div>
               </div>
             </div>
-            <el-button type="primary" @click="editProfile">编辑资料</el-button>
+            <div class="flex flex-col space-y-2">
+              <el-button type="primary" @click="showEditDialog = true">编辑资料</el-button>
+              <el-button v-if="isOtherUser" type="success" @click="addFriend">添加好友</el-button>
+            </div>
           </div>
         </el-card>
 
@@ -130,7 +133,7 @@
                     </div>
                   </div>
                   <div class="flex space-x-2" @click.stop>
-                    <el-button size="small" type="primary" plain @click="viewPostDetail(post.id)">查看详情</el-button>
+                    <el-button size="small" type="primary" plain @click="goToPostDetail(post.id)">查看详情</el-button>
                     <el-button size="small" type="danger" plain>删除</el-button>
                   </div>
                 </div>
@@ -152,8 +155,8 @@
                     <span>{{ group.posts }} 帖子</span>
                   </div>
                   <div class="flex space-x-2">
-                    <el-button size="small" type="primary" plain>查看</el-button>
-                    <el-button size="small" type="danger" plain>退出</el-button>
+                    <el-button size="small" type="primary" plain @click="viewGroup(group)">查看</el-button>
+                    <el-button size="small" type="danger" plain @click="leaveGroup(group)">退出</el-button>
                   </div>
                 </div>
               </el-card>
@@ -182,8 +185,8 @@
                   </el-tag>
                   <p class="text-gray-600 text-sm mb-4">{{ friend.bio }}</p>
                   <div class="flex space-x-2">
-                    <el-button size="small" type="primary" plain>私聊</el-button>
-                    <el-button size="small" type="danger" plain>删除</el-button>
+                    <el-button size="small" type="primary" plain @click="chatWithFriend(friend)">私聊</el-button>
+                    <el-button size="small" type="danger" plain @click="deleteFriend(friend)">删除</el-button>
                   </div>
                 </div>
               </el-card>
@@ -216,19 +219,145 @@
         <p>&copy; 2025 手语教学平台. All rights reserved.</p>
       </div>
     </footer>
+
+    <!-- 编辑资料对话框 -->
+    <el-dialog v-model="showEditDialog" title="编辑资料" width="500px">
+      <el-form :model="editForm" label-width="80px">
+        <el-form-item label="昵称">
+          <el-input v-model="editForm.name" placeholder="请输入昵称"></el-input>
+        </el-form-item>
+        <el-form-item label="头像">
+          <div class="flex items-center space-x-4">
+            <el-avatar :size="60" :src="editForm.avatar">{{ editForm.name.charAt(0) }}</el-avatar>
+            <input type="file" accept="image/*" @change="handleAvatarUpload" class="hidden" ref="avatarInput">
+            <el-button @click="$refs.avatarInput.click()">上传头像</el-button>
+          </div>
+        </el-form-item>
+        <el-form-item label="个人简介">
+          <el-input v-model="editForm.bio" type="textarea" :rows="3" placeholder="请输入个人简介"></el-input>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="showEditDialog = false">取消</el-button>
+          <el-button type="primary" @click="saveEdit">保存</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
+    <!-- 通知详情对话框 -->
+    <el-dialog v-model="showNotificationDialog" :title="notificationType === 'likes' ? '赞和评论' : '好友信息'" width="600px">
+      <div v-if="notificationType === 'likes'" class="space-y-4">
+        <div v-for="item in likeComments" :key="item.id" class="flex items-start space-x-3 p-3 border rounded-lg">
+          <el-avatar :size="40" :src="item.avatar">{{ item.username.charAt(0) }}</el-avatar>
+          <div class="flex-1">
+            <div class="flex items-center space-x-2 mb-1">
+              <span class="font-medium">{{ item.username }}</span>
+              <el-tag size="small" :type="item.type === 'like' ? 'danger' : 'primary'">
+                {{ item.type === 'like' ? '点赞' : '评论' }}
+              </el-tag>
+              <span class="text-sm text-gray-500">{{ item.time }}</span>
+            </div>
+            <p class="text-gray-700 text-sm mb-1">{{ item.targetPost }}</p>
+            <p v-if="item.commentContent" class="text-blue-600 text-sm">{{ item.commentContent }}</p>
+            <el-button size="small" type="primary" plain @click="goToPostDetail(item.targetPostId)">查看帖子</el-button>
+          </div>
+        </div>
+      </div>
+      <div v-else-if="notificationType === 'friends'" class="space-y-4">
+        <div v-for="item in friendMessages" :key="item.id" class="flex items-start space-x-3 p-3 border rounded-lg">
+          <el-avatar :size="40" :src="item.avatar">{{ item.username.charAt(0) }}</el-avatar>
+          <div class="flex-1">
+            <div class="flex items-center space-x-2 mb-1">
+              <span class="font-medium">{{ item.username }}</span>
+              <span class="text-sm text-gray-500">{{ item.time }}</span>
+            </div>
+            <p class="text-gray-700 text-sm">{{ item.message }}</p>
+            <el-button size="small" type="primary" plain @click="chatWithFriend({id: item.userId, name: item.username})">回复消息</el-button>
+          </div>
+        </div>
+      </div>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="showNotificationDialog = false">关闭</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
+    <!-- 创建群聊对话框 -->
+    <el-dialog v-model="showCreateGroupDialog" title="创建新的群聊" width="600px">
+      <el-form :model="createGroupForm" label-width="80px">
+        <el-form-item label="群名称" required>
+          <el-input 
+            v-model="createGroupForm.name" 
+            placeholder="请输入群名称（限20字符）"
+            maxlength="20"
+            show-word-limit
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="群公告">
+          <el-input 
+            v-model="createGroupForm.announcement" 
+            type="textarea" 
+            :rows="3"
+            placeholder="请输入群公告（可选）"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="邀请好友">
+          <div class="max-h-48 overflow-y-auto border rounded p-3">
+            <div v-for="friend in myFriends" :key="friend.id" class="flex items-center space-x-3 mb-2">
+              <el-checkbox 
+                v-model="createGroupForm.selectedFriends" 
+                :label="friend.id"
+              ></el-checkbox>
+              <el-avatar :size="30" :src="friend.avatar">{{ friend.name.charAt(0) }}</el-avatar>
+              <span class="font-medium">{{ friend.name }}</span>
+              <el-tag size="small" :type="friend.level === '初级' ? 'info' : friend.level === '中级' ? 'warning' : 'success'">
+                {{ friend.level }}
+              </el-tag>
+            </div>
+          </div>
+          <div class="text-sm text-gray-500 mt-2">
+            已选择 {{ createGroupForm.selectedFriends.length }} 位好友
+          </div>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="cancelCreateGroup">取消</el-button>
+          <el-button type="primary" @click="createGroup">创建群聊</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ref, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 export default {
   name: 'Profile',
   setup() {
     const router = useRouter()
+    const route = useRoute()
     const activeTab = ref('posts')
+    const showEditDialog = ref(false)
+    const showNotificationDialog = ref(false)
+    const showCreateGroupDialog = ref(false)
+    const notificationType = ref('')
+    const isOtherUser = ref(false)
+    const editForm = ref({
+      name: '',
+      bio: '',
+      avatar: ''
+    })
+    const createGroupForm = ref({
+      name: '',
+      announcement: '',
+      selectedFriends: []
+    })
 
     const userInfo = ref({
       name: '张三',
@@ -400,6 +529,50 @@ export default {
       friendMessages: 4
     })
 
+    // 详细的通知数据
+    const likeComments = ref([
+      {
+        id: 1,
+        userId: 1,
+        username: '小明',
+        avatar: '',
+        type: 'like',
+        time: '2小时前',
+        targetPost: '今天学会了"你好"的手语表达',
+        targetPostId: 1
+      },
+      {
+        id: 2,
+        userId: 2,
+        username: '小红',
+        avatar: '',
+        type: 'comment',
+        time: '1小时前',
+        targetPost: '分享一个学习心得',
+        targetPostId: 2,
+        commentContent: '很棒的建议！我也要试试'
+      }
+    ])
+
+    const friendMessages = ref([
+      {
+        id: 1,
+        userId: 1,
+        username: '小明',
+        avatar: '',
+        time: '30分钟前',
+        message: '你好！我想请教一下手语学习的方法'
+      },
+      {
+        id: 2,
+        userId: 2,
+        username: '小红',
+        avatar: '',
+        time: '2小时前',
+        message: '谢谢你的分享，很有帮助！'
+      }
+    ])
+
     const getPrivacyType = (privacy) => {
       switch (privacy) {
         case 'public': return 'success'
@@ -424,16 +597,9 @@ export default {
     }
 
     const createNewGroup = () => {
-      ElMessage.info('创建群聊功能开发中...')
+      showCreateGroupDialog.value = true
     }
 
-    const showNotifications = (type) => {
-      if (type === 'likes') {
-        ElMessage.info('查看赞和评论详情功能开发中...')
-      } else if (type === 'friends') {
-        ElMessage.info('查看好友信息详情功能开发中...')
-      }
-    }
 
     const markAllAsRead = () => {
       notifications.value = {
@@ -445,25 +611,201 @@ export default {
       ElMessage.success('已标记所有消息为已读')
     }
 
+    // 编辑资料功能
     const editProfile = () => {
-      ElMessage.info('编辑资料功能开发中...')
+      showEditDialog.value = true
+      editForm.value = {
+        name: userInfo.value.name,
+        bio: userInfo.value.bio,
+        avatar: userInfo.value.avatar
+      }
     }
+
+    // 保存编辑
+    const saveEdit = () => {
+      userInfo.value.name = editForm.value.name
+      userInfo.value.bio = editForm.value.bio
+      userInfo.value.avatar = editForm.value.avatar
+      showEditDialog.value = false
+      ElMessage.success('资料更新成功！')
+    }
+
+    // 头像上传
+    const handleAvatarUpload = (event) => {
+      const file = event.target.files[0]
+      if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          editForm.value.avatar = e.target.result
+        }
+        reader.readAsDataURL(file)
+      }
+    }
+
+    // 添加好友
+    const addFriend = () => {
+      ElMessageBox.confirm(
+        `确定要添加 ${userInfo.value.name} 为好友吗？`,
+        '添加好友',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'info',
+        }
+      ).then(() => {
+        ElMessage.success('好友请求已发送！')
+      }).catch(() => {
+        ElMessage.info('已取消')
+      })
+    }
+
+    // 显示通知详情
+    const showNotifications = (type) => {
+      notificationType.value = type
+      showNotificationDialog.value = true
+    }
+
+    // 退出群聊
+    const leaveGroup = (group) => {
+      ElMessageBox.confirm(
+        `确定要退出群聊"${group.name}"吗？`,
+        '退出群聊',
+        {
+          confirmButtonText: '是',
+          cancelButtonText: '否',
+          type: 'warning',
+        }
+      ).then(() => {
+        myGroups.value = myGroups.value.filter(g => g.id !== group.id)
+        userInfo.value.groups -= 1
+        ElMessage.success('已退出群聊')
+      }).catch(() => {
+        ElMessage.info('已取消')
+      })
+    }
+
+    // 查看群聊
+    const viewGroup = (group) => {
+      router.push(`/chat-group/${group.id}`)
+    }
+
+    // 私聊好友
+    const chatWithFriend = (friend) => {
+      router.push(`/private-chat/${friend.id}`)
+    }
+
+    // 删除好友
+    const deleteFriend = (friend) => {
+      ElMessageBox.confirm(
+        `确定要删除好友"${friend.name}"吗？`,
+        '删除好友',
+        {
+          confirmButtonText: '是',
+          cancelButtonText: '否',
+          type: 'warning',
+        }
+      ).then(() => {
+        myFriends.value = myFriends.value.filter(f => f.id !== friend.id)
+        userInfo.value.friends -= 1
+        ElMessage.success('已删除好友')
+      }).catch(() => {
+        ElMessage.info('已取消')
+      })
+    }
+
+    // 跳转到帖子详情
+    const goToPostDetail = (postId) => {
+      router.push(`/post/${postId}`)
+    }
+
+    // 创建群聊
+    const createGroup = () => {
+      if (createGroupForm.value.name.trim()) {
+        const newGroup = {
+          id: Date.now(),
+          name: createGroupForm.value.name,
+          description: createGroupForm.value.announcement || '暂无群公告',
+          members: createGroupForm.value.selectedFriends.length + 1, // +1 for creator
+          posts: 0,
+          avatar: ''
+        }
+        
+        myGroups.value.push(newGroup)
+        userInfo.value.groups += 1
+        
+        // 重置表单
+        createGroupForm.value = {
+          name: '',
+          announcement: '',
+          selectedFriends: []
+        }
+        
+        showCreateGroupDialog.value = false
+        ElMessage.success('群聊创建成功！')
+        
+        // 跳转到新创建的群聊
+        router.push(`/chat-group/${newGroup.id}`)
+      } else {
+        ElMessage.warning('请输入群名称')
+      }
+    }
+
+    // 取消创建群聊
+    const cancelCreateGroup = () => {
+      createGroupForm.value = {
+        name: '',
+        announcement: '',
+        selectedFriends: []
+      }
+      showCreateGroupDialog.value = false
+    }
+
+    onMounted(() => {
+      // 检查是否是其他用户的个人主页
+      const userId = route.params.id
+      if (userId && userId !== 'me') {
+        isOtherUser.value = true
+        // 这里可以根据userId加载其他用户的信息
+        document.title = `${userInfo.value.name}的个人主页 - 手语教学平台`
+      } else {
+        document.title = '我的主页 - 手语教学平台'
+      }
+    })
 
     return {
       activeTab,
+      showEditDialog,
+      showNotificationDialog,
+      showCreateGroupDialog,
+      notificationType,
+      isOtherUser,
+      editForm,
+      createGroupForm,
       userInfo,
       myPosts,
       myGroups,
       myFriends,
       achievements,
       notifications,
+      likeComments,
+      friendMessages,
       getPrivacyType,
       getPrivacyText,
       viewPostDetail,
       createNewGroup,
       showNotifications,
       markAllAsRead,
-      editProfile
+      editProfile,
+      saveEdit,
+      handleAvatarUpload,
+      addFriend,
+      leaveGroup,
+      viewGroup,
+      chatWithFriend,
+      deleteFriend,
+      goToPostDetail,
+      createGroup,
+      cancelCreateGroup
     }
   },
   mounted() {
