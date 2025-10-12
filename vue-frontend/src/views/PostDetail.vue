@@ -55,10 +55,6 @@
                   <el-icon><Like /></el-icon>
                   <span>{{ post.likes }} 点赞</span>
                 </div>
-                <div class="flex items-center space-x-2 cursor-pointer hover:text-green-600">
-                  <el-icon><Share /></el-icon>
-                  <span>分享</span>
-                </div>
                 <div class="flex items-center space-x-2 cursor-pointer hover:text-purple-600" @click="showPrivacyMenu = !showPrivacyMenu">
                   <el-icon><Setting /></el-icon>
                   <span>权限设置</span>
