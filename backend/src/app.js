@@ -16,6 +16,9 @@ import userRoutes from './routes/user.js';
 import learningRoutes from './routes/learning.js';
 import translationRoutes from './routes/translation.js';
 import communityRoutes from './routes/community.js';
+import signLetterRoutes from './routes/signLetter.js';
+import quizRoutes from './routes/quiz.js';
+import fingerSignRoutes from './routes/fingerSign.js';
 
 // 导入中间件
 import { errorHandler } from './middleware/errorHandler.js';
@@ -94,6 +97,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // 静态文件服务
 app.use('/uploads', express.static('uploads'));
+app.use('/images', express.static('public/images'));
 
 // 健康检查端点
 app.get('/health', (req, res) => {
@@ -111,6 +115,9 @@ app.use('/api/users', userRoutes);
 app.use('/api/learning', learningRoutes);
 app.use('/api/translation', translationRoutes);
 app.use('/api/community', communityRoutes);
+app.use('/api/sign-letters', signLetterRoutes);
+app.use('/api/quiz', quizRoutes);
+app.use('/api/quiz', fingerSignRoutes);
 
 // API文档端点
 app.get('/api', (req, res) => {
@@ -122,7 +129,10 @@ app.get('/api', (req, res) => {
       users: '/api/users',
       learning: '/api/learning',
       translation: '/api/translation',
-      community: '/api/community'
+      community: '/api/community',
+      signLetters: '/api/sign-letters',
+      quiz: '/api/quiz',
+      fingerSigns: '/api/quiz/finger-signs'
     },
     documentation: '/api/docs'
   });

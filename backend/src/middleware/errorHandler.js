@@ -33,6 +33,18 @@ export const errorHandler = (err, req, res, next) => {
     const message = '令牌已过期';
     error = { message, statusCode: 401 };
   }
+  
+  // 数据库连接错误
+  if (err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND') {
+    const message = '数据库服务不可用，请稍后再试';
+    error = { message, statusCode: 503 };
+  }
+  
+  // 数据库查询超时
+  if (err.code === 'ETIMEDOUT') {
+    const message = '数据库查询超时，请稍后再试';
+    error = { message, statusCode: 504 };
+  }
 
   res.status(error.statusCode || 500).json({
     success: false,

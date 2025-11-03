@@ -43,7 +43,7 @@
           <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">📖 核心学习模块</h2>
           <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <!-- 手语基础（合并字母和数字） -->
-            <el-card shadow="hover" class="cursor-pointer">
+            <el-card shadow="hover" class="cursor-pointer" @click="goToBasicSignLearning">
               <div class="text-center">
                 <div class="text-6xl mb-4">🔤</div>
                 <h3 class="text-xl font-bold mb-2">手语基础</h3>
@@ -192,6 +192,11 @@ export default {
   name: 'Learn',
   mounted() {
     document.title = '手语学习中心 - 手语教学平台'
+  },
+  methods: {
+    goToBasicSignLearning() {
+      this.$router.push('/learn/basic-sign')
+    }
   }
 }
 </script>
