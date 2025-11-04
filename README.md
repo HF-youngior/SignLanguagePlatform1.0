@@ -1,267 +1,281 @@
 # 手语教学平台 (Sign Language Learning Platform)
-1.0
-一个基于现代Web技术栈的手语教学平台，帮助用户学习手语、进行手语翻译和社区交流。
 
-## 项目架构
+一个基于现代Web技术栈的手语教学平台，提供手语学习、实时识别翻译和社区交流功能。
+
+## 📋 项目概述
+
+本项目采用微服务架构，集成基于YOLOv8的手语识别技术，为聋人群体和手语学习者提供全面的手语教学与交流服务。
+
+**核心特性**：
+- 🤖 基于YOLOv8的实时手语识别（支持35个手语类别）
+- 🎓 完整的手语学习管理系统
+- 💬 社区交流与分享平台
+- 🔄 图片/视频/摄像头实时检测
+- 🌐 前后端分离的微服务架构
+- 📱 响应式设计，支持多设备访问
+
+## 🏗️ 项目架构
 
 ```
-SignLanguagePlatform/
-├── frontend/                    # Vue.js/Nuxt.js 前端项目
-├── backend/                     # Node.js/Express 主后端
-├── ai-service/                  # Python/FastAPI AI微服务
-├── docker-compose.yml           # 容器化部署配置文件
-└── README.md                    # 项目说明
+SignLanguagePlatform1.0/
+├── vue-frontend/              # Vue.js 3 前端应用
+│   ├── src/
+│   │   ├── views/            # 页面组件
+│   │   │   ├── Home.vue      # 首页
+│   │   │   ├── Learn.vue     # 学习模块
+│   │   │   ├── Translate.vue # 翻译模块
+│   │   │   └── Community.vue # 社区模块
+│   │   ├── router/           # 路由配置
+│   │   ├── services/         # API服务
+│   │   └── assets/           # 静态资源
+│   └── package.json
+├── backend/                   # Node.js/Express 后端API
+│   ├── src/
+│   │   ├── controllers/      # 控制器
+│   │   ├── models/           # 数据模型
+│   │   ├── routes/           # 路由定义
+│   │   ├── middleware/       # 中间件
+│   │   └── config/           # 配置文件
+│   └── package.json
+├── shouyuDetestion/          # Python/Flask AI服务
+│   ├── backend_api/
+│   │   ├── app.py           # Flask API服务
+│   │   └── websocket_handler.py
+│   ├── models/              # YOLOv8模型文件
+│   │   ├── shouyushibie_0921best.pt
+│   │   └── shouyushibie_best.pt
+│   ├── Config.py            # 模型配置
+│   ├── detect_tools.py      # 检测工具
+│   └── requirements.txt
+├── docker-compose.yml        # Docker编排配置
+├── start-translation-system.bat  # Windows启动脚本
+└── start-translation-system.sh   # Linux/Mac启动脚本
 ```
 
-## 技术栈
+## 🛠️ 技术栈
 
 ### 前端
-- **Vue.js 3** - 渐进式JavaScript框架
-- **Nuxt.js 4** - Vue.js全栈框架
-- **TypeScript** - 类型安全的JavaScript
-- **Tailwind CSS** - 实用优先的CSS框架
+- **Vue.js 3** (3.4.0) - 渐进式JavaScript框架
+- **Vue Router** (4.2.5) - 路由管理
+- **Element Plus** (2.4.4) - UI组件库
+- **Pinia** (2.1.7) - 状态管理
+- **Tailwind CSS** (3.4.0) - 样式框架
+- **Vite** (5.0.8) - 构建工具
 
 ### 后端
-- **Node.js** - JavaScript运行时
-- **Express.js** - Web应用框架
-- **MongoDB** - NoSQL数据库
-- **JWT** - 身份验证
+- **Node.js** (18+) - JavaScript运行时
+- **Express.js** (4.18.2) - Web应用框架
+- **MongoDB** (5.0+) - NoSQL数据库
+- **Mongoose** (8.0.3) - MongoDB对象建模
+- **JWT** (9.0.2) - 身份验证
+- **Socket.IO** (4.7.4) - 实时通信
 
 ### AI服务
-- **Python 3.9+** - 编程语言
-- **FastAPI** - 现代Python Web框架
-- **OpenCV** - 计算机视觉库
-- **MediaPipe** - 手部检测和跟踪
-- **TensorFlow/PyTorch** - 机器学习框架
+- **Python** (3.9+) - 编程语言
+- **Flask** (2.3.0+) - Web框架
+- **YOLOv8** (Ultralytics 8.0.0+) - 目标检测模型
+- **PyTorch** (1.9.0+) - 深度学习框架
+- **OpenCV** (4.8.1) - 计算机视觉库
 
-## 功能特性
+## ✨ 功能模块
 
 ### 🎓 学习模块
-- 手语字母和词汇学习
-- 交互式手语练习
+- 手语词汇学习
+- 交互式练习
 - 学习进度跟踪
 - 个性化学习路径
 
 ### 🔄 翻译模块
-- 实时手语识别
-- 手语到文字翻译
-- 文字到手语转换
-- 翻译历史记录
+- **图片检测** - 上传图片进行手语识别
+- **视频检测** - 处理视频文件逐帧识别
+- **实时检测** - 摄像头实时手语识别
+- 翻译结果可视化
+- 检测历史记录
 
 ### 👥 社区模块
 - 用户交流论坛
 - 学习经验分享
-- 手语视频分享
-- 专家答疑
+- 帖子发布与评论
+- 点赞与互动功能
+- 标签系统
+
+### 🏠 首页
+- 平台介绍
+- 功能导航
+- Logo与品牌展示
 
 ## 🚀 快速开始
 
-### 📋 系统环境要求
+### 环境要求
 
-#### 基础环境
-- **Node.js**: 18.0.0+ (推荐使用 LTS 版本)
-- **Python**: 3.9+ (推荐 3.9-3.11)
-- **MongoDB**: 5.0+ (或使用 Docker)
+- **Node.js**: 18.0.0+ (推荐LTS版本)
+- **Python**: 3.9+ (推荐3.9-3.11)
+- **MongoDB**: 5.0+ (或使用Docker)
 - **Git**: 最新版本
 
-#### 可选环境
-- **Docker**: 20.0+ (用于容器化部署)
-- **Docker Compose**: 2.0+ (用于多服务编排)
+### 安装步骤
 
-### 🔧 完整环境配置指南
+#### 1. 克隆项目
 
-#### 1. 前端服务 (Vue.js)
-**位置**: `vue-frontend/` 和 `frontend/`
+```bash
+git clone <repository-url>
+cd SignLanguagePlatform1.0
+```
 
-**依赖安装**:
+#### 2. 安装前端依赖
+
 ```bash
 cd vue-frontend
 npm install
 ```
 
-**主要依赖**:
-- Vue 3.4.0+
-- Vue Router 4.2.5+
-- Element Plus 2.4.4+
-- Vite 5.0.8+
-- Tailwind CSS 3.4.0+
-- Pinia 2.1.7+
+#### 3. 安装后端依赖
 
-#### 2. 后端服务 (Node.js/Express)
-**位置**: `backend/`
-
-**依赖安装**:
 ```bash
-cd backend
+cd ../backend
 npm install
 ```
 
-**主要依赖**:
-- Express 4.18.2+
-- Mongoose 8.0.3+
-- JWT 9.0.2+
-- Socket.IO 4.7.4+
-- CORS, Helmet, Morgan 等安全中间件
+#### 4. 安装AI服务依赖
 
-#### 3. AI服务 (Python/FastAPI)
-**位置**: `ai-service/`
-
-**环境配置**:
 ```bash
-cd ai-service
-python -m venv .venv
-# Windows
-.venv\Scripts\activate
-# Linux/Mac
-source .venv/bin/activate
+cd ../shouyuDetestion
 pip install -r requirements.txt
 ```
 
-**主要依赖**:
-- FastAPI 0.104.1+
-- OpenCV 4.8.1+
-- MediaPipe 0.10.7+
-- PyTorch 2.1.1+
-- TensorFlow 2.15.0+
-- NumPy, Pandas, Matplotlib 等数据处理库
+#### 5. 配置环境变量
 
-#### 4. 手语检测模块 (Python/Flask)
-**位置**: `shouyuDetestion/`
-
-**环境配置**:
-```bash
-cd shouyuDetestion
-# 推荐使用 Anaconda
-conda create -n py39 python=3.9
-conda activate py39
-pip install -r requirements.txt
-```
-
-**主要依赖**:
-- Flask 2.3.0+
-- OpenCV 4.8.0+
-- Ultralytics 8.0.0+
-- PyTorch 2.0.0+
-- PyQt5 5.15.2+ (GUI界面)
-
-### 🗄️ 数据库配置
-
-#### MongoDB 配置
-```bash
-# 使用 Docker (推荐)
-docker run -d --name mongodb -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD=password123 mongo:7.0
-
-# 或本地安装 MongoDB
-# Windows: 下载 MongoDB Community Server
-# Linux: sudo apt-get install mongodb
-# Mac: brew install mongodb-community
-```
-
-### 📁 环境变量配置
-
-#### 后端环境变量 (`backend/.env`)
+**后端环境变量** (`backend/.env`):
 ```env
 NODE_ENV=development
 PORT=8000
 MONGODB_URI=mongodb://localhost:27017/signlanguage
 JWT_SECRET=your-super-secret-jwt-key-here
-AI_SERVICE_URL=http://localhost:8001
+FRONTEND_URL=http://localhost:5173
 ```
 
-#### AI服务环境变量 (`ai-service/.env`)
-```env
-ENVIRONMENT=development
-PORT=8001
-ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8000
+**AI服务配置** (`shouyuDetestion/Config.py`):
+- 模型文件路径已配置为 `models/shouyushibie_0921best.pt`
+- 无需额外配置，确保模型文件存在于 `shouyuDetestion/models/` 目录
+
+#### 6. 启动MongoDB
+
+```bash
+# 使用Docker (推荐)
+docker run -d --name mongodb -p 27017:27017 \
+  -e MONGO_INITDB_ROOT_USERNAME=admin \
+  -e MONGO_INITDB_ROOT_PASSWORD=password123 \
+  mongo:7.0
+
+# 或本地安装的MongoDB
+# Windows: 启动MongoDB服务
+# Linux: sudo systemctl start mongod
+# Mac: brew services start mongodb-community
 ```
 
-### 🚀 启动方式
+### 启动方式
 
 #### 方式1: 使用启动脚本 (推荐)
-```bash
-# Windows
-start-dev.bat
 
-# Linux/Mac
-./start-dev.sh
+**Windows**:
+```bash
+start-translation-system.bat
 ```
 
-#### 方式2: Docker 部署
+**Linux/Mac**:
 ```bash
-docker-compose up -d
+chmod +x start-translation-system.sh
+./start-translation-system.sh
 ```
 
-#### 方式3: 手动启动
+#### 方式2: 手动启动
+
+**终端1 - 启动AI服务**:
 ```bash
-# 1. 启动前端
-cd vue-frontend && npm run dev
-
-# 2. 启动后端
-cd backend && npm run dev
-
-# 3. 启动AI服务
-cd ai-service && source .venv/bin/activate && python main.py
-
-# 4. 启动手语检测服务
-cd shouyuDetestion/backend_api && python app.py
+cd shouyuDetestion/backend_api
+python app.py
 ```
+服务运行在: http://localhost:5000
+
+**终端2 - 启动后端API**:
+```bash
+cd backend
+npm run dev
+```
+服务运行在: http://localhost:8000
+
+**终端3 - 启动前端**:
+```bash
+cd vue-frontend
+npm run dev
+```
+服务运行在: http://localhost:5173
 
 ### 🔍 服务端口说明
 
-- **前端**: http://localhost:3000
-- **后端API**: http://localhost:8000
-- **AI服务**: http://localhost:8001
-- **手语检测**: http://localhost:5000
-- **MongoDB**: localhost:27017
+| 服务 | 端口 | 访问地址 |
+|------|------|----------|
+| 前端 | 5173 | http://localhost:5173 |
+| 后端API | 8000 | http://localhost:8000 |
+| AI服务 | 5000 | http://localhost:5000 |
+| MongoDB | 27017 | localhost:27017 |
 
-### ⚠️ 常见问题解决
+### ✅ 验证安装
 
-#### 1. Python环境冲突
-```bash
-# 使用虚拟环境隔离
-python -m venv .venv
-source .venv/bin/activate  # Linux/Mac
-.venv\Scripts\activate     # Windows
-```
-
-#### 2. Node.js版本问题
-```bash
-# 使用 nvm 管理 Node.js 版本
-nvm install 18
-nvm use 18
-```
-
-#### 3. 依赖安装失败
-```bash
-# 清理缓存重新安装
-npm cache clean --force
-rm -rf node_modules package-lock.json
-npm install
-```
-
-#### 4. 模型文件缺失
-确保以下模型文件存在：
-- `shouyuDetestion/models/shouyushibie_0921best.pt`
-- `shouyuDetestion/models/shouyushibie_best.pt`
-
-### 🎯 验证安装成功
-
-1. **检查服务状态**:
-   - 前端: http://localhost:3000
-   - 后端健康检查: http://localhost:8000/health
-   - AI服务健康检查: http://localhost:8001/health
-   - 手语检测: http://localhost:5000/api/health
-
-2. **测试API连接**:
+1. **检查AI服务**:
    ```bash
-   # 测试后端连接
+   curl http://localhost:5000/api/health
+   ```
+   应返回: `{"status":"ok","message":"手语翻译系统运行正常","model_loaded":true}`
+
+2. **检查后端API**:
+   ```bash
    curl http://localhost:8000/health
-   
-   # 测试AI服务连接
-   curl http://localhost:8001/health
    ```
 
-### Docker部署
+3. **访问前端**: 打开浏览器访问 http://localhost:5173
+
+## 📖 API文档
+
+### AI服务API (端口: 5000)
+
+- `GET /api/health` - 健康检查
+- `POST /api/detect/image` - 图片检测
+  - 请求: `multipart/form-data` 包含 `image` 文件
+  - 返回: 检测结果JSON数组
+- `POST /api/detect/video` - 视频检测
+  - 请求: `multipart/form-data` 包含 `video` 文件
+  - 返回: 处理后的视频文件路径
+- `POST /api/detect/camera` - 摄像头实时检测 (WebSocket)
+
+### 后端API (端口: 8000)
+
+- `GET /health` - 健康检查
+- `POST /api/auth/register` - 用户注册
+- `POST /api/auth/login` - 用户登录
+- `GET /api/users/profile` - 获取用户资料
+- `GET /api/learning/lessons` - 获取课程列表
+- `GET /api/community/posts` - 获取社区帖子
+
+## 🗄️ 数据库配置
+
+项目使用MongoDB存储用户数据、学习记录和社区内容。
+
+### MongoDB连接
+
+在 `backend/.env` 中配置:
+```env
+MONGODB_URI=mongodb://localhost:27017/signlanguage
+```
+
+或使用带认证的连接:
+```env
+MONGODB_URI=mongodb://username:password@localhost:27017/signlanguage?authSource=admin
+```
+
+详细配置说明请参考: [数据库连接说明.md](./数据库连接说明.md)
+
+## 🐳 Docker部署
 
 ```bash
 # 构建并启动所有服务
@@ -270,23 +284,62 @@ docker-compose up -d
 # 查看服务状态
 docker-compose ps
 
+# 查看日志
+docker-compose logs -f
+
 # 停止服务
 docker-compose down
 ```
 
-## 开发指南
+## ⚠️ 常见问题
 
-### 项目结构说明
+### 1. Python环境问题
 
-- `frontend/` - 前端Vue.js/Nuxt.js应用
-- `backend/` - 主后端API服务
-- `ai-service/` - AI手语识别和翻译服务
-- `docker-compose.yml` - 容器编排配置
+```bash
+# 推荐使用虚拟环境
+python -m venv .venv
+source .venv/bin/activate  # Linux/Mac
+.venv\Scripts\activate     # Windows
+pip install -r requirements.txt
+```
 
-### API文档
+### 2. 模型文件缺失
 
-- 后端API: http://localhost:8000/api/docs
-- AI服务API: http://localhost:8001/docs
+确保以下模型文件存在:
+- `shouyuDetestion/models/shouyushibie_0921best.pt`
+- `shouyuDetestion/models/shouyushibie_best.pt`
+
+### 3. Node.js版本问题
+
+```bash
+# 使用nvm管理Node.js版本
+nvm install 18
+nvm use 18
+```
+
+### 4. 依赖安装失败
+
+```bash
+# 清理缓存重新安装
+npm cache clean --force
+rm -rf node_modules package-lock.json
+npm install
+```
+
+### 5. 端口被占用
+
+如果端口被占用，可以修改:
+- 前端端口: `vue-frontend/vite.config.js`
+- 后端端口: `backend/.env` 中的 `PORT`
+- AI服务端口: `shouyuDetestion/backend_api/app.py` 中的 `app.run()`
+
+## 📚 相关文档
+
+- [项目介绍](./PROJECT_INTRODUCTION.md) - 详细的项目说明
+- [项目总结](./PROJECT_SUMMARY.md) - 项目总结文档
+- [技术攻关报告](./项目技术攻关与难点分析报告.md) - 技术难点与解决方案
+- [翻译功能配置](./翻译功能配置说明.md) - 翻译模块配置说明
+- [数据库连接说明](./数据库连接说明.md) - 数据库配置详细说明
 
 ## 🔀 Git 协作教程
 
@@ -419,7 +472,7 @@ git pull origin <branch>   # 拉取并合并远程分支
 4. **冲突处理**: 遇到冲突时仔细检查，确保不丢失重要代码
 5. **备份重要修改**: 在重大操作前先备份或创建分支
 
-## 贡献指南
+## 🤝 贡献指南
 
 1. Fork 项目
 2. 创建功能分支 (`git checkout -b feature/AmazingFeature`)
@@ -427,13 +480,13 @@ git pull origin <branch>   # 拉取并合并远程分支
 4. 推送到分支 (`git push origin feature/AmazingFeature`)
 5. 打开 Pull Request
 
-## 许可证
+## 📄 许可证
 
 本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
 
-## 联系方式
+## 📮 联系方式
 
-- 项目链接: [https://github.com/your-username/SignLanguagePlatform](https://github.com/your-username/SignLanguagePlatform)
+- 项目链接: [GitHub Repository](https://github.com/your-username/SignLanguagePlatform)
 - 问题反馈: [Issues](https://github.com/your-username/SignLanguagePlatform/issues)
 
 ---

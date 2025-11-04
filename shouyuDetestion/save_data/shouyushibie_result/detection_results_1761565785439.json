@@ -1,0 +1,14 @@
+[
+  {
+    "index": 1,
+    "className": "茶",
+    "confidence": 92.38,
+    "coordinates": {
+      "xmax": 484,
+      "xmin": 214,
+      "ymax": 338,
+      "ymin": 114
+    },
+    "filePath": "blob"
+  }
+]

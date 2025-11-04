@@ -32,33 +32,33 @@ services:
       PORT: 8000
       MONGODB_URI: mongodb://admin:password123@mongodb:27017/signlanguage?authSource=admin
       JWT_SECRET: your-super-secret-jwt-key
-      AI_SERVICE_URL: http://ai-service:8001
+      # AI_SERVICE_URL: http://ai-service:8001  # 已注释
     depends_on:
       - mongodb
-      - ai-service
+      # - ai-service  # 已注释
     volumes:
       - ./backend:/app
       - /app/node_modules
     networks:
       - signlang-network
 
-  # AI 微服务
-  ai-service:
-    build:
-      context: ./ai-service
-      dockerfile: Dockerfile
-    container_name: signlang-ai-service
-    restart: unless-stopped
-    ports:
-      - "8001:8001"
-    environment:
-      PYTHONPATH: /app
-      MODEL_PATH: /app/models
-    volumes:
-      - ./ai-service:/app
-      - ai_models:/app/models
-    networks:
-      - signlang-network
+  # AI 微服务 (已注释 - 当前使用 shouyuDetestion/backend_api)
+  # ai-service:
+  #   build:
+  #     context: ./ai-service
+  #     dockerfile: Dockerfile
+  #   container_name: signlang-ai-service
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8001:8001"
+  #   environment:
+  #     PYTHONPATH: /app
+  #     MODEL_PATH: /app/models
+  #   volumes:
+  #     - ./ai-service:/app
+  #     - ai_models:/app/models
+  #   networks:
+  #     - signlang-network
 
   # 前端应用
   frontend:
@@ -94,15 +94,15 @@ services:
     depends_on:
       - frontend
       - backend
-      - ai-service
+      # - ai-service  # 已注释
     networks:
       - signlang-network
 
 volumes:
   mongodb_data:
     driver: local
-  ai_models:
-    driver: local
+  # ai_models:  # 已注释
+  #   driver: local
 
 networks:
   signlang-network:

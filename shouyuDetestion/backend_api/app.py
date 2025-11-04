@@ -202,6 +202,8 @@ def detect_video():
         # 清理临时文件
         os.remove(temp_video_path)
         
+        # 不返回整个视频，只返回检测结果和输出路径
+        # 如果需要观看处理后的视频，可以通过 /api/download/<filename> 下载
         return jsonify({
             'success': True,
             'total_frames': frame_idx,
@@ -209,7 +211,8 @@ def detect_video():
             'duration': frame_idx / fps,
             'detections': all_detections,
             'frame_detections': frame_detections,
-            'output_video': output_path
+            'output_video_path': output_path,
+            'original_filename': file.filename
         })
         
     except Exception as e:

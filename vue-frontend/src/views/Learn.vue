@@ -1,16 +1,19 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen animated-gradient">
     <!-- 导航栏 -->
-    <nav class="bg-white shadow-md">
+    <nav class="backdrop-blur-md bg-white/70 shadow-lg">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center">
-            <router-link to="/" class="text-2xl font-bold text-blue-600">手语教学平台</router-link>
+            <router-link to="/" class="text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
+              👋 手语教学平台
+            </router-link>
           </div>
           <div class="flex items-center space-x-4">
-            <router-link to="/" class="text-gray-600 hover:text-blue-600">首页</router-link>
-            <router-link to="/translate" class="text-gray-600 hover:text-blue-600">翻译</router-link>
-            <router-link to="/community" class="text-gray-600 hover:text-blue-600">社区</router-link>
+            <router-link to="/" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">首页</router-link>
+            <router-link to="/learn" class="nav-link text-blue-700 font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full">学习</router-link>
+            <router-link to="/translate" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">翻译</router-link>
+            <router-link to="/community" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">社区</router-link>
           </div>
         </div>
       </div>
@@ -20,14 +23,16 @@
     <main class="pt-8">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- 页面标题 -->
-        <div class="text-center mb-12">
-          <h1 class="text-4xl font-bold text-gray-900 mb-4">📚 手语学习中心</h1>
-          <p class="text-xl text-gray-600">系统化学习手语基础知识，从文化到实践</p>
+        <div class="text-center mb-12 fade-in">
+          <h1 class="text-5xl font-bold text-blue-700 mb-4 animate-fade-in-down">
+            📚 手语学习中心
+          </h1>
+          <p class="text-xl text-gray-700 font-medium animate-fade-in-up">系统化学习手语基础知识，从文化到实践</p>
         </div>
 
         <!-- 聋人文化板块 -->
-        <div class="mb-12">
-          <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">🏛️ 聋人文化</h2>
+        <div class="mb-12 fade-in">
+          <h2 class="text-3xl font-bold text-blue-700 mb-6 text-center">🏛️ 聋人文化</h2>
           <el-card shadow="hover" class="cursor-pointer mb-8">
             <div class="text-center">
               <div class="text-6xl mb-4">🏛️</div>
@@ -72,8 +77,8 @@
         </div>
 
         <!-- 学习模块 -->
-        <div class="mb-12">
-          <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">📖 核心学习模块</h2>
+        <div class="mb-12 fade-in">
+          <h2 class="text-3xl font-bold text-blue-700 mb-6 text-center">📖 核心学习模块</h2>
           <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <!-- 手语基础（合并字母和数字） -->
             <el-card shadow="hover" class="cursor-pointer">
@@ -138,8 +143,8 @@
         </div>
 
         <!-- 学习资源与工具 -->
-        <div class="mb-12">
-          <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">🛠️ 学习资源与工具</h2>
+        <div class="mb-12 fade-in">
+          <h2 class="text-3xl font-bold text-blue-700 mb-6 text-center">🛠️ 学习资源与工具</h2>
           <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             <el-card shadow="hover" class="cursor-pointer">
               <div class="text-center">
@@ -212,7 +217,7 @@
     </main>
 
     <!-- 页脚 -->
-    <footer class="bg-gray-800 text-white py-8 mt-16">
+    <footer class="backdrop-blur-md bg-white/70 text-gray-700 py-8 mt-16">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <p>&copy; 2025 手语教学平台. All rights reserved.</p>
       </div>
