@@ -104,7 +104,7 @@
                       style="display: none"
                       @change="handleImageUpload"
                     >
-                    <el-button size="small" icon="Picture" @click="imageInput.click()">图片</el-button>
+                    <el-button size="small" :icon="Picture" @click="imageInput.click()">图片</el-button>
                     
                     <input
                       ref="videoInput"
@@ -114,7 +114,7 @@
                       style="display: none"
                       @change="handleVideoUpload"
                     >
-                    <el-button size="small" icon="VideoCamera" @click="videoInput.click()">视频</el-button>
+                    <el-button size="small" :icon="VideoCamera" @click="videoInput.click()">视频</el-button>
                   </div>
                   <el-button type="primary" @click="publishPost">发布</el-button>
                 </div>
@@ -125,7 +125,7 @@
             <div class="space-y-4">
               <el-card v-for="post in posts" :key="post.id" class="hover:shadow-lg transition-shadow">
                 <div class="flex items-start space-x-4">
-                  <el-avatar :size="50" :src="post.avatar">
+                  <el-avatar :size="50" :src="getAvatarUrl(post.avatar)">
                     {{ post.username.charAt(0) }}
                   </el-avatar>
                   <div class="flex-1">
@@ -155,7 +155,7 @@
                         {{ post.comments }} 评论
                       </span>
                       <span class="flex items-center cursor-pointer hover:text-red-600" @click="toggleLike(post.id)">
-                        <el-icon class="mr-1" :class="{ 'text-red-500': post.isLiked }"><Like /></el-icon>
+                        <span class="mr-1 text-lg" :class="{ 'text-red-500': post.isLiked }">{{ post.isLiked ? '❤️' : '🤍' }}</span>
                         {{ post.likes }} 点赞
                       </span>
                     </div>
@@ -179,7 +179,7 @@
                     <div v-if="post.commentList && post.commentList.length > 0" class="border-t pt-4">
                       <div v-for="comment in post.commentList" :key="comment.id" class="mb-4">
                         <div class="flex items-start space-x-3">
-                          <el-avatar :size="35" :src="comment.avatar">
+                          <el-avatar :size="35" :src="getAvatarUrl(comment.avatar)">
                             {{ comment.username.charAt(0) }}
                           </el-avatar>
                           <div class="flex-1">
@@ -213,7 +213,7 @@
                             <div v-if="comment.replies && comment.replies.length > 0" class="mt-2 ml-4 border-l-2 border-gray-200 pl-3">
                               <div v-for="reply in comment.replies" :key="reply.id" class="mb-2">
                                 <div class="flex items-start space-x-2">
-                                  <el-avatar :size="25" :src="reply.avatar">
+                                  <el-avatar :size="25" :src="getAvatarUrl(reply.avatar)">
                                     {{ reply.username.charAt(0) }}
                                   </el-avatar>
                                   <div class="flex-1">
@@ -246,7 +246,7 @@
               </template>
               <div class="space-y-3">
                 <div v-for="group in deafHearingGroups" :key="group.id" class="flex items-center space-x-3">
-                  <el-avatar :size="40" :src="group.avatar" :class="group.type === 'deaf' ? 'ring-2 ring-green-500' : 'ring-2 ring-blue-500'">
+                  <el-avatar :size="40" :src="getAvatarUrl(group.avatar)" :class="group.type === 'deaf' ? 'ring-2 ring-green-500' : 'ring-2 ring-blue-500'">
                     {{ group.name.charAt(0) }}
                   </el-avatar>
                   <div class="flex-1">
@@ -254,7 +254,7 @@
                     <div class="text-sm text-gray-500">{{ group.members }} 成员</div>
                     <div class="text-xs text-gray-400">{{ group.description }}</div>
                   </div>
-                  <el-button size="small" type="success" plain @click="joinGroup(group)">加入</el-button>
+                  <el-button size="small" type="warning" @click="joinGroup(group)">加入</el-button>
                 </div>
               </div>
             </el-card>
@@ -267,7 +267,7 @@
               <div class="space-y-2">
                 <div v-for="topic in hotTopics" :key="topic.id" class="flex items-center justify-between">
                   <span class="text-blue-600 cursor-pointer hover:underline" @click="goToHashtagPage(topic)">{{ topic.name }}</span>
-                  <el-tag size="small" type="danger">{{ topic.count }}</el-tag>
+                  <el-tag size="small" type="warning">{{ topic.count }}</el-tag>
                 </div>
               </div>
             </el-card>
@@ -279,12 +279,12 @@
               </template>
               <div class="space-y-3">
                 <div v-for="group in hotChatGroups" :key="group.id" class="flex items-center space-x-3">
-                  <el-avatar :size="40" :src="group.avatar">{{ group.name.charAt(0) }}</el-avatar>
+                  <el-avatar :size="40" :src="getAvatarUrl(group.avatar)">{{ group.name.charAt(0) }}</el-avatar>
                   <div class="flex-1">
                     <div class="font-medium">{{ group.name }}</div>
                     <div class="text-sm text-gray-500">{{ group.members }} 成员 · {{ group.activeToday }} 今日活跃</div>
                   </div>
-                  <el-button size="small" type="primary" plain @click="joinChatGroup(group)">加入</el-button>
+                  <el-button size="small" type="warning" @click="joinChatGroup(group)">加入</el-button>
                 </div>
               </div>
             </el-card>
@@ -306,9 +306,16 @@
 import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
+import { Picture, VideoCamera, ChatDotRound } from '@element-plus/icons-vue'
+import { getAvatarUrl } from '@/utils/avatar'
 
 export default {
   name: 'Community',
+  components: {
+    Picture,
+    VideoCamera,
+    ChatDotRound
+  },
   setup() {
     const router = useRouter()
     const newPost = ref('')
@@ -684,6 +691,12 @@ export default {
       }
     }
 
+    // 打开图片模态框
+    const openImageModal = (imageUrl) => {
+      // 创建一个新的窗口来显示大图
+      window.open(imageUrl, '_blank')
+    }
+
     return {
       newPost,
       newComment,
@@ -717,7 +730,9 @@ export default {
       selectHashtag,
       createNewHashtag,
       goToHashtagPage,
-      toggleLike
+      toggleLike,
+      openImageModal,
+      getAvatarUrl
     }
   },
   mounted() {
@@ -725,3 +740,353 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+/* 动态渐变背景 */
+.animated-gradient {
+  background: linear-gradient(-45deg, #e6f3ff, #f0f8ff, #e6f3ff, #f0f9ff, #e6f7ff);
+  background-size: 400% 400%;
+  animation: gradientShift 8s ease infinite;
+  min-height: 100vh;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* 淡入动画 */
+.fade-in {
+  animation: fadeIn 0.8s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in-down {
+  animation: fadeInDown 0.8s ease-out;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 卡片美化 */
+:deep(.el-card) {
+  border-radius: 16px !important;
+  border: none !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(10px) !important;
+  transition: all 0.3s ease !important;
+}
+
+:deep(.el-card:hover) {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12) !important;
+  transform: translateY(-2px) !important;
+}
+
+:deep(.el-card__header) {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  border-radius: 16px 16px 0 0 !important;
+  padding: 16px 20px !important;
+  font-weight: 600 !important;
+}
+
+:deep(.el-card__body) {
+  padding: 20px !important;
+}
+
+/* 按钮美化 */
+:deep(.el-button) {
+  border-radius: 10px !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+:deep(.el-button:hover) {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+:deep(.el-button:active) {
+  transform: translateY(0) !important;
+}
+
+/* 按钮类型美化 */
+:deep(.el-button--primary) {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+}
+
+:deep(.el-button--success) {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+  border: none !important;
+}
+
+:deep(.el-button--warning) {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important;
+  border: none !important;
+}
+
+:deep(.el-button--info) {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+  border: none !important;
+}
+
+/* 标签美化 */
+:deep(.el-tag) {
+  border-radius: 8px !important;
+  padding: 6px 12px !important;
+  font-weight: 500 !important;
+}
+
+/* 输入框美化 */
+:deep(.el-input__wrapper) {
+  border-radius: 10px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.3s ease !important;
+}
+
+:deep(.el-input__wrapper:hover) {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+}
+
+:deep(.el-textarea__inner) {
+  border-radius: 10px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.3s ease !important;
+}
+
+:deep(.el-textarea__inner:hover) {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+}
+
+:deep(.el-textarea__inner:focus) {
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
+}
+
+/* 头像美化 */
+:deep(.el-avatar) {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.3s ease !important;
+}
+
+:deep(.el-avatar:hover) {
+  transform: scale(1.05) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* 导航链接样式 */
+.nav-link {
+  position: relative;
+  padding: 0.5rem 0;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #2563eb !important;
+}
+
+/* 帖子卡片悬停效果 */
+.el-card.hover\:shadow-lg {
+  transition: all 0.3s ease;
+}
+
+.el-card.hover\:shadow-lg:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
+  transform: translateY(-4px) !important;
+}
+
+/* 话题标签样式 */
+.text-blue-600 {
+  transition: all 0.3s ease;
+}
+
+.text-blue-600:hover {
+  color: #2563eb !important;
+  transform: translateX(2px);
+}
+
+/* 图片预览样式 */
+img.rounded {
+  transition: all 0.3s ease;
+}
+
+img.rounded:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 视频预览样式 */
+video.rounded {
+  transition: all 0.3s ease;
+}
+
+video.rounded:hover {
+  transform: scale(1.01);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 评论区域样式 */
+.border-t {
+  border-color: rgba(102, 126, 234, 0.2) !important;
+}
+
+/* 回复区域样式 */
+.border-l-2 {
+  border-color: rgba(102, 126, 234, 0.3) !important;
+}
+
+/* 图标悬停效果 */
+.el-icon {
+  transition: all 0.3s ease;
+}
+
+.el-icon:hover {
+  transform: scale(1.1);
+}
+
+/* 热门话题标签样式 */
+:deep(.el-tag--warning) {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important;
+  border: none !important;
+  color: white !important;
+}
+
+/* 话题建议框样式 */
+.bg-white.border {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(102, 126, 234, 0.2) !important;
+}
+
+/* 自定义滚动条 */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 10px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+/* 响应式设计 */
+@media (max-width: 1024px) {
+  .text-5xl {
+    font-size: 2.5rem !important;
+  }
+  
+  .text-xl {
+    font-size: 1.125rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .text-5xl {
+    font-size: 2rem !important;
+  }
+  
+  .grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* 动画效果 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.3s ease;
+}
+
+.slide-enter-from {
+  transform: translateX(-100%);
+}
+
+.slide-leave-to {
+  transform: translateX(100%);
+}
+
+/* 页脚样式 */
+footer {
+  border-top: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+/* 点赞图标动画 */
+.text-red-500 {
+  animation: likeAnimation 0.3s ease;
+}
+
+@keyframes likeAnimation {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* 加载状态 */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+</style>

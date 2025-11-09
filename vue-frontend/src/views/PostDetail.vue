@@ -29,7 +29,7 @@
         <!-- 帖子内容 -->
         <el-card class="mb-6">
           <div class="flex items-start space-x-4">
-            <el-avatar :size="50" :src="post.avatar">
+            <el-avatar :size="50" :src="getAvatarUrl(post.avatar)">
               {{ post.username.charAt(0) }}
             </el-avatar>
             <div class="flex-1">
@@ -121,7 +121,7 @@
           <!-- 评论输入框 -->
           <div class="mb-6">
             <div class="flex items-start space-x-3">
-              <el-avatar :size="40" :src="currentUser.avatar">
+              <el-avatar :size="40" :src="getAvatarUrl(currentUser.avatar)">
                 {{ currentUser.name.charAt(0) }}
               </el-avatar>
               <div class="flex-1">
@@ -142,7 +142,7 @@
           <!-- 评论列表 -->
           <div class="space-y-4">
             <div v-for="comment in comments" :key="comment.id" class="flex items-start space-x-3">
-              <el-avatar :size="40" :src="comment.avatar">
+              <el-avatar :size="40" :src="getAvatarUrl(comment.avatar)">
                 {{ comment.username.charAt(0) }}
               </el-avatar>
               <div class="flex-1">
@@ -166,7 +166,7 @@
                 <!-- 回复列表 -->
                 <div v-if="comment.replies && comment.replies.length > 0" class="mt-3 ml-6 space-y-3">
                   <div v-for="reply in comment.replies" :key="reply.id" class="flex items-start space-x-3">
-                    <el-avatar :size="32" :src="reply.avatar">
+                    <el-avatar :size="32" :src="getAvatarUrl(reply.avatar)">
                       {{ reply.username.charAt(0) }}
                     </el-avatar>
                     <div class="flex-1">
@@ -197,7 +197,7 @@
           
           <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             <div v-for="user in likedUsers" :key="user.id" class="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-lg cursor-pointer">
-              <el-avatar :size="40" :src="user.avatar">
+              <el-avatar :size="40" :src="getAvatarUrl(user.avatar)">
                 {{ user.name.charAt(0) }}
               </el-avatar>
               <div class="flex-1">
@@ -223,6 +223,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { getAvatarUrl } from '@/utils/avatar'
 
 export default {
   name: 'PostDetail',
@@ -376,7 +377,8 @@ export default {
       privacyText,
       addComment,
       replyToComment,
-      setPrivacy
+      setPrivacy,
+      getAvatarUrl
     }
   }
 }

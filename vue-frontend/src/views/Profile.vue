@@ -26,7 +26,7 @@
         <!-- 个人信息卡片 -->
         <el-card class="mb-8">
           <div class="flex items-center space-x-6">
-            <el-avatar :size="100" :src="userInfo.avatar" class="ring-4 ring-blue-500">
+            <el-avatar :size="100" :src="getAvatarUrl(userInfo.avatar)" class="ring-4 ring-blue-500">
               {{ userInfo.name.charAt(0) }}
             </el-avatar>
             <div class="flex-1">
@@ -105,7 +105,7 @@
             <div class="space-y-4">
               <el-card v-for="post in myPosts" :key="post.id" class="hover:shadow-lg transition-shadow">
                 <div class="flex items-start space-x-4">
-                  <el-avatar :size="50" :src="post.avatar">
+                  <el-avatar :size="50" :src="getAvatarUrl(post.avatar)">
                     {{ post.username.charAt(0) }}
                   </el-avatar>
                   <div class="flex-1">
@@ -148,7 +148,7 @@
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               <el-card v-for="group in myGroups" :key="group.id" class="hover:shadow-lg transition-shadow">
                 <div class="text-center">
-                  <el-avatar :size="60" :src="group.avatar" class="mb-4 mx-auto">
+                  <el-avatar :size="60" :src="getAvatarUrl(group.avatar)" class="mb-4 mx-auto">
                     {{ group.name.charAt(0) }}
                   </el-avatar>
                   <h3 class="text-lg font-semibold mb-2">{{ group.name }}</h3>
@@ -179,7 +179,7 @@
             <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               <el-card v-for="friend in myFriends" :key="friend.id" class="hover:shadow-lg transition-shadow">
                 <div class="text-center">
-                  <el-avatar :size="60" :src="friend.avatar" class="mb-4 mx-auto">
+                  <el-avatar :size="60" :src="getAvatarUrl(friend.avatar)" class="mb-4 mx-auto">
                     {{ friend.name.charAt(0) }}
                   </el-avatar>
                   <h3 class="text-lg font-semibold mb-2">{{ friend.name }}</h3>
@@ -231,7 +231,7 @@
         </el-form-item>
         <el-form-item label="头像">
           <div class="flex items-center space-x-4">
-            <el-avatar :size="60" :src="editForm.avatar">{{ editForm.name.charAt(0) }}</el-avatar>
+            <el-avatar :size="60" :src="getAvatarUrl(editForm.avatar)">{{ editForm.name.charAt(0) }}</el-avatar>
             <input type="file" accept="image/*" @change="handleAvatarUpload" class="hidden" ref="avatarInput">
             <el-button @click="$refs.avatarInput.click()">上传头像</el-button>
           </div>
@@ -252,7 +252,7 @@
     <el-dialog v-model="showNotificationDialog" :title="notificationType === 'likes' ? '赞和评论' : '好友信息'" width="600px">
       <div v-if="notificationType === 'likes'" class="space-y-4">
         <div v-for="item in likeComments" :key="item.id" class="flex items-start space-x-3 p-3 border rounded-lg">
-          <el-avatar :size="40" :src="item.avatar">{{ item.username.charAt(0) }}</el-avatar>
+          <el-avatar :size="40" :src="getAvatarUrl(item.avatar)">{{ item.username.charAt(0) }}</el-avatar>
           <div class="flex-1">
             <div class="flex items-center space-x-2 mb-1">
               <span class="font-medium">{{ item.username }}</span>
@@ -269,7 +269,7 @@
       </div>
       <div v-else-if="notificationType === 'friends'" class="space-y-4">
         <div v-for="item in friendMessages" :key="item.id" class="flex items-start space-x-3 p-3 border rounded-lg">
-          <el-avatar :size="40" :src="item.avatar">{{ item.username.charAt(0) }}</el-avatar>
+          <el-avatar :size="40" :src="getAvatarUrl(item.avatar)">{{ item.username.charAt(0) }}</el-avatar>
           <div class="flex-1">
             <div class="flex items-center space-x-2 mb-1">
               <span class="font-medium">{{ item.username }}</span>
@@ -313,7 +313,7 @@
                 v-model="createGroupForm.selectedFriends" 
                 :label="friend.id"
               ></el-checkbox>
-              <el-avatar :size="30" :src="friend.avatar">{{ friend.name.charAt(0) }}</el-avatar>
+              <el-avatar :size="30" :src="getAvatarUrl(friend.avatar)">{{ friend.name.charAt(0) }}</el-avatar>
               <span class="font-medium">{{ friend.name }}</span>
               <el-tag size="small" :type="friend.level === '初级' ? 'info' : friend.level === '中级' ? 'warning' : 'success'">
                 {{ friend.level }}
@@ -339,6 +339,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { getAvatarUrl } from '@/utils/avatar'
 
 export default {
   name: 'Profile',
@@ -802,6 +803,7 @@ export default {
       saveEdit,
       handleAvatarUpload,
       addFriend,
+      getAvatarUrl,
       leaveGroup,
       viewGroup,
       chatWithFriend,

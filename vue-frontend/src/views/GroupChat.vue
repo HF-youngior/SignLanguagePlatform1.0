@@ -25,7 +25,7 @@
         <!-- 小组信息头部 -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-6">
           <div class="flex items-center space-x-4">
-            <el-avatar :size="60" :src="groupInfo.avatar">
+            <el-avatar :size="60" :src="getAvatarUrl(groupInfo.avatar)">
               {{ groupInfo.name.charAt(0) }}
             </el-avatar>
             <div>
@@ -48,7 +48,7 @@
               <div class="space-y-6">
                 <div v-for="message in messages" :key="message.id" class="border-b border-gray-200 pb-6 last:border-b-0">
                   <div class="flex items-start space-x-4">
-                    <el-avatar :size="45" :src="message.avatar" class="cursor-pointer" @click="goToProfile(message.userId)">
+                    <el-avatar :size="45" :src="getAvatarUrl(message.avatar)" class="cursor-pointer" @click="goToProfile(message.userId)">
                       {{ message.username.charAt(0) }}
                     </el-avatar>
                     <div class="flex-1">
@@ -105,7 +105,7 @@
                       <div v-if="message.replies && message.replies.length > 0" class="mt-4 ml-8 border-l-2 border-gray-200 pl-4">
                         <div v-for="reply in message.replies" :key="reply.id" class="mb-3">
                           <div class="flex items-start space-x-3">
-                            <el-avatar :size="30" :src="reply.avatar" class="cursor-pointer" @click="goToProfile(reply.userId)">
+                            <el-avatar :size="30" :src="getAvatarUrl(reply.avatar)" class="cursor-pointer" @click="goToProfile(reply.userId)">
                               {{ reply.username.charAt(0) }}
                             </el-avatar>
                             <div class="flex-1">
@@ -170,7 +170,7 @@
               <h3 class="text-lg font-semibold mb-4">在线成员 ({{ onlineMembers.length }})</h3>
               <div class="space-y-3">
                 <div v-for="member in onlineMembers" :key="member.id" class="flex items-center space-x-3">
-                  <el-avatar :size="35" :src="member.avatar">
+                  <el-avatar :size="35" :src="getAvatarUrl(member.avatar)">
                     {{ member.name.charAt(0) }}
                   </el-avatar>
                   <div>
@@ -202,6 +202,7 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
+import { getAvatarUrl } from '@/utils/avatar'
 
 export default {
   name: 'GroupChat',
@@ -406,6 +407,7 @@ export default {
       sendMessage,
       sendReply,
       toggleReply,
+      getAvatarUrl,
       handleImageUpload,
       handleVideoUpload
     }

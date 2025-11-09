@@ -25,7 +25,7 @@
         <!-- 聊天头部 -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-6">
           <div class="flex items-center space-x-4">
-            <el-avatar :size="60" :src="friendInfo.avatar" class="cursor-pointer" @click="goToProfile">
+            <el-avatar :size="60" :src="getAvatarUrl(friendInfo.avatar)" class="cursor-pointer" @click="goToProfile">
               {{ friendInfo.name.charAt(0) }}
             </el-avatar>
             <div>
@@ -48,7 +48,7 @@
               <div v-for="message in messages" :key="message.id" 
                    :class="['flex', message.isMe ? 'justify-end' : 'justify-start']">
                 <div :class="['flex items-end space-x-2 max-w-xs lg:max-w-md', message.isMe ? 'flex-row-reverse space-x-reverse' : '']">
-                  <el-avatar :size="35" :src="message.avatar" class="flex-shrink-0">
+                  <el-avatar :size="35" :src="getAvatarUrl(message.avatar)" class="flex-shrink-0">
                     {{ message.username.charAt(0) }}
                   </el-avatar>
                   <div :class="['rounded-lg p-3', message.isMe ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800']">
@@ -112,6 +112,7 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter, useRoute } from 'vue-router'
+import { getAvatarUrl } from '@/utils/avatar'
 
 export default {
   name: 'PrivateChat',
@@ -300,7 +301,8 @@ export default {
       goToProfile,
       sendMessage,
       handleImageUpload,
-      handleVideoUpload
+      handleVideoUpload,
+      getAvatarUrl
     }
   }
 }

@@ -37,7 +37,7 @@
         <div class="space-y-4">
           <el-card v-for="post in hashtagPosts" :key="post.id" class="hover:shadow-lg transition-shadow">
             <div class="flex items-start space-x-4">
-              <el-avatar :size="50" :src="post.avatar" class="cursor-pointer" @click="goToProfile(post.userId)">
+              <el-avatar :size="50" :src="getAvatarUrl(post.avatar)" class="cursor-pointer" @click="goToProfile(post.userId)">
                 {{ post.username.charAt(0) }}
               </el-avatar>
               <div class="flex-1">
@@ -101,6 +101,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter, useRoute } from 'vue-router'
+import { getAvatarUrl } from '@/utils/avatar'
 
 export default {
   name: 'HashtagPage',
@@ -231,7 +232,8 @@ export default {
       goBack,
       goToProfile,
       toggleCommentInput,
-      highlightHashtags
+      highlightHashtags,
+      getAvatarUrl
     }
   }
 }

@@ -25,7 +25,7 @@
         <!-- 群聊信息头部 -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-6">
           <div class="flex items-center space-x-4">
-            <el-avatar :size="60" :src="groupInfo.avatar">
+            <el-avatar :size="60" :src="getAvatarUrl(groupInfo.avatar)">
               {{ groupInfo.name.charAt(0) }}
             </el-avatar>
             <div>
@@ -43,7 +43,7 @@
             <div class="bg-white rounded-lg shadow-md p-6 mb-6 max-h-96 overflow-y-auto">
               <div class="space-y-4">
                 <div v-for="message in messages" :key="message.id" class="flex items-start space-x-3">
-                  <el-avatar :size="40" :src="message.avatar" class="cursor-pointer flex-shrink-0" @click="goToProfile(message.userId)">
+                  <el-avatar :size="40" :src="getAvatarUrl(message.avatar)" class="cursor-pointer flex-shrink-0" @click="goToProfile(message.userId)">
                     {{ message.username.charAt(0) }}
                   </el-avatar>
                   <div class="flex-1">
@@ -116,7 +116,7 @@
               <h3 class="text-lg font-semibold mb-4">群成员 ({{ groupMembers.length }})</h3>
               <div class="space-y-3 max-h-64 overflow-y-auto">
                 <div v-for="member in groupMembers" :key="member.id" class="flex items-center space-x-3">
-                  <el-avatar :size="35" :src="member.avatar">
+                  <el-avatar :size="35" :src="getAvatarUrl(member.avatar)">
                     {{ member.name.charAt(0) }}
                   </el-avatar>
                   <div>
@@ -209,6 +209,7 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
+import { getAvatarUrl } from '@/utils/avatar'
 
 export default {
   name: 'ChatGroup',
@@ -476,6 +477,7 @@ export default {
       downloadQRCode,
       saveGroupName,
       saveAnnouncement,
+      getAvatarUrl,
       deleteGroup
     }
   }
