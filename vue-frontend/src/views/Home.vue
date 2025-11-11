@@ -32,44 +32,20 @@
           </p>
         </div>
         
-        <!-- 轮播图 -->
+        <!-- 轮播图（可点击跳转外部链接，图片来自 public 目录） -->
         <div class="max-w-4xl mx-auto">
           <el-carousel height="400px" indicator-position="outside" arrow="hover">
-            <el-carousel-item>
-              <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl h-full flex items-center justify-center text-white">
-                <div class="text-center">
-                  <div class="text-8xl mb-6">👐</div>
-                  <h3 class="text-3xl font-bold mb-4">学习手语基础</h3>
-                  <p class="text-xl opacity-90">从字母到词汇，系统化学习手语知识</p>
+            <el-carousel-item v-for="slide in slides" :key="slide.id">
+              <a :href="slide.link" target="_blank" rel="noopener noreferrer" class="block h-full">
+                <div class="relative h-full">
+                  <img :src="slide.image" :alt="slide.title" class="w-full h-full object-cover rounded-xl" />
+                  <div class="absolute inset-0 rounded-xl bg-gradient-to-t from-black/40 via-black/10 to-transparent"></div>
+                  <div class="absolute bottom-4 left-4 right-4 text-white drop-shadow">
+                    <h3 class="text-2xl font-bold mb-1">{{ slide.title }}</h3>
+                    <p class="opacity-90 text-sm">点击查看详情（将打开新窗口）</p>
+                  </div>
                 </div>
-              </div>
-            </el-carousel-item>
-            <el-carousel-item>
-              <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl h-full flex items-center justify-center text-white">
-                <div class="text-center">
-                  <div class="text-8xl mb-6">🤖</div>
-                  <h3 class="text-3xl font-bold mb-4">AI智能翻译</h3>
-                  <p class="text-xl opacity-90">实时手语识别和智能翻译功能</p>
-                </div>
-              </div>
-            </el-carousel-item>
-            <el-carousel-item>
-              <div class="bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl h-full flex items-center justify-center text-white">
-                <div class="text-center">
-                  <div class="text-8xl mb-6">👥</div>
-                  <h3 class="text-3xl font-bold mb-4">社区交流</h3>
-                  <p class="text-xl opacity-90">与其他学习者交流，分享学习心得</p>
-                </div>
-              </div>
-            </el-carousel-item>
-            <el-carousel-item>
-              <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl h-full flex items-center justify-center text-white">
-                <div class="text-center">
-                  <div class="text-8xl mb-6">🎯</div>
-                  <h3 class="text-3xl font-bold mb-4">个性化学习</h3>
-                  <p class="text-xl opacity-90">根据您的进度定制专属学习计划</p>
-                </div>
-              </div>
+              </a>
             </el-carousel-item>
           </el-carousel>
         </div>
@@ -132,6 +108,56 @@
 <script>
 export default {
   name: 'Home',
+  data() {
+    return {
+      // ============================================
+      // 📝 轮播图配置说明
+      // ============================================
+      // 1. 图片存放位置：vue-frontend/public/images/banners/
+      //    例如：vue-frontend/public/images/banners/article-1.jpg
+      //
+      // 2. 图片路径写法：/images/banners/你的图片文件名
+      //    例如：/images/banners/article-1.jpg
+      //
+      // 3. 公众号文章链接：复制完整的微信公众号文章链接
+      //    例如：https://mp.weixin.qq.com/s/xxxxxxxxxxxxx
+      //
+      // 4. 如何添加新的轮播图：
+      //    在下面的 slides 数组中添加新的对象，包含 id、title、image、link
+      // ============================================
+      
+      slides: [
+        // 第一张轮播图
+        {
+          id: 1,
+          title: '手语部招新啦!', // 轮播图显示的标题
+          image: '/images/banners/banner-1.png', // 图片路径（需要你把图片放在 public/images/banners/ 目录下）
+          link: 'https://mp.weixin.qq.com/s/Zg3ntg7vFjfEUdHKzRt1rQ' // 微信公众号文章链接，点击后跳转
+        },
+        // 第二张轮播图
+        {
+          id: 2,
+          title: '公益 ｜｜ 编剧思言：创作不是“关于”聋人，而是“源于”聋人',
+          image: '/images/banners/banner-2.png', // 图片路径
+          link: 'https://mp.weixin.qq.com/s/BLDkF6wZxLvXGJW2DKnFeQ' // 微信公众号文章链接
+        },
+        // 第三张轮播图
+        {
+          id: 3,
+          title: '【活动延期公告】生活因你而特别-生活片段征集计划，更多创意等你来解锁！',
+          image: '/images/banners/banner-3.png', // 图片路径
+          link: 'https://mp.weixin.qq.com/s/bqG13U76PHX4EXz_bblHpw' // 微信公众号文章链接
+        }
+        // 如果需要添加更多轮播图，在这里继续添加，例如：
+        // {
+        //   id: 4,
+        //   title: '第四篇文章标题',
+        //   image: '/images/banners/banner-4.jpg',
+        //   link: 'https://mp.weixin.qq.com/s/你的文章链接4'
+        // }
+      ]
+    }
+  },
   mounted() {
     document.title = '手语教学平台 - 让手语学习变得简单有趣'
   }
