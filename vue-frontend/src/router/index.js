@@ -9,6 +9,8 @@ import GroupChat from '@/views/GroupChat.vue'
 import ChatGroup from '@/views/ChatGroup.vue'
 import HashtagPage from '@/views/HashtagPage.vue'
 import PrivateChat from '@/views/PrivateChat.vue'
+import ChallengeMode from '@/views/ChallengeMode.vue'
+import ChallengeLevelCalendar from '@/views/ChallengeLevelCalendar.vue'
 
 const routes = [
   {
@@ -20,6 +22,16 @@ const routes = [
     path: '/learn',
     name: 'Learn',
     component: Learn
+  },
+  {
+    path: '/learn/challenge',
+    name: 'ChallengeMode',
+    component: ChallengeMode
+  },
+  {
+    path: '/learn/challenge/level-1',
+    name: 'ChallengeLevelCalendar',
+    component: ChallengeLevelCalendar
   },
   {
     path: '/translate',

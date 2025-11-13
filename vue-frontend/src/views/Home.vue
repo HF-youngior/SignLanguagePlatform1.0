@@ -5,8 +5,9 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center">
-            <router-link to="/" class="text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
-              👋 手语教学平台
+            <router-link to="/" class="flex items-center text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
+              <img src="/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3" />
+              <span>掌中语-手语学习平台</span>
             </router-link>
           </div>
           <div class="flex items-center space-x-4">
@@ -130,8 +131,13 @@
 </template>
 
 <script>
+import { ArrowRight } from '@element-plus/icons-vue'
+
 export default {
   name: 'Home',
+  components: {
+    ArrowRight
+  },
   mounted() {
     document.title = '手语教学平台 - 让手语学习变得简单有趣'
   }

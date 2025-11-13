@@ -6,7 +6,10 @@
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center space-x-4">
             <el-button @click="goBack" icon="ArrowLeft" circle></el-button>
-            <router-link to="/" class="text-2xl font-bold text-blue-600">手语教学平台</router-link>
+            <router-link to="/" class="flex items-center text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">
+              <img src="/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3" />
+              <span>掌中语-手语学习平台</span>
+            </router-link>
           </div>
           <div class="flex items-center space-x-4">
             <router-link to="/" class="text-gray-600 hover:text-blue-600">首页</router-link>

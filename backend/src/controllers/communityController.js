@@ -299,3 +299,7 @@ export const searchPosts = asyncHandler(async (req, res) => {
   });
 });
 
+
+
+
+
