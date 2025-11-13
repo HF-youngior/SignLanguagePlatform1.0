@@ -1,0 +1,294 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="AI识别翻译微服务架构" id="architecture-diagram">
+    <mxGraphModel dx="1600" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- 标题 -->
+        <mxCell id="title" value="AI识别翻译微服务架构图" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=28;fontStyle=1;fontColor=#1a1a1a" vertex="1" parent="1">
+          <mxGeometry x="400" y="20" width="800" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 前端层 -->
+        <mxCell id="frontend-layer" value="前端层 (Vue.js 3 + Element Plus)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=16;fontStyle=1;startSize=35;swimlaneFillColor=#dae8fc" vertex="1" parent="1">
+          <mxGeometry x="50" y="90" width="500" height="320" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="translate-page" value="翻译页面&#xa;Translate.vue&#xa;&#xa;• 用户界面&#xa;• 文件选择&#xa;• 参数配置" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;fontSize=11;verticalAlign=top" vertex="1" parent="frontend-layer">
+          <mxGeometry x="20" y="45" width="220" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="input-methods" value="输入方式&#xa;&#xa;• 图片上传 (JPG/PNG)&#xa;• 视频上传 (MP4/AVI)&#xa;• 摄像头实时捕获&#xa;• 批量文件夹处理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;fontSize=11;verticalAlign=top" vertex="1" parent="frontend-layer">
+          <mxGeometry x="260" y="45" width="220" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="api-service" value="API服务层&#xa;translationApi.js&#xa;&#xa;• checkHealth()&#xa;• detectImage()&#xa;• detectVideo()&#xa;• detectBatch()&#xa;• saveResults()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;fontSize=11;verticalAlign=top" vertex="1" parent="frontend-layer">
+          <mxGeometry x="20" y="165" width="220" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="result-display" value="结果展示&#xa;&#xa;• 检测框可视化&#xa;• 结果表格&#xa;• 统计信息&#xa;• 目标选择" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;fontSize=11;verticalAlign=top" vertex="1" parent="frontend-layer">
+          <mxGeometry x="260" y="165" width="220" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="params-config" value="参数配置&#xa;&#xa;• 置信度阈值 (0-1)&#xa;• 连续推理延时 (1-100ms)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;fontSize=11;verticalAlign=top" vertex="1" parent="frontend-layer">
+          <mxGeometry x="20" y="285" width="460" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- API网关层 -->
+        <mxCell id="api-gateway" value="API网关层 (Flask RESTful)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=16;fontStyle=1;startSize=35;swimlaneFillColor=#d5e8d4" vertex="1" parent="1">
+          <mxGeometry x="600" y="90" width="500" height="320" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="health-api" value="GET /api/health&#xa;健康检查接口&#xa;返回服务状态" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;fontSize=11;verticalAlign=top" vertex="1" parent="api-gateway">
+          <mxGeometry x="20" y="45" width="220" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="image-api" value="POST /api/detect/image&#xa;图片检测接口&#xa;multipart/form-data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;fontSize=11;verticalAlign=top" vertex="1" parent="api-gateway">
+          <mxGeometry x="260" y="45" width="220" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="video-api" value="POST /api/detect/video&#xa;视频检测接口&#xa;逐帧处理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;fontSize=11;verticalAlign=top" vertex="1" parent="api-gateway">
+          <mxGeometry x="20" y="125" width="220" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="batch-api" value="POST /api/detect/batch&#xa;批量检测接口&#xa;多图片处理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;fontSize=11;verticalAlign=top" vertex="1" parent="api-gateway">
+          <mxGeometry x="260" y="125" width="220" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="save-api" value="POST /api/save/results&#xa;保存结果接口&#xa;JSON格式存储" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;fontSize=11;verticalAlign=top" vertex="1" parent="api-gateway">
+          <mxGeometry x="20" y="205" width="220" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="model-info-api" value="GET /api/models/info&#xa;模型信息接口&#xa;类别列表等" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;fontSize=11;verticalAlign=top" vertex="1" parent="api-gateway">
+          <mxGeometry x="260" y="205" width="220" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="cors" value="CORS跨域支持 (flask-cors)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;fontSize=11" vertex="1" parent="api-gateway">
+          <mxGeometry x="20" y="285" width="460" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- 处理层 -->
+        <mxCell id="processing-layer" value="处理层 (图像处理与推理)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=16;fontStyle=1;startSize=35;swimlaneFillColor=#fff2cc" vertex="1" parent="1">
+          <mxGeometry x="50" y="450" width="500" height="360" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="image-preprocess" value="图像预处理&#xa;(OpenCV)&#xa;&#xa;• cv2.imdecode()&#xa;• 格式转换&#xa;• NumPy数组" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;fontSize=11;verticalAlign=top" vertex="1" parent="processing-layer">
+          <mxGeometry x="20" y="45" width="220" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="video-preprocess" value="视频预处理&#xa;(OpenCV)&#xa;&#xa;• VideoCapture()&#xa;• 帧提取&#xa;• FPS获取&#xa;• 临时文件管理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;fontSize=11;verticalAlign=top" vertex="1" parent="processing-layer">
+          <mxGeometry x="260" y="45" width="220" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="yolo-inference" value="YOLOv8推理引擎&#xa;(Ultralytics)&#xa;&#xa;• model(image)[0]&#xa;• 目标检测&#xa;• 置信度计算&#xa;• 边界框预测" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;fontSize=12;fontStyle=1;verticalAlign=top" vertex="1" parent="processing-layer">
+          <mxGeometry x="20" y="165" width="460" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="result-filter" value="结果过滤&#xa;result_filter()&#xa;&#xa;• 置信度阈值过滤&#xa;• boxes.conf &gt;= threshold&#xa;• 过滤低置信度结果" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;fontSize=11;verticalAlign=top" vertex="1" parent="processing-layer">
+          <mxGeometry x="20" y="265" width="220" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="result-process" value="结果处理&#xa;process_detection_results()&#xa;&#xa;• 坐标提取 (xyxy)&#xa;• 类别映射 (CH_names)&#xa;• 格式化JSON输出" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;fontSize=11;verticalAlign=top" vertex="1" parent="processing-layer">
+          <mxGeometry x="260" y="265" width="220" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="visualization" value="可视化处理&#xa;&#xa;• results.plot() 绘制检测框&#xa;• cv2.imencode() 编码&#xa;• Base64编码返回" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;fontSize=11;verticalAlign=top" vertex="1" parent="processing-layer">
+          <mxGeometry x="20" y="365" width="460" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 模型层 -->
+        <mxCell id="model-layer" value="模型层 (YOLOv8)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=16;fontStyle=1;startSize=35;swimlaneFillColor=#f8cecc" vertex="1" parent="1">
+          <mxGeometry x="600" y="450" width="500" height="360" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="model-file" value="模型文件&#xa;shouyushibie_0921best.pt&#xa;&#xa;• YOLOv8格式&#xa;• 预训练权重&#xa;• 检测任务类型" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;fontSize=12;verticalAlign=top" vertex="1" parent="model-layer">
+          <mxGeometry x="20" y="45" width="460" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="model-init" value="模型初始化&#xa;init_model()&#xa;&#xa;• YOLO(model_path)&#xa;• 预加载机制&#xa;• 全局单例模式&#xa;• 启动时加载" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;fontSize=11;verticalAlign=top" vertex="1" parent="model-layer">
+          <mxGeometry x="20" y="145" width="220" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="model-config" value="模型配置&#xa;Config.py&#xa;&#xa;• 35个手语类别&#xa;• 类别名称映射&#xa;• CH_names数组&#xa;• 检测任务类型" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;fontSize=11;verticalAlign=top" vertex="1" parent="model-layer">
+          <mxGeometry x="260" y="145" width="220" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="detection-output" value="检测输出格式&#xa;&#xa;• results.boxes.xyxy (边界框坐标)&#xa;• results.boxes.cls (类别ID: 0-34)&#xa;• results.boxes.conf (置信度: 0-1)&#xa;• 每个检测目标包含完整信息" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;fontSize=11;verticalAlign=top" vertex="1" parent="model-layer">
+          <mxGeometry x="20" y="265" width="460" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="class-names" value="35个手语类别：时间/时候、你/您、早上、9、0、快乐/高兴、新、祝、请、路、生日、平、安、朋友、8、认识、名片、结婚/妻子、茶、有、花、今天、门、停、谢谢、慢、走、晚、我、爱、好、人、什么、名字、介绍" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;fontSize=9" vertex="1" parent="model-layer">
+          <mxGeometry x="20" y="365" width="460" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- 数据层 -->
+        <mxCell id="data-layer" value="数据层 (存储与管理)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=16;fontStyle=1;startSize=35;swimlaneFillColor=#ffe6cc" vertex="1" parent="1">
+          <mxGeometry x="1150" y="90" width="400" height="320" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="result-storage" value="结果存储&#xa;save_data/shouyushibie_result/&#xa;&#xa;• JSON格式保存&#xa;• 时间戳命名&#xa;• detection_results_{timestamp}.json&#xa;• 包含完整检测信息" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;fontSize=11;verticalAlign=top" vertex="1" parent="data-layer">
+          <mxGeometry x="20" y="45" width="360" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="temp-files" value="临时文件管理&#xa;&#xa;• 视频临时文件 (temp_*.mp4)&#xa;• 自动清理机制&#xa;• os.remove() 删除" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;fontSize=11;verticalAlign=top" vertex="1" parent="data-layer">
+          <mxGeometry x="20" y="165" width="360" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="output-video" value="输出视频&#xa;&#xa;• 带检测框视频 (output_*.mp4)&#xa;• MP4格式 (VideoWriter)&#xa;• 可下载 (/api/download)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;fontSize=11;verticalAlign=top" vertex="1" parent="data-layer">
+          <mxGeometry x="20" y="265" width="360" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 连接线：前端到API -->
+        <mxCell id="arrow1" value="HTTP POST&#xa;multipart/form-data" style="endArrow=classic;html=1;rounded=0;strokeWidth=3;strokeColor=#1ba1e2;labelBackgroundColor=#ffffff;fontSize=11" edge="1" parent="1" source="api-service" target="image-api">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="270" y="215" as="sourcePoint" />
+            <mxPoint x="720" y="120" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="270" y="215" />
+              <mxPoint x="720" y="215" />
+              <mxPoint x="720" y="120" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- API到处理层 -->
+        <mxCell id="arrow2" value="图像数据&#xa;(numpy array)" style="endArrow=classic;html=1;rounded=0;strokeWidth=3;strokeColor=#1ba1e2;labelBackgroundColor=#ffffff;fontSize=11" edge="1" parent="1" source="image-api" target="image-preprocess">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="720" y="150" as="sourcePoint" />
+            <mxPoint x="130" y="495" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="720" y="150" />
+              <mxPoint x="720" y="495" />
+              <mxPoint x="130" y="495" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 预处理到推理 -->
+        <mxCell id="arrow3" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=3;strokeColor=#1ba1e2" edge="1" parent="1" source="image-preprocess" target="yolo-inference">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="130" y="545" as="sourcePoint" />
+            <mxPoint x="130" y="565" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 推理到模型 -->
+        <mxCell id="arrow4" value="模型推理调用" style="endArrow=classic;html=1;rounded=0;strokeWidth=3;strokeColor=#d79b00;labelBackgroundColor=#ffffff;fontSize=11;fontStyle=1" edge="1" parent="1" source="yolo-inference" target="model-file">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="280" y="605" as="sourcePoint" />
+            <mxPoint x="850" y="495" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="280" y="605" />
+              <mxPoint x="850" y="605" />
+              <mxPoint x="850" y="495" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 推理到过滤 -->
+        <mxCell id="arrow5" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=3;strokeColor=#1ba1e2" edge="1" parent="1" source="yolo-inference" target="result-filter">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="130" y="605" as="sourcePoint" />
+            <mxPoint x="130" y="685" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 过滤到处理 -->
+        <mxCell id="arrow6" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=3;strokeColor=#1ba1e2" edge="1" parent="1" source="result-filter" target="result-process">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="130" y="715" as="sourcePoint" />
+            <mxPoint x="370" y="715" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 处理到可视化 -->
+        <mxCell id="arrow7" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=3;strokeColor=#1ba1e2" edge="1" parent="1" source="result-process" target="visualization">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="370" y="715" as="sourcePoint" />
+            <mxPoint x="280" y="815" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="370" y="715" />
+              <mxPoint x="280" y="715" />
+              <mxPoint x="280" y="815" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 处理到API返回 -->
+        <mxCell id="arrow8" value="JSON响应&#xa;{detections, image, inference_time}" style="endArrow=classic;html=1;rounded=0;strokeWidth=3;strokeColor=#82b366;labelBackgroundColor=#ffffff;fontSize=11;fontStyle=1" edge="1" parent="1" source="result-process" target="result-display">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="370" y="715" as="sourcePoint" />
+            <mxPoint x="370" y="215" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="370" y="715" />
+              <mxPoint x="50" y="715" />
+              <mxPoint x="50" y="215" />
+              <mxPoint x="370" y="215" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 视频API到预处理 -->
+        <mxCell id="arrow9" value="视频帧数据" style="endArrow=classic;html=1;rounded=0;strokeWidth=3;strokeColor=#1ba1e2;labelBackgroundColor=#ffffff;fontSize=11" edge="1" parent="1" source="video-api" target="video-preprocess">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="720" y="270" as="sourcePoint" />
+            <mxPoint x="370" y="495" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="720" y="270" />
+              <mxPoint x="370" y="270" />
+              <mxPoint x="370" y="495" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 视频预处理到推理 -->
+        <mxCell id="arrow10" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=3;strokeColor=#1ba1e2" edge="1" parent="1" source="video-preprocess" target="yolo-inference">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="370" y="545" as="sourcePoint" />
+            <mxPoint x="280" y="545" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 保存到存储 -->
+        <mxCell id="arrow11" value="保存请求" style="endArrow=classic;html=1;rounded=0;strokeWidth=3;strokeColor=#1ba1e2;labelBackgroundColor=#ffffff;fontSize=11" edge="1" parent="1" source="save-api" target="result-storage">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="720" y="270" as="sourcePoint" />
+            <mxPoint x="1350" y="140" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="720" y="270" />
+              <mxPoint x="1350" y="270" />
+              <mxPoint x="1350" y="140" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 技术栈标注 -->
+        <mxCell id="tech-stack" value="技术栈：Flask + YOLOv8 (Ultralytics) + OpenCV + NumPy + PIL + Base64" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontStyle=2;fontColor=#1a1a1a" vertex="1" parent="1">
+          <mxGeometry x="50" y="850" width="1500" height="35" as="geometry" />
+        </mxCell>
+        
+        <!-- 数据流说明 -->
+        <mxCell id="data-flow" value="数据流：前端上传文件 → Flask API接收 (multipart/form-data) → OpenCV预处理 → YOLOv8推理 → 结果过滤 (置信度阈值) → 格式化处理 (坐标/类别/置信度) → Base64编码 → JSON返回 → 前端展示" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#333333" vertex="1" parent="1">
+          <mxGeometry x="50" y="890" width="1500" height="35" as="geometry" />
+        </mxCell>
+        
+        <!-- 性能指标 -->
+        <mxCell id="performance" value="性能指标：支持35个手语类别识别 | 置信度阈值可调 (0-1) | 支持图片/视频/批量/实时检测 | 推理时间记录 | 检测框可视化 | 结果JSON保存" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#333333" vertex="1" parent="1">
+          <mxGeometry x="50" y="930" width="1500" height="35" as="geometry" />
+        </mxCell>
+        
+        <!-- API端口信息 -->
+        <mxCell id="port-info" value="服务端口：Flask API运行在 http://127.0.0.1:5000 | 前端运行在 http://localhost:3000/translate | 模型路径：shouyuDetestion/models/shouyushibie_0921best.pt" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#666666" vertex="1" parent="1">
+          <mxGeometry x="50" y="970" width="1500" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- 关键函数说明 -->
+        <mxCell id="functions" value="关键函数：init_model() - 模型初始化 | result_filter() - 结果过滤 | process_detection_results() - 结果处理 | 支持图片/视频/批量三种检测模式" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#666666" vertex="1" parent="1">
+          <mxGeometry x="50" y="1000" width="1500" height="25" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
