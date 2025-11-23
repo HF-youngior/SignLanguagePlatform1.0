@@ -5,8 +5,9 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center">
-            <router-link to="/" class="text-xl sm:text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
-              👋 手语教学平台
+            <router-link to="/" class="flex items-center text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
+              <img src="/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3" />
+              <span>掌中语-手语学习平台</span>
             </router-link>
           </div>
           <!-- 桌面端导航 -->
@@ -17,7 +18,7 @@
             <router-link to="/translate" class="nav-link text-blue-700 font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full">翻译</router-link>
           </div>
           <!-- 移动端菜单按钮 -->
-          <button 
+          <button
             @click="mobileMenuOpen = !mobileMenuOpen"
             class="md:hidden p-2 text-gray-700 hover:text-blue-600 focus:outline-none"
             aria-label="菜单"
@@ -30,29 +31,29 @@
         </div>
         <!-- 移动端菜单 -->
         <div v-if="mobileMenuOpen" class="md:hidden py-4 border-t border-gray-200 mt-2">
-          <router-link 
-            to="/" 
+          <router-link
+            to="/"
             @click="mobileMenuOpen = false"
             class="block py-3 px-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
           >
             首页
           </router-link>
-          <router-link 
-            to="/learn" 
+          <router-link
+            to="/learn"
             @click="mobileMenuOpen = false"
             class="block py-3 px-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
           >
             学习
           </router-link>
-          <router-link 
-            to="/translate" 
+          <router-link
+            to="/translate"
             @click="mobileMenuOpen = false"
             class="block py-3 px-4 text-blue-700 bg-blue-50 font-semibold rounded-lg"
           >
             翻译
           </router-link>
-          <router-link 
-            to="/community" 
+          <router-link
+            to="/community"
             @click="mobileMenuOpen = false"
             class="block py-3 px-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
           >
@@ -85,9 +86,9 @@
                 <el-tag type="success">{{ detectionResults.length }} 个目标</el-tag>
               </div>
             </template>
-            <el-table 
-              :data="detectionResults" 
-              stripe 
+            <el-table
+              :data="detectionResults"
+              stripe
               style="width: 100%"
               :max-height="200"
               size="small"
@@ -101,7 +102,7 @@
               </el-table-column>
             </el-table>
           </el-card>
-          
+
           <!-- 左侧：图像显示区域（在检测结果下面） -->
           <div class="lg:col-span-2 order-2 lg:order-1 w-full">
             <el-card shadow="hover" class="h-full">
@@ -1222,13 +1223,13 @@ export default {
       
       // 监听窗口resize，更新Canvas尺寸
       window.addEventListener('resize', updateCanvasSize)
-      
+
       // 监听窗口大小变化，更新移动端状态
       const handleResize = () => {
         isMobile.value = window.innerWidth <= 768
       }
       window.addEventListener('resize', handleResize)
-      
+
       // 清理函数
       return () => {
         window.removeEventListener('resize', handleResize)
@@ -1297,7 +1298,7 @@ export default {
         img.style.height = 'auto'
       }
     }
-    
+
     // 检查视频状态
     const checkVideoStatus = () => {
       console.log('=== 视频状态检查 ===')
@@ -1742,46 +1743,46 @@ export default {
   .parameter-control-group {
     @apply flex-col space-x-0 space-y-2;
   }
-  
+
   /* 移动端表格优化 */
   :deep(.el-table) {
     font-size: 12px;
   }
-  
+
   :deep(.el-table th),
   :deep(.el-table td) {
     padding: 8px 4px !important;
   }
-  
+
   /* 移动端卡片优化 */
   :deep(.el-card__body) {
     padding: 12px !important;
   }
-  
+
   /* 移动端按钮优化 */
   :deep(.el-button) {
     padding: 10px 16px !important;
     font-size: 14px !important;
   }
-  
+
   /* 移动端输入框优化 */
   :deep(.el-input),
   :deep(.el-textarea) {
     font-size: 16px !important; /* 防止iOS自动缩放 */
   }
-  
+
   /* 移动端滑块优化 */
   :deep(.el-slider) {
     margin: 10px 0;
   }
-  
+
   /* 防止图片导致页面缩放 */
   img {
     max-width: 100% !important;
     height: auto !important;
     display: block !important;
   }
-  
+
   /* 防止页面自动缩放 */
   body {
     touch-action: pan-y;

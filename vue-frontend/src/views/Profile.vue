@@ -5,8 +5,9 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center">
-            <router-link to="/" class="text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
-              👋 手语教学平台
+            <router-link to="/" class="flex items-center text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
+              <img src="/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3" />
+              <span>掌中语-手语学习平台</span>
             </router-link>
           </div>
           <div class="flex items-center space-x-4">
@@ -109,7 +110,7 @@
                   <el-avatar :size="isMobile ? 60 : 50" :src="getAvatarUrl(post.avatar)" class="flex-shrink-0">
                     {{ post.username.charAt(0) }}
                   </el-avatar>
-                  
+
                   <!-- 内容区域 -->
                   <div class="flex-1 w-full min-w-0">
                     <!-- 用户信息和标签 -->
@@ -123,10 +124,10 @@
                         {{ getPrivacyText(post.privacy) }}
                       </el-tag>
                     </div>
-                    
+
                     <!-- 帖子内容 -->
                     <p class="text-gray-700 mb-3 text-sm md:text-base leading-relaxed">{{ post.content }}</p>
-                    
+
                     <!-- 互动统计 -->
                     <div class="flex flex-wrap items-center gap-3 md:gap-4 text-gray-500 text-xs md:text-sm mb-3">
                       <span class="flex items-center">
@@ -143,7 +144,7 @@
                       </span>
                     </div>
                   </div>
-                  
+
                   <!-- 操作按钮 -->
                   <div class="flex flex-row md:flex-col gap-2 w-full md:w-auto justify-end md:justify-start" @click.stop>
                     <el-button size="small" type="primary" plain class="flex-1 md:flex-none" @click="goToPostDetail(post.id)">查看详情</el-button>
@@ -785,13 +786,13 @@ export default {
       } else {
         document.title = '我的主页 - 手语教学平台'
       }
-      
+
       // 监听窗口大小变化
       const handleResize = () => {
         isMobile.value = window.innerWidth <= 768
       }
       window.addEventListener('resize', handleResize)
-      
+
       return () => {
         window.removeEventListener('resize', handleResize)
       }
@@ -848,16 +849,16 @@ export default {
   :deep(.el-card) {
     margin-bottom: 16px;
   }
-  
+
   :deep(.el-card__body) {
     padding: 16px !important;
   }
-  
+
   /* 头像优化 */
   :deep(.el-avatar) {
     flex-shrink: 0;
   }
-  
+
   /* 标签优化 */
   :deep(.el-tag) {
     font-size: 11px;
@@ -865,19 +866,19 @@ export default {
     height: auto;
     line-height: 1.4;
   }
-  
+
   /* 按钮优化 */
   :deep(.el-button) {
     padding: 8px 12px;
     font-size: 13px;
   }
-  
+
   /* 文本优化 */
   p {
     word-break: break-word;
     line-height: 1.6;
   }
-  
+
   /* 间距优化 */
   .space-y-4 > * + * {
     margin-top: 16px;

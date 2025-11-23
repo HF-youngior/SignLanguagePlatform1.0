@@ -1,0 +1,48 @@
+{
+  "firstQuestion": {
+    "success": true,
+    "data": {
+      "id": 1,
+      "letter": "A",
+      "image_path": "/images/finger_alphabet/A.svg",
+      "explanation_path": "/images/finger_alphabet_explanation/A.svg",
+      "options": ["A", "B", "C"],
+      "correct_answer": "A"
+    },
+    "message": "获取测验题目成功"
+  },
+  "secondQuestion": {
+    "success": true,
+    "data": {
+      "id": 2,
+      "letter": "B",
+      "image_path": "/images/finger_alphabet/B.svg",
+      "explanation_path": "/images/finger_alphabet_explanation/B.svg",
+      "options": ["B", "D", "E"],
+      "correct_answer": "B"
+    },
+    "message": "获取测验题目成功"
+  },
+  "lastQuestion": {
+    "success": true,
+    "data": {
+      "id": 10,
+      "letter": "J",
+      "image_path": "/images/finger_alphabet/J.svg",
+      "explanation_path": "/images/finger_alphabet_explanation/J.svg",
+      "options": ["J", "H", "I"],
+      "correct_answer": "J"
+    },
+    "message": "获取测验题目成功"
+  },
+  "networkError": {
+    "success": false,
+    "message": "服务器错误",
+    "error": "Internal Server Error"
+  },
+  "noDataError": {
+    "success": false,
+    "message": "没有找到测验数据",
+    "error": "No quiz data available"
+  }
+}
