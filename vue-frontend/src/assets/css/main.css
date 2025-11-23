@@ -115,4 +115,53 @@
   .nav-link:hover {
     @apply bg-white/50;
   }
+  
+  /* 移动端优化 */
+  @media (max-width: 768px) {
+    /* 触摸优化 */
+    button, a, input, select, textarea {
+      min-height: 44px;
+      min-width: 44px;
+      touch-action: manipulation;
+    }
+    
+    /* 防止双击缩放 */
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* 优化滚动 */
+    html {
+      -webkit-overflow-scrolling: touch;
+      overflow-scrolling: touch;
+    }
+    
+    /* 防止横向滚动 */
+    body {
+      overflow-x: hidden;
+      position: relative;
+    }
+    
+    /* 优化字体大小 */
+    body {
+      font-size: 16px;
+      -webkit-text-size-adjust: 100%;
+      -moz-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+    
+    /* 优化图片显示 */
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+    
+    /* 优化表格 */
+    table {
+      display: block;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
 }

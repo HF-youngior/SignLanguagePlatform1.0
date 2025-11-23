@@ -25,42 +25,42 @@
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- 个人信息卡片 -->
         <el-card class="mb-8">
-          <div class="flex items-center space-x-6">
-            <el-avatar :size="100" :src="getAvatarUrl(userInfo.avatar)" class="ring-4 ring-blue-500">
+          <div class="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
+            <el-avatar :size="isMobile ? 80 : 100" :src="getAvatarUrl(userInfo.avatar)" class="ring-4 ring-blue-500 flex-shrink-0">
               {{ userInfo.name.charAt(0) }}
             </el-avatar>
-            <div class="flex-1">
-              <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ userInfo.name }}</h1>
-              <div class="flex items-center space-x-4 mb-4">
+            <div class="flex-1 w-full md:w-auto text-center md:text-left">
+              <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{{ userInfo.name }}</h1>
+              <div class="flex flex-wrap items-center justify-center md:justify-start gap-2 md:space-x-4 mb-4">
                 <el-tag :type="userInfo.level === '初级' ? 'info' : userInfo.level === '中级' ? 'warning' : 'success'">
                   {{ userInfo.level }}
                 </el-tag>
-                <span class="text-gray-600">{{ userInfo.joinDate }} 加入</span>
-                <span class="text-gray-600">{{ userInfo.location }}</span>
+                <span class="text-gray-600 text-sm">{{ userInfo.joinDate }} 加入</span>
+                <span class="text-gray-600 text-sm">{{ userInfo.location }}</span>
               </div>
-              <p class="text-gray-700 mb-4">{{ userInfo.bio }}</p>
-              <div class="flex items-center space-x-6">
+              <p class="text-gray-700 mb-4 text-sm md:text-base px-2 md:px-0">{{ userInfo.bio }}</p>
+              <div class="grid grid-cols-2 md:flex md:items-center md:space-x-6 gap-4 md:gap-0">
                 <div class="text-center">
-                  <div class="text-2xl font-bold text-blue-600">{{ userInfo.posts }}</div>
-                  <div class="text-sm text-gray-500">发布帖子</div>
+                  <div class="text-xl md:text-2xl font-bold text-blue-600">{{ userInfo.posts }}</div>
+                  <div class="text-xs md:text-sm text-gray-500">发布帖子</div>
                 </div>
                 <div class="text-center">
-                  <div class="text-2xl font-bold text-green-600">{{ userInfo.groups }}</div>
-                  <div class="text-sm text-gray-500">加入社群</div>
+                  <div class="text-xl md:text-2xl font-bold text-green-600">{{ userInfo.groups }}</div>
+                  <div class="text-xs md:text-sm text-gray-500">加入社群</div>
                 </div>
                 <div class="text-center">
-                  <div class="text-2xl font-bold text-purple-600">{{ userInfo.friends }}</div>
-                  <div class="text-sm text-gray-500">好友数量</div>
+                  <div class="text-xl md:text-2xl font-bold text-purple-600">{{ userInfo.friends }}</div>
+                  <div class="text-xs md:text-sm text-gray-500">好友数量</div>
                 </div>
                 <div class="text-center">
-                  <div class="text-2xl font-bold text-orange-600">{{ userInfo.points }}</div>
-                  <div class="text-sm text-gray-500">积分</div>
+                  <div class="text-xl md:text-2xl font-bold text-orange-600">{{ userInfo.points }}</div>
+                  <div class="text-xs md:text-sm text-gray-500">积分</div>
                 </div>
               </div>
             </div>
-            <div class="flex flex-col space-y-2">
-              <el-button type="primary" @click="showEditDialog = true">编辑资料</el-button>
-              <el-button v-if="isOtherUser" type="success" @click="addFriend">添加好友</el-button>
+            <div class="flex flex-row md:flex-col space-x-2 md:space-x-0 md:space-y-2 w-full md:w-auto justify-center md:justify-start">
+              <el-button type="primary" size="small" class="md:w-full" @click="showEditDialog = true">编辑资料</el-button>
+              <el-button v-if="isOtherUser" type="success" size="small" class="md:w-full" @click="addFriend">添加好友</el-button>
             </div>
           </div>
         </el-card>
@@ -102,25 +102,33 @@
         <!-- 标签页 -->
         <el-tabs v-model="activeTab" class="mb-6">
           <el-tab-pane label="我的帖子" name="posts">
-            <div class="space-y-4">
+            <div class="space-y-4 md:space-y-6">
               <el-card v-for="post in myPosts" :key="post.id" class="hover:shadow-lg transition-shadow">
-                <div class="flex items-start space-x-4">
-                  <el-avatar :size="50" :src="getAvatarUrl(post.avatar)">
+                <div class="flex flex-col md:flex-row items-start gap-3 md:gap-4">
+                  <!-- 头像区域 -->
+                  <el-avatar :size="isMobile ? 60 : 50" :src="getAvatarUrl(post.avatar)" class="flex-shrink-0">
                     {{ post.username.charAt(0) }}
                   </el-avatar>
-                  <div class="flex-1">
-                    <div class="flex items-center space-x-2 mb-2">
-                      <span class="font-semibold">{{ post.username }}</span>
+                  
+                  <!-- 内容区域 -->
+                  <div class="flex-1 w-full min-w-0">
+                    <!-- 用户信息和标签 -->
+                    <div class="flex flex-wrap items-center gap-2 mb-2">
+                      <span class="font-semibold text-base md:text-lg">{{ post.username }}</span>
                       <el-tag size="small" :type="post.level === '初级' ? 'info' : post.level === '中级' ? 'warning' : 'success'">
                         {{ post.level }}
                       </el-tag>
-                      <span class="text-gray-500 text-sm">{{ post.time }}</span>
-                      <el-tag size="small" :type="getPrivacyType(post.privacy)" class="ml-2">
+                      <span class="text-gray-500 text-xs md:text-sm">{{ post.time }}</span>
+                      <el-tag size="small" :type="getPrivacyType(post.privacy)">
                         {{ getPrivacyText(post.privacy) }}
                       </el-tag>
                     </div>
-                    <p class="text-gray-700 mb-3">{{ post.content }}</p>
-                    <div class="flex items-center space-x-4 text-gray-500 text-sm">
+                    
+                    <!-- 帖子内容 -->
+                    <p class="text-gray-700 mb-3 text-sm md:text-base leading-relaxed">{{ post.content }}</p>
+                    
+                    <!-- 互动统计 -->
+                    <div class="flex flex-wrap items-center gap-3 md:gap-4 text-gray-500 text-xs md:text-sm mb-3">
                       <span class="flex items-center">
                         <el-icon class="mr-1"><ChatDotRound /></el-icon>
                         {{ post.comments }} 评论
@@ -135,9 +143,11 @@
                       </span>
                     </div>
                   </div>
-                  <div class="flex space-x-2" @click.stop>
-                    <el-button size="small" type="primary" plain @click="goToPostDetail(post.id)">查看详情</el-button>
-                    <el-button size="small" type="danger" plain>删除</el-button>
+                  
+                  <!-- 操作按钮 -->
+                  <div class="flex flex-row md:flex-col gap-2 w-full md:w-auto justify-end md:justify-start" @click.stop>
+                    <el-button size="small" type="primary" plain class="flex-1 md:flex-none" @click="goToPostDetail(post.id)">查看详情</el-button>
+                    <el-button size="small" type="danger" plain class="flex-1 md:flex-none">删除</el-button>
                   </div>
                 </div>
               </el-card>
@@ -346,6 +356,7 @@ export default {
   setup() {
     const router = useRouter()
     const route = useRoute()
+    const isMobile = ref(window.innerWidth <= 768)
     const activeTab = ref('posts')
     const showEditDialog = ref(false)
     const showNotificationDialog = ref(false)
@@ -774,9 +785,20 @@ export default {
       } else {
         document.title = '我的主页 - 手语教学平台'
       }
+      
+      // 监听窗口大小变化
+      const handleResize = () => {
+        isMobile.value = window.innerWidth <= 768
+      }
+      window.addEventListener('resize', handleResize)
+      
+      return () => {
+        window.removeEventListener('resize', handleResize)
+      }
     })
 
     return {
+      isMobile,
       activeTab,
       showEditDialog,
       showNotificationDialog,
@@ -818,3 +840,55 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+/* 移动端优化 */
+@media (max-width: 768px) {
+  /* 帖子卡片优化 */
+  :deep(.el-card) {
+    margin-bottom: 16px;
+  }
+  
+  :deep(.el-card__body) {
+    padding: 16px !important;
+  }
+  
+  /* 头像优化 */
+  :deep(.el-avatar) {
+    flex-shrink: 0;
+  }
+  
+  /* 标签优化 */
+  :deep(.el-tag) {
+    font-size: 11px;
+    padding: 2px 8px;
+    height: auto;
+    line-height: 1.4;
+  }
+  
+  /* 按钮优化 */
+  :deep(.el-button) {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  
+  /* 文本优化 */
+  p {
+    word-break: break-word;
+    line-height: 1.6;
+  }
+  
+  /* 间距优化 */
+  .space-y-4 > * + * {
+    margin-top: 16px;
+  }
+}
+
+/* 桌面端优化 */
+@media (min-width: 769px) {
+  /* 帖子卡片间距 */
+  .space-y-6 > * + * {
+    margin-top: 24px;
+  }
+}
+</style>

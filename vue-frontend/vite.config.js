@@ -11,6 +11,7 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    host: '0.0.0.0', // 监听所有网络接口，允许手机访问
     open: true
   },
   build: {

@@ -3,7 +3,20 @@
  * 提供所有API调用的统一接口
  */
 
-const API_BASE_URL = 'http://localhost:8000/api'
+// 动态获取API基础地址
+// 如果当前页面是通过IP访问的（如手机访问），使用相同的IP
+// 如果是localhost访问，使用localhost
+function getApiBaseUrl() {
+  const hostname = window.location.hostname
+  // 如果是localhost或127.0.0.1，使用localhost
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'http://localhost:8000/api'
+  }
+  // 否则使用当前页面的hostname（这样手机访问时会自动使用电脑的IP）
+  return `http://${hostname}:8000/api`
+}
+
+const API_BASE_URL = getApiBaseUrl()
 
 class ApiService {
   constructor() {

@@ -5,16 +5,59 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center">
-            <router-link to="/" class="text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
+            <router-link to="/" class="text-xl sm:text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
               👋 手语教学平台
             </router-link>
           </div>
-          <div class="flex items-center space-x-4">
+          <!-- 桌面端导航 -->
+          <div class="hidden md:flex items-center space-x-4">
             <router-link to="/" class="nav-link text-blue-700 font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full">首页</router-link>
             <router-link to="/learn" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">学习</router-link>
             <router-link to="/translate" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">翻译</router-link>
             <router-link to="/community" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">社区</router-link>
           </div>
+          <!-- 移动端菜单按钮 -->
+          <button 
+            @click="mobileMenuOpen = !mobileMenuOpen"
+            class="md:hidden p-2 text-gray-700 hover:text-blue-600 focus:outline-none"
+            aria-label="菜单"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path v-if="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <!-- 移动端菜单 -->
+        <div v-if="mobileMenuOpen" class="md:hidden py-4 border-t border-gray-200 mt-2">
+          <router-link 
+            to="/" 
+            @click="mobileMenuOpen = false"
+            class="block py-3 px-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
+          >
+            首页
+          </router-link>
+          <router-link 
+            to="/learn" 
+            @click="mobileMenuOpen = false"
+            class="block py-3 px-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
+          >
+            学习
+          </router-link>
+          <router-link 
+            to="/translate" 
+            @click="mobileMenuOpen = false"
+            class="block py-3 px-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
+          >
+            翻译
+          </router-link>
+          <router-link 
+            to="/community" 
+            @click="mobileMenuOpen = false"
+            class="block py-3 px-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
+          >
+            社区
+          </router-link>
         </div>
       </div>
     </nav>
@@ -34,7 +77,7 @@
         
         <!-- 轮播图（可点击跳转外部链接，图片来自 public 目录） -->
         <div class="max-w-4xl mx-auto">
-          <el-carousel height="400px" indicator-position="outside" arrow="hover">
+          <el-carousel :height="isMobile ? '250px' : '400px'" indicator-position="outside" arrow="hover" class="custom-carousel">
             <el-carousel-item v-for="slide in slides" :key="slide.id">
               <a :href="slide.link" target="_blank" rel="noopener noreferrer" class="block h-full">
                 <div class="relative h-full">
@@ -53,7 +96,7 @@
 
       <!-- 三个分区入口 -->
       <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-        <div class="grid md:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
           <!-- 学习模块 -->
           <router-link to="/learn">
             <el-card class="text-center hover:shadow-xl transition-shadow duration-300 cursor-pointer" shadow="hover">
@@ -110,6 +153,7 @@ export default {
   name: 'Home',
   data() {
     return {
+      mobileMenuOpen: false,
       // ============================================
       // 📝 轮播图配置说明
       // ============================================
@@ -158,8 +202,57 @@ export default {
       ]
     }
   },
+  computed: {
+    isMobile() {
+      return window.innerWidth <= 768
+    }
+  },
   mounted() {
     document.title = '手语教学平台 - 让手语学习变得简单有趣'
+    // 监听窗口大小变化
+    window.addEventListener('resize', this.handleResize)
+  },
+  beforeUnmount() {
+    window.removeEventListener('resize', this.handleResize)
+  },
+  methods: {
+    handleResize() {
+      // 强制更新以响应窗口大小变化
+      this.$forceUpdate()
+    }
   }
 }
 </script>
+
+<style scoped>
+/* 缩小轮播图控制点 */
+:deep(.el-carousel__indicators) {
+  margin-top: 8px;
+}
+
+:deep(.el-carousel__indicator) {
+  width: 8px !important;
+  height: 8px !important;
+  margin: 0 4px !important;
+}
+
+:deep(.el-carousel__button) {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+}
+
+/* 移动端进一步缩小 */
+@media (max-width: 768px) {
+  :deep(.el-carousel__indicator) {
+    width: 6px !important;
+    height: 6px !important;
+    margin: 0 3px !important;
+  }
+  
+  :deep(.el-carousel__button) {
+    width: 6px !important;
+    height: 6px !important;
+  }
+}
+</style>

@@ -5,16 +5,59 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center">
-            <router-link to="/" class="text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
+            <router-link to="/" class="text-xl sm:text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
               👋 手语教学平台
             </router-link>
           </div>
-          <div class="flex items-center space-x-4">
+          <!-- 桌面端导航 -->
+          <div class="hidden md:flex items-center space-x-4">
             <router-link to="/" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">首页</router-link>
             <router-link to="/learn" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">学习</router-link>
             <router-link to="/community" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">社区</router-link>
             <router-link to="/translate" class="nav-link text-blue-700 font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full">翻译</router-link>
           </div>
+          <!-- 移动端菜单按钮 -->
+          <button 
+            @click="mobileMenuOpen = !mobileMenuOpen"
+            class="md:hidden p-2 text-gray-700 hover:text-blue-600 focus:outline-none"
+            aria-label="菜单"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path v-if="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <!-- 移动端菜单 -->
+        <div v-if="mobileMenuOpen" class="md:hidden py-4 border-t border-gray-200 mt-2">
+          <router-link 
+            to="/" 
+            @click="mobileMenuOpen = false"
+            class="block py-3 px-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
+          >
+            首页
+          </router-link>
+          <router-link 
+            to="/learn" 
+            @click="mobileMenuOpen = false"
+            class="block py-3 px-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
+          >
+            学习
+          </router-link>
+          <router-link 
+            to="/translate" 
+            @click="mobileMenuOpen = false"
+            class="block py-3 px-4 text-blue-700 bg-blue-50 font-semibold rounded-lg"
+          >
+            翻译
+          </router-link>
+          <router-link 
+            to="/community" 
+            @click="mobileMenuOpen = false"
+            class="block py-3 px-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
+          >
+            社区
+          </router-link>
         </div>
       </div>
     </nav>
@@ -23,19 +66,44 @@
     <main class="pt-8">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- 页面标题 -->
-        <div class="text-center mb-8 fade-in">
-          <h1 class="text-5xl font-bold text-blue-700 mb-4 animate-fade-in-down">
+        <div class="text-center mb-6 md:mb-8 fade-in">
+          <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-blue-700 mb-2 md:mb-4 animate-fade-in-down">
             🤖 手语识别翻译系统
           </h1>
-          <p class="text-xl text-gray-700 font-medium animate-fade-in-up">
+          <p class="text-base sm:text-lg md:text-xl text-gray-700 font-medium animate-fade-in-up px-2">
             基于YOLOv8的实时手语识别和智能翻译
           </p>
         </div>
 
         <!-- 主界面布局 -->
-        <div class="grid lg:grid-cols-3 gap-8">
-          <!-- 左侧：图像显示区域 -->
-          <div class="lg:col-span-2">
+        <div class="grid lg:grid-cols-3 gap-4 md:gap-8">
+          <!-- 移动端：检测结果框（在最上面） -->
+          <el-card v-if="detectionResults.length > 0 && isMobile" class="lg:hidden mb-4 w-full order-1">
+            <template #header>
+              <div class="flex items-center justify-between">
+                <span class="text-lg font-semibold">检测结果与位置信息</span>
+                <el-tag type="success">{{ detectionResults.length }} 个目标</el-tag>
+              </div>
+            </template>
+            <el-table 
+              :data="detectionResults" 
+              stripe 
+              style="width: 100%"
+              :max-height="200"
+              size="small"
+            >
+              <el-table-column prop="index" label="序号" width="60" align="center" />
+              <el-table-column prop="className" label="类别" width="100" align="center" />
+              <el-table-column prop="confidence" label="置信度" width="80" align="center">
+                <template #default="scope">
+                  <span class="font-semibold text-green-600 text-xs">{{ scope.row.confidence }}%</span>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-card>
+          
+          <!-- 左侧：图像显示区域（在检测结果下面） -->
+          <div class="lg:col-span-2 order-2 lg:order-1 w-full">
             <el-card shadow="hover" class="h-full">
               <template #header>
                 <div class="flex items-center justify-between">
@@ -58,7 +126,7 @@
                   <button @click="checkVideoStatus" class="mt-2 px-2 py-1 bg-blue-500 text-white text-xs rounded">检查视频状态</button>
                 </div>
                 <!-- 图像/视频显示区域 -->
-                <div class="bg-gray-100 rounded-lg mb-4 relative" style="min-height: 500px; display: flex; align-items: center; justify-content: center;">
+                <div class="bg-gray-100 rounded-lg mb-4 relative" :style="{ minHeight: isMobile ? '300px' : '500px', display: 'flex', alignItems: 'center', justifyContent: 'center' }">
                   <div v-if="!currentImage && !currentVideo" class="text-center py-8">
                     <div class="text-6xl mb-4">📷</div>
                     <p class="text-gray-600">请选择图片、视频或开启摄像头</p>
@@ -69,7 +137,8 @@
                     :src="currentImage" 
                     alt="检测结果" 
                     class="max-w-full max-h-full object-contain w-full h-auto"
-                    style="max-height: 500px;"
+                    :style="{ maxHeight: isMobile ? '300px' : '500px', width: '100%', height: 'auto' }"
+                    @load="handleImageLoad"
                   />
                   <div v-else-if="currentVideo" class="w-full" style="background: black; min-height: 400px; display: flex; align-items: center; justify-content: center; flex-direction: column; position: relative;">
                     <!-- 隐藏的原视频，用于同步播放 -->
@@ -152,8 +221,8 @@
                   </div>
                 </div>
 
-                <!-- 检测结果表格 -->
-                <el-card v-if="detectionResults.length > 0" class="mt-4">
+                <!-- 检测结果表格（桌面端显示，移动端已在上面显示） -->
+                <el-card v-if="detectionResults.length > 0" class="mt-4 hidden lg:block">
                   <template #header>
                     <div class="flex items-center justify-between">
                       <span class="text-lg font-semibold">检测结果与位置信息</span>
@@ -190,14 +259,14 @@
           </div>
 
           <!-- 右侧：控制面板 -->
-          <div class="space-y-6">
+          <div class="space-y-4 md:space-y-6 order-1 lg:order-2">
             <!-- 文件输入 -->
             <el-card shadow="hover">
               <template #header>
                 <span class="text-lg font-semibold">文件导入</span>
               </template>
               <div class="space-y-4">
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <el-button 
                     type="primary" 
                     :icon="Picture" 
@@ -454,6 +523,8 @@ export default {
   },
   setup() {
     // 响应式数据
+    const mobileMenuOpen = ref(false)
+    const isMobile = ref(window.innerWidth <= 768)
     const isProcessing = ref(false)
     const isCameraOpen = ref(false)
     const currentImage = ref('')
@@ -1151,6 +1222,17 @@ export default {
       
       // 监听窗口resize，更新Canvas尺寸
       window.addEventListener('resize', updateCanvasSize)
+      
+      // 监听窗口大小变化，更新移动端状态
+      const handleResize = () => {
+        isMobile.value = window.innerWidth <= 768
+      }
+      window.addEventListener('resize', handleResize)
+      
+      // 清理函数
+      return () => {
+        window.removeEventListener('resize', handleResize)
+      }
     })
 
     onUnmounted(() => {
@@ -1205,6 +1287,17 @@ export default {
       return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
     }
     
+    // 处理图片加载，防止页面缩放
+    const handleImageLoad = (event) => {
+      // 确保图片不会导致页面缩放
+      const img = event.target
+      if (img && isMobile.value) {
+        // 限制图片最大宽度为屏幕宽度
+        img.style.maxWidth = '100%'
+        img.style.height = 'auto'
+      }
+    }
+    
     // 检查视频状态
     const checkVideoStatus = () => {
       console.log('=== 视频状态检查 ===')
@@ -1235,6 +1328,8 @@ export default {
 
     return {
       // 响应式数据
+      mobileMenuOpen,
+      isMobile,
       isProcessing,
       isCameraOpen,
       currentImage,
@@ -1295,7 +1390,8 @@ export default {
       checkVideoStatus,
       toggleVideoPlayPause,
       seekVideo,
-      formatVideoTime
+      formatVideoTime,
+      handleImageLoad
     }
   }
 }
@@ -1645,6 +1741,54 @@ export default {
   
   .parameter-control-group {
     @apply flex-col space-x-0 space-y-2;
+  }
+  
+  /* 移动端表格优化 */
+  :deep(.el-table) {
+    font-size: 12px;
+  }
+  
+  :deep(.el-table th),
+  :deep(.el-table td) {
+    padding: 8px 4px !important;
+  }
+  
+  /* 移动端卡片优化 */
+  :deep(.el-card__body) {
+    padding: 12px !important;
+  }
+  
+  /* 移动端按钮优化 */
+  :deep(.el-button) {
+    padding: 10px 16px !important;
+    font-size: 14px !important;
+  }
+  
+  /* 移动端输入框优化 */
+  :deep(.el-input),
+  :deep(.el-textarea) {
+    font-size: 16px !important; /* 防止iOS自动缩放 */
+  }
+  
+  /* 移动端滑块优化 */
+  :deep(.el-slider) {
+    margin: 10px 0;
+  }
+  
+  /* 防止图片导致页面缩放 */
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+    display: block !important;
+  }
+  
+  /* 防止页面自动缩放 */
+  body {
+    touch-action: pan-y;
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 }
 
