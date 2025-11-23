@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import Welcome from '@/views/Welcome.vue'
 import Home from '@/views/Home.vue'
 import Learn from '@/views/Learn.vue'
 import Translate from '@/views/Translate.vue'
@@ -15,6 +16,11 @@ import ChallengeLevelCalendar from '@/views/ChallengeLevelCalendar.vue'
 const routes = [
   {
     path: '/',
+    name: 'Welcome',
+    component: Welcome
+  },
+  {
+    path: '/home',
     name: 'Home',
     component: Home
   },

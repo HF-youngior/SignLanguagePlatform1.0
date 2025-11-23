@@ -11,7 +11,7 @@
             </router-link>
           </div>
           <div class="flex items-center space-x-4">
-            <router-link to="/" class="text-gray-700 hover:text-blue-600">首页</router-link>
+            <router-link to="/home" class="text-gray-700 hover:text-blue-600">首页</router-link>
             <router-link to="/learn" class="text-gray-700 hover:text-blue-600">
               <el-icon><ArrowLeft /></el-icon>
               返回学习中心

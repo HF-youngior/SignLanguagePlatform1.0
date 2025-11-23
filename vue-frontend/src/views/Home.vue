@@ -5,13 +5,13 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center">
-            <router-link to="/" class="text-xl sm:text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
+            <router-link to="/home" class="text-xl sm:text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
               👋 手语教学平台
             </router-link>
           </div>
           <!-- 桌面端导航 -->
           <div class="hidden md:flex items-center space-x-4">
-            <router-link to="/" class="nav-link text-blue-700 font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full">首页</router-link>
+            <router-link to="/home" class="nav-link text-blue-700 font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full">首页</router-link>
             <router-link to="/learn" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">学习</router-link>
             <router-link to="/translate" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">翻译</router-link>
             <router-link to="/community" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">社区</router-link>
