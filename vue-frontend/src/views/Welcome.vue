@@ -676,19 +676,90 @@ export default {
       return avgDistance < 0.15
     }
     
-    // 创建花苞
+    // 创建花苞 - 添加多种花朵类型和随机大小
     const createBud = (x, y) => {
+      // 定义不同种类的花朵及其属性
+      const flowerTypes = [
+        {
+          type: 'rose',
+          minSize: 25,
+          maxSize: 40,
+          minPetals: 10,
+          maxPetals: 15,
+          hueRange: { min: 330, max: 360 }, // 红色到粉色
+          saturationRange: { min: 70, max: 90 },
+          lightnessRange: { min: 50, max: 65 }
+        },
+        {
+          type: 'daisy',
+          minSize: 35,
+          maxSize: 50,
+          minPetals: 15,
+          maxPetals: 25,
+          hueRange: { min: 0, max: 60 }, // 黄色到白色
+          saturationRange: { min: 0, max: 40 },
+          lightnessRange: { min: 70, max: 95 }
+        },
+        {
+          type: 'tulip',
+          minSize: 30,
+          maxSize: 45,
+          minPetals: 6,
+          maxPetals: 9,
+          hueRange: { min: 300, max: 360 }, // 紫色到粉色
+          saturationRange: { min: 60, max: 80 },
+          lightnessRange: { min: 55, max: 70 }
+        },
+        {
+          type: 'sunflower',
+          minSize: 40,
+          maxSize: 60,
+          minPetals: 20,
+          maxPetals: 30,
+          hueRange: { min: 40, max: 60 }, // 黄色
+          saturationRange: { min: 70, max: 90 },
+          lightnessRange: { min: 60, max: 80 }
+        },
+        {
+          type: 'lily',
+          minSize: 35,
+          maxSize: 55,
+          minPetals: 6,
+          maxPetals: 8,
+          hueRange: { min: 0, max: 30 }, // 白色到粉色
+          saturationRange: { min: 0, max: 60 },
+          lightnessRange: { min: 75, max: 95 }
+        }
+      ]
+      
+      // 随机选择花朵类型
+      const flowerType = flowerTypes[Math.floor(Math.random() * flowerTypes.length)]
+      
+      // 生成随机属性
+      const maxSize = flowerType.minSize + Math.random() * (flowerType.maxSize - flowerType.minSize)
+      const petals = flowerType.minPetals + Math.floor(Math.random() * (flowerType.maxPetals - flowerType.minPetals + 1))
+      const hue = flowerType.hueRange.min + Math.random() * (flowerType.hueRange.max - flowerType.hueRange.min)
+      const saturation = flowerType.saturationRange.min + Math.random() * (flowerType.saturationRange.max - flowerType.saturationRange.min)
+      const lightness = flowerType.lightnessRange.min + Math.random() * (flowerType.lightnessRange.max - flowerType.lightnessRange.min)
+      
+      // 生成花朵对象
       flowers.value.push({
         x,
         y,
         state: 'bud', // 'bud', 'blooming', or 'bloomed'
         size: 0,
-        maxSize: 30 + Math.random() * 20,
-        petals: 5 + Math.floor(Math.random() * 4), // 5-8片花瓣
-        color: `hsl(${Math.random() * 60 + 300}, 70%, 60%)`, // 粉色到紫色
+        maxSize: maxSize,
+        petals: petals,
+        color: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
+        type: flowerType.type,
         bloomProgress: 0,
         rotation: Math.random() * Math.PI * 2,
-        createdAt: Date.now()
+        rotationOffset: Math.random() * 0.3 - 0.15, // 增加随机旋转偏移，使花朵更自然
+        createdAt: Date.now(),
+        // 添加花柄相关属性
+        stemHeight: maxSize * (0.8 + Math.random() * 1.2), // 花柄高度为花朵大小的0.8-2倍
+        stemGrowthProgress: 0, // 花柄生长进度
+        stemCurvature: Math.random() * 0.4 - 0.2 // 花柄弯曲度，使花柄看起来更自然
       })
     }
     
@@ -702,6 +773,7 @@ export default {
         const lastBud = buds[0]
         lastBud.state = 'blooming'
         lastBud.bloomStartTime = Date.now()
+        lastBud.stemGrowthStartTime = Date.now() // 记录花柄开始生长的时间
         console.log('花苞绽放:', lastBud.x, lastBud.y)
       }
     }
@@ -727,9 +799,18 @@ export default {
             const elapsed = Date.now() - flower.bloomStartTime
             flower.bloomProgress = Math.min(elapsed / 1000, 1) // 1秒完成绽放
             
+            // 计算花柄生长进度（略快于花朵绽放，让花柄先生长）
+            if (flower.stemGrowthStartTime) {
+              const stemElapsed = Date.now() - flower.stemGrowthStartTime
+              flower.stemGrowthProgress = Math.min(stemElapsed / 900, 1) // 0.9秒完成花柄生长
+            }
+            
             if (flower.bloomProgress >= 1) {
               flower.state = 'bloomed'
+              flower.stemGrowthProgress = 1 // 确保花柄完全生长
             }
+          } else if (flower.state === 'bloomed') {
+            flower.stemGrowthProgress = 1 // 确保花柄完全显示
           }
         }
       })
@@ -809,6 +890,33 @@ export default {
       ctx.save()
       ctx.translate(bud.x, bud.y)
       
+      // 绘制花柄（如果正在生长）
+      if (bud.state === 'blooming' && bud.stemGrowthProgress > 0) {
+        const stemProgress = Math.min(bud.stemGrowthProgress * 1.2, 1)
+        const stemLength = bud.stemHeight * stemProgress
+        
+        // 绘制弯曲的花柄
+        ctx.strokeStyle = '#4CAF50'
+        ctx.lineWidth = bud.maxSize * 0.05
+        ctx.beginPath()
+        
+        // 使用二次贝塞尔曲线创建弯曲的花柄
+        const controlX = stemLength * bud.stemCurvature
+        const controlY = stemLength * 0.5
+        
+        ctx.moveTo(0, 0)
+        ctx.quadraticCurveTo(controlX, controlY, 0, stemLength)
+        ctx.stroke()
+        
+        // 花柄细节
+        ctx.strokeStyle = '#388E3C'
+        ctx.lineWidth = bud.maxSize * 0.03
+        ctx.beginPath()
+        ctx.moveTo(0, 0)
+        ctx.quadraticCurveTo(controlX, controlY, 0, stemLength)
+        ctx.stroke()
+      }
+      
       // 花苞主体（椭圆形）
       const gradient = ctx.createLinearGradient(0, -bud.maxSize, 0, bud.maxSize)
       gradient.addColorStop(0, bud.color)
@@ -841,51 +949,102 @@ export default {
       ctx.translate(flower.x, flower.y)
       ctx.rotate(flower.rotation)
       
-      const size = flower.maxSize * (0.3 + flower.bloomProgress * 0.7)
+      // 使用缓动函数使动画更自然
+      const easeOutProgress = 1 - Math.pow(1 - flower.bloomProgress, 3)
+      const size = flower.maxSize * (0.3 + easeOutProgress * 0.7)
       
-      // 绘制花瓣
+      // 绘制花柄（如果已经开始生长）
+      if (flower.stemGrowthProgress > 0 && flower.stemHeight && flower.stemHeight > 0) {
+        const stemProgress = Math.min(flower.stemGrowthProgress * 1.2, 1)
+        const stemLength = flower.stemHeight * stemProgress
+        
+        // 使用二次贝塞尔曲线创建弯曲的花柄
+        const controlX = stemLength * (flower.stemCurvature || 0)
+        const controlY = stemLength * 0.5
+        
+        // 花柄主体
+        ctx.strokeStyle = '#4CAF50'
+        ctx.lineWidth = flower.maxSize * 0.05
+        ctx.beginPath()
+        ctx.moveTo(0, 0)
+        ctx.quadraticCurveTo(controlX, controlY, 0, stemLength)
+        ctx.stroke()
+        
+        // 花柄细节
+        ctx.strokeStyle = '#388E3C'
+        ctx.lineWidth = flower.maxSize * 0.03
+        ctx.beginPath()
+        ctx.moveTo(0, 0)
+        ctx.quadraticCurveTo(controlX, controlY, 0, stemLength)
+        ctx.stroke()
+      }
+      
+      // 绘制花瓣 - 更自然的生长动画
       for (let i = 0; i < flower.petals; i++) {
-        const angle = (Math.PI * 2 / flower.petals) * i
+        const angle = (Math.PI * 2 / flower.petals) * i + (flower.rotationOffset || 0)
+        
+        // 为每个花瓣添加微小的随机大小差异
         const petalSize = size * (0.8 + Math.random() * 0.4)
         
         ctx.save()
-        ctx.rotate(angle)
-        ctx.translate(0, -size * 0.3)
         
-        // 花瓣（圆形）
-        const petalGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, petalSize * 0.5)
+        // 花瓣自然旋转动画
+        const petalRotation = Math.sin(easeOutProgress * Math.PI) * 0.2
+        ctx.rotate(angle + petalRotation)
+        
+        // 花瓣向外生长的动画
+        const petalDistance = -size * 0.3 * (1 + easeOutProgress * 0.5)
+        ctx.translate(0, petalDistance)
+        
+        // 花瓣缩放动画
+        const petalScale = 0.3 + easeOutProgress * 0.7
+        ctx.scale(petalScale, petalScale)
+        
+        // 创建更自然的花瓣形状（椭圆形而不是圆形）
+        const petalGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, petalSize * 0.7)
         petalGradient.addColorStop(0, flower.color)
         petalGradient.addColorStop(1, `hsl(${parseInt(flower.color.match(/\d+/)?.[0] || '300') - 20}, 70%, 50%)`)
         
         ctx.fillStyle = petalGradient
         ctx.beginPath()
-        ctx.arc(0, 0, petalSize * 0.5, 0, Math.PI * 2)
+        
+        // 绘制更自然的花瓣形状（心形/椭圆形）
+        ctx.ellipse(0, 0, petalSize * 0.5, petalSize * 0.8, 0, 0, Math.PI * 2)
         ctx.fill()
         
-        // 花瓣高光
+        // 花瓣高光 - 更自然的位置和形状
         ctx.fillStyle = 'rgba(255, 255, 255, 0.4)'
         ctx.beginPath()
-        ctx.arc(-petalSize * 0.2, -petalSize * 0.2, petalSize * 0.2, 0, Math.PI * 2)
+        ctx.ellipse(-petalSize * 0.15, -petalSize * 0.25, petalSize * 0.15, petalSize * 0.1, 0, 0, Math.PI * 2)
         ctx.fill()
         
         ctx.restore()
       }
       
-      // 花心
-      const centerGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 0.2)
+      // 花心 - 随着花瓣绽放逐渐显现
+      const centerScale = 0.8 + easeOutProgress * 0.2
+      const centerSize = size * 0.2 * centerScale
+      
+      const centerGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, centerSize)
       centerGradient.addColorStop(0, '#FFD700') // 金色
       centerGradient.addColorStop(1, '#FFA500') // 橙色
       
       ctx.fillStyle = centerGradient
       ctx.beginPath()
-      ctx.arc(0, 0, size * 0.2, 0, Math.PI * 2)
+      ctx.arc(0, 0, centerSize, 0, Math.PI * 2)
       ctx.fill()
       
-      // 花心细节
+      // 花心细节 - 更自然的分布
       ctx.fillStyle = '#FF8C00'
-      ctx.beginPath()
-      ctx.arc(0, 0, size * 0.1, 0, Math.PI * 2)
-      ctx.fill()
+      for (let i = 0; i < 8; i++) {
+        const detailAngle = (Math.PI * 2 / 8) * i
+        const detailX = Math.cos(detailAngle) * centerSize * 0.3
+        const detailY = Math.sin(detailAngle) * centerSize * 0.3
+        
+        ctx.beginPath()
+        ctx.arc(detailX, detailY, centerSize * 0.1, 0, Math.PI * 2)
+        ctx.fill()
+      }
       
       ctx.restore()
     }
