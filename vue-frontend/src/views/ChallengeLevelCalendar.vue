@@ -33,7 +33,7 @@
                 <p class="text-base md:text-lg text-white/85">把数字和日期编进生活日常，每天的日历都是一次手语练习。</p>
               </div>
             </div>
-            <el-button type="primary" round size="large" @click="$router.push({ name: 'ChallengeMode' })">
+            <el-button type="primary" round size="large" @click="$router.back()">
               返回闯关地图
             </el-button>
           </div>

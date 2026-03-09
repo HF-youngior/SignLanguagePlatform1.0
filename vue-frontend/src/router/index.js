@@ -12,6 +12,8 @@ import HashtagPage from '@/views/HashtagPage.vue'
 import PrivateChat from '@/views/PrivateChat.vue'
 import ChallengeMode from '@/views/ChallengeMode.vue'
 import ChallengeLevelCalendar from '@/views/ChallengeLevelCalendar.vue'
+import HomeMap from '@/views/HomeMap.vue'
+import LivingRoom from '@/views/LivingRoom.vue'
 
 const routes = [
   {
@@ -38,6 +40,16 @@ const routes = [
     path: '/learn/challenge/level-1',
     name: 'ChallengeLevelCalendar',
     component: ChallengeLevelCalendar
+  },
+  {
+    path: '/learn/challenge/level-2',
+    name: 'HomeMap',
+    component: HomeMap
+  },
+  {
+    path: '/learn/challenge/level-2/living-room',
+    name: 'LivingRoom',
+    component: LivingRoom
   },
   {
     path: '/translate',
