@@ -4,7 +4,8 @@
   "description": "手语教学平台 - Vue.js 前端",
   "type": "module",
   "scripts": {
-    "dev": "node scripts/dev-with-ip.js",
+    "dev": "vite",
+    "dev-with-ip": "node scripts/dev-with-ip.js",
     "vite": "vite",
     "build": "vite build",
     "preview": "vite preview",

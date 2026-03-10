@@ -62,6 +62,7 @@
             <div class="flex flex-row md:flex-col space-x-2 md:space-x-0 md:space-y-2 w-full md:w-auto justify-center md:justify-start">
               <el-button type="primary" size="small" class="md:w-full" @click="showEditDialog = true">编辑资料</el-button>
               <el-button v-if="isOtherUser" type="success" size="small" class="md:w-full" @click="addFriend">添加好友</el-button>
+              <el-button type="danger" size="small" class="md:w-full" @click="logout">退出登录</el-button>
             </div>
           </div>
         </el-card>
@@ -134,9 +135,9 @@
                         <el-icon class="mr-1"><ChatDotRound /></el-icon>
                         {{ post.comments }} 评论
                       </span>
-                      <span class="flex items-center">
-                        <el-icon class="mr-1"><Like /></el-icon>
-                        {{ post.likes }} 点赞
+                      <span class="flex items-center cursor-pointer hover:text-red-600" @click.stop="toggleLike(post)">
+                        <span class="mr-1 text-lg" :class="{ 'text-red-500': post.isLiked }">{{ post.isLiked ? '❤️' : '🤍' }}</span>
+                        <span :class="post.isLiked ? 'text-red-500' : ''">{{ post.likes }}</span>
                       </span>
                       <span class="flex items-center">
                         <el-icon class="mr-1"><View /></el-icon>
@@ -156,34 +157,60 @@
           </el-tab-pane>
 
           <el-tab-pane label="我的社群" name="groups">
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <el-card v-for="group in myGroups" :key="group.id" class="hover:shadow-lg transition-shadow">
-                <div class="text-center">
-                  <el-avatar :size="60" :src="getAvatarUrl(group.avatar)" class="mb-4 mx-auto">
-                    {{ group.name.charAt(0) }}
-                  </el-avatar>
-                  <h3 class="text-lg font-semibold mb-2">{{ group.name }}</h3>
-                  <p class="text-gray-600 text-sm mb-3">{{ group.description }}</p>
-                  <div class="flex items-center justify-center space-x-4 text-sm text-gray-500 mb-4">
-                    <span>{{ group.members }} 成员</span>
-                    <span>{{ group.posts }} 帖子</span>
-                  </div>
-                  <div class="flex space-x-2">
-                    <el-button size="small" type="primary" plain @click="viewGroup(group)">查看</el-button>
-                    <el-button size="small" type="danger" plain @click="leaveGroup(group)">退出</el-button>
-                  </div>
+            <el-tabs v-model="groupTab" type="card" class="mb-4">
+              <el-tab-pane label="我创建的群聊" name="created">
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <el-card v-for="group in createdGroups" :key="group.id" class="hover:shadow-lg transition-shadow">
+                    <div class="text-center">
+                      <el-avatar :size="60" :src="getAvatarUrl(group.avatar)" class="mb-4 mx-auto">
+                        {{ group.name.charAt(0) }}
+                      </el-avatar>
+                      <h3 class="text-lg font-semibold mb-2">{{ group.name }}</h3>
+                      <p class="text-gray-600 text-sm mb-3">{{ group.description }}</p>
+                      <div class="flex items-center justify-center space-x-4 text-sm text-gray-500 mb-4">
+                        <span>{{ group.members }} 成员</span>
+                        <span>{{ group.posts }} 帖子</span>
+                      </div>
+                      <div class="flex space-x-2">
+                        <el-button size="small" type="primary" plain @click="viewGroup(group)">查看</el-button>
+                        <el-button size="small" type="warning" plain @click="showGroupOptions(group)">管理</el-button>
+                      </div>
+                    </div>
+                  </el-card>
                 </div>
-              </el-card>
+              </el-tab-pane>
               
-              <!-- 创建新群聊卡片 -->
-              <el-card class="hover:shadow-lg transition-shadow cursor-pointer border-2 border-dashed border-blue-300 hover:border-blue-500" @click="createNewGroup">
-                <div class="text-center py-8">
-                  <div class="text-4xl text-blue-400 mb-4">+</div>
-                  <h3 class="text-lg font-semibold text-blue-600 mb-2">创建新的群聊</h3>
-                  <p class="text-gray-500 text-sm">创建一个新的学习群聊，邀请朋友一起交流</p>
+              <el-tab-pane label="我加入的群聊" name="joined">
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <el-card v-for="group in joinedGroups" :key="group.id" class="hover:shadow-lg transition-shadow">
+                    <div class="text-center">
+                      <el-avatar :size="60" :src="getAvatarUrl(group.avatar)" class="mb-4 mx-auto">
+                        {{ group.name.charAt(0) }}
+                      </el-avatar>
+                      <h3 class="text-lg font-semibold mb-2">{{ group.name }}</h3>
+                      <p class="text-gray-600 text-sm mb-3">{{ group.description }}</p>
+                      <div class="flex items-center justify-center space-x-4 text-sm text-gray-500 mb-4">
+                        <span>{{ group.members }} 成员</span>
+                        <span>{{ group.posts }} 帖子</span>
+                      </div>
+                      <div class="flex space-x-2">
+                        <el-button size="small" type="primary" plain @click="viewGroup(group)">查看</el-button>
+                        <el-button size="small" type="danger" plain @click="leaveGroup(group)">退出</el-button>
+                      </div>
+                    </div>
+                  </el-card>
                 </div>
-              </el-card>
-            </div>
+              </el-tab-pane>
+            </el-tabs>
+            
+            <!-- 创建新群聊卡片 -->
+            <el-card class="hover:shadow-lg transition-shadow cursor-pointer border-2 border-dashed border-blue-300 hover:border-blue-500" @click="createNewGroup">
+              <div class="text-center py-8">
+                <div class="text-4xl text-blue-400 mb-4">+</div>
+                <h3 class="text-lg font-semibold text-blue-600 mb-2">创建新的群聊</h3>
+                <p class="text-gray-500 text-sm">创建一个新的学习群聊，邀请朋友一起交流</p>
+              </div>
+            </el-card>
           </el-tab-pane>
 
           <el-tab-pane label="我的好友" name="friends">
@@ -298,6 +325,45 @@
       </template>
     </el-dialog>
 
+    <!-- 群组管理对话框 -->
+    <el-dialog v-model="showGroupManageDialog" title="群组管理" width="500px">
+      <div class="mb-4">
+        <p class="text-gray-600 mb-4">您是群主，可以选择以下操作：</p>
+        <div class="space-y-3">
+          <el-button type="danger" class="w-full" @click="confirmDissolveGroup">解散群组</el-button>
+          <el-button type="warning" class="w-full" @click="showTransferDialog = true">转让群主</el-button>
+        </div>
+      </div>
+    </el-dialog>
+
+    <!-- 转让群主对话框 -->
+    <el-dialog v-model="showTransferDialog" title="转让群主" width="500px">
+      <div class="mb-4">
+        <p class="text-gray-600 mb-4">选择要转让给哪个成员：</p>
+        <el-select v-model="selectedNewOwner" placeholder="请选择新群主" class="w-full">
+          <el-option
+            v-for="member in groupMembers"
+            :key="member.id"
+            :label="member.first_name || member.username"
+            :value="member.user_id"
+          >
+            <div class="flex items-center">
+              <el-avatar :size="24" :src="getAvatarUrl(member.avatar)" class="mr-2">
+                {{ (member.first_name || member.username).charAt(0) }}
+              </el-avatar>
+              <span>{{ member.first_name || member.username }}</span>
+            </div>
+          </el-option>
+        </el-select>
+      </div>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="showTransferDialog = false">取消</el-button>
+          <el-button type="primary" @click="transferOwnership">确认转让</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
     <!-- 创建群聊对话框 -->
     <el-dialog v-model="showCreateGroupDialog" title="创建新的群聊" width="600px">
       <el-form :model="createGroupForm" label-width="80px">
@@ -347,23 +413,35 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { ChatDotRound, User, Star, View } from '@element-plus/icons-vue'
 import { getAvatarUrl } from '@/utils/avatar'
+import apiService from '@/services/api'
 
 export default {
   name: 'Profile',
+  components: {
+    ChatDotRound,
+    User,
+    Star,
+    View
+  },
   setup() {
     const router = useRouter()
     const route = useRoute()
     const isMobile = ref(window.innerWidth <= 768)
     const activeTab = ref('posts')
+    const groupTab = ref('created')
     const showEditDialog = ref(false)
     const showNotificationDialog = ref(false)
     const showCreateGroupDialog = ref(false)
+    const showGroupManageDialog = ref(false)
+    const showTransferDialog = ref(false)
     const notificationType = ref('')
     const isOtherUser = ref(false)
+    let handleResize
     const editForm = ref({
       name: '',
       bio: '',
@@ -376,122 +454,190 @@ export default {
     })
 
     const userInfo = ref({
-      name: '张三',
+      name: '',
       avatar: '',
       level: '中级',
-      joinDate: '2024年1月',
+      joinDate: '',
       location: '北京市',
-      bio: '热爱手语学习，希望通过这个平台结识更多朋友，一起进步！',
-      posts: 12,
-      groups: 5,
-      friends: 28,
-      points: 1250
+      bio: '暂无个人简介',
+      posts: 0,
+      groups: 0,
+      friends: 0,
+      points: 0
     })
 
-    const myPosts = ref([
-      {
-        id: 1,
-        username: '张三',
-        level: '中级',
-        time: '2小时前',
-        content: '今天学会了"你好"的手语表达，感觉很有成就感！大家有什么学习技巧可以分享吗？',
-        avatar: '',
-        comments: 5,
-        likes: 12,
-        views: 89,
-        privacy: 'public'
-      },
-      {
-        id: 2,
-        username: '张三',
-        level: '中级',
-        time: '1天前',
-        content: '分享一个学习心得：每天坚持练习15分钟，比一次性练习2小时效果更好。循序渐进很重要！',
-        avatar: '',
-        comments: 8,
-        likes: 23,
-        views: 156,
-        privacy: 'friends'
-      },
-      {
-        id: 3,
-        username: '张三',
-        level: '中级',
-        time: '3天前',
-        content: '本周的挑战：学会用手语表达"今天天气很好"。大家可以尝试一下，有问题随时提问！',
-        avatar: '',
-        comments: 15,
-        likes: 45,
-        views: 234,
-        privacy: 'public'
-      }
-    ])
+    const myPosts = ref([])
 
-    const myGroups = ref([
-      {
-        id: 1,
-        name: '初学者互助组',
-        description: '帮助新手快速入门手语学习',
-        members: 156,
-        posts: 89,
-        avatar: ''
-      },
-      {
-        id: 2,
-        name: '聋健交流组',
-        description: '聋人朋友与听力正常朋友交流的平台',
-        members: 120,
-        posts: 156,
-        avatar: ''
-      },
-      {
-        id: 3,
-        name: '手语文化分享组',
-        description: '分享手语文化和艺术',
-        members: 80,
-        posts: 67,
-        avatar: ''
-      },
-      {
-        id: 4,
-        name: '中级进阶组',
-        description: '中级学习者进阶交流',
-        members: 89,
-        posts: 45,
-        avatar: ''
-      }
-    ])
+    const myGroups = ref([])
 
-    const myFriends = ref([
-      {
-        id: 1,
-        name: '小明',
-        level: '初级',
-        bio: '刚开始学习手语，请多指教！',
-        avatar: ''
-      },
-      {
-        id: 2,
-        name: '小红',
-        level: '高级',
-        bio: '手语老师，愿意帮助大家学习',
-        avatar: ''
-      },
-      {
-        id: 3,
-        name: '小李',
-        level: '中级',
-        bio: '热爱手语文化，喜欢交流',
-        avatar: ''
-      },
-      {
-        id: 4,
-        name: '小王',
-        level: '初级',
-        bio: '聋人朋友，一起学习进步',
-        avatar: ''
+    const myFriends = ref([])
+
+    const selectedGroup = ref(null)
+    const groupMembers = ref([])
+    const selectedNewOwner = ref(null)
+
+    // 加载用户信息
+    const loadUserInfo = async () => {
+      try {
+        const response = await apiService.getUserProfile()
+        if (response.success) {
+          const userData = response.data
+          // 优先使用first_name，如果没有则使用username
+          const displayName = userData.first_name || userData.username
+
+          userInfo.value = {
+            name: displayName,
+            avatar: userData.avatar,
+            level: '中级',
+            joinDate: new Date(userData.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' }),
+            location: '北京市',
+            bio: userData.bio || '暂无个人简介',
+            posts: userData.stats?.posts || 0,
+            groups: 0,
+            friends: userData.stats?.friends || 0,
+            points: 0
+          }
+
+          // 更新编辑表单
+          editForm.value = {
+            name: displayName,
+            bio: userData.bio || '',
+            avatar: userData.avatar || ''
+          }
+        }
+      } catch (error) {
+        console.error('加载用户信息失败:', error)
       }
-    ])
+    }
+
+    // 加载用户群组
+    const loadUserGroups = async () => {
+      try {
+        const response = await apiService.getMyGroups()
+        if (response.success) {
+          myGroups.value = response.data.groups.map(group => ({
+            id: group.id,
+            name: group.name,
+            description: group.description,
+            members: group.member_count || 0,
+            posts: group.post_count || 0,
+            avatar: group.avatar,
+            role: group.role,
+            joined_at: group.joined_at
+          }))
+          // 更新用户统计中的群组数量
+          userInfo.value.groups = myGroups.value.length
+        }
+      } catch (error) {
+        console.error('加载用户群组失败:', error)
+      }
+    }
+
+    // 加载用户帖子
+    const loadUserPosts = async () => {
+      try {
+        const response = await apiService.getUserPosts()
+        if (response.success) {
+          myPosts.value = response.data.posts.map(post => ({
+            id: post.id,
+            username: post.username,
+            level: '中级',
+            time: new Date(post.created_at).toLocaleString('zh-CN'),
+            content: post.content,
+            avatar: post.avatar,
+            comments: post.comments_count || 0,
+            likes: post.likes_count || 0,
+            views: post.views || 0,
+            privacy: post.privacy || 'public',
+            isLiked: post.isLiked || false
+          }))
+        }
+      } catch (error) {
+        console.error('加载用户帖子失败:', error)
+      }
+    }
+
+    // 切换点赞
+    const toggleLike = async (post) => {
+      try {
+        const response = await apiService.likePost(post.id)
+        if (response.success) {
+          post.isLiked = response.data.liked
+          post.likes = response.data.likes_count
+          if (post.isLiked) {
+            ElMessage.success('点赞成功！')
+          } else {
+            ElMessage.info('已取消点赞')
+          }
+        }
+      } catch (error) {
+        console.error('点赞失败:', error)
+        ElMessage.error('点赞失败，请稍后重试')
+      }
+    }
+
+    // 保存编辑
+    const saveEdit = async () => {
+      try {
+        console.log('正在保存资料:', {
+          first_name: editForm.value.name,
+          bio: editForm.value.bio,
+          avatar: editForm.value.avatar ? '有头像数据' : '无头像数据'
+        })
+        
+        const response = await apiService.updateUserProfile({
+          first_name: editForm.value.name,
+          bio: editForm.value.bio,
+          avatar: editForm.value.avatar
+        })
+
+        if (response.success) {
+          userInfo.value.name = editForm.value.name
+          userInfo.value.bio = editForm.value.bio
+          userInfo.value.avatar = editForm.value.avatar
+          showEditDialog.value = false
+          ElMessage.success('资料更新成功！')
+          // 刷新用户数据
+          await loadUserInfo()
+        }
+      } catch (error) {
+        console.error('更新资料失败:', error)
+        ElMessage.error('更新资料失败，请稍后重试')
+      }
+    }
+
+    // 初始化数据
+    onMounted(async () => {
+      await loadUserInfo()
+      await loadUserPosts()
+      await loadUserGroups()
+      // 只有在有token的情况下才加载通知
+      const token = localStorage.getItem('token')
+      if (token) {
+        await loadNotifications()
+      }
+      
+      // 检查是否是其他用户的个人主页
+      const userId = route.params.id
+      if (userId && userId !== 'me') {
+        isOtherUser.value = true
+        // 这里可以根据userId加载其他用户的信息
+        document.title = `${userInfo.value.name}的个人主页 - 手语教学平台`
+      } else {
+        document.title = '我的主页 - 手语教学平台'
+      }
+
+      // 监听窗口大小变化
+      handleResize = () => {
+        isMobile.value = window.innerWidth <= 768
+      }
+      window.addEventListener('resize', handleResize)
+    })
+
+    // 组件卸载时清理事件监听器
+    onUnmounted(() => {
+      window.removeEventListener('resize', handleResize)
+    })
 
     const achievements = ref([
       {
@@ -539,55 +685,16 @@ export default {
     ])
 
     const notifications = ref({
-      likes: 5,
-      comments: 3,
-      friendRequests: 2,
-      friendMessages: 4
+      likes: 0,
+      comments: 0,
+      friendRequests: 0,
+      friendMessages: 0
     })
 
     // 详细的通知数据
-    const likeComments = ref([
-      {
-        id: 1,
-        userId: 1,
-        username: '小明',
-        avatar: '',
-        type: 'like',
-        time: '2小时前',
-        targetPost: '今天学会了"你好"的手语表达',
-        targetPostId: 1
-      },
-      {
-        id: 2,
-        userId: 2,
-        username: '小红',
-        avatar: '',
-        type: 'comment',
-        time: '1小时前',
-        targetPost: '分享一个学习心得',
-        targetPostId: 2,
-        commentContent: '很棒的建议！我也要试试'
-      }
-    ])
+    const likeComments = ref([])
 
-    const friendMessages = ref([
-      {
-        id: 1,
-        userId: 1,
-        username: '小明',
-        avatar: '',
-        time: '30分钟前',
-        message: '你好！我想请教一下手语学习的方法'
-      },
-      {
-        id: 2,
-        userId: 2,
-        username: '小红',
-        avatar: '',
-        time: '2小时前',
-        message: '谢谢你的分享，很有帮助！'
-      }
-    ])
+    const friendMessages = ref([])
 
     const getPrivacyType = (privacy) => {
       switch (privacy) {
@@ -616,15 +723,62 @@ export default {
       showCreateGroupDialog.value = true
     }
 
-
-    const markAllAsRead = () => {
-      notifications.value = {
-        likes: 0,
-        comments: 0,
-        friendRequests: 0,
-        friendMessages: 0
+    // 加载通知数据
+    const loadNotifications = async () => {
+      try {
+        const response = await apiService.getNotifications()
+        if (response.success) {
+          // 更新通知计数
+          notifications.value.likes = response.data.likeUnreadCount || 0
+          notifications.value.comments = 0
+          notifications.value.friendRequests = response.data.friendUnreadCount || 0
+          notifications.value.friendMessages = 0
+          
+          // 更新通知列表
+          const allNotifications = response.data.notifications || []
+          likeComments.value = allNotifications
+            .filter(n => n.type === 'like' || n.type === 'comment')
+            .map(n => ({
+              id: n.id,
+              userId: n.sender_id,
+              username: n.sender_name || '用户',
+              avatar: n.sender_avatar || '',
+              type: n.type,
+              time: new Date(n.created_at).toLocaleString('zh-CN'),
+              targetPost: n.content || '',
+              targetPostId: n.target_id,
+              isRead: n.is_read
+            }))
+          
+          friendMessages.value = allNotifications
+            .filter(n => n.type === 'friend_request' || n.type === 'friend_accept')
+            .map(n => ({
+              id: n.id,
+              userId: n.sender_id,
+              username: n.sender_name || '用户',
+              avatar: n.sender_avatar || '',
+              time: new Date(n.created_at).toLocaleString('zh-CN'),
+              message: n.content || '',
+              isRead: n.is_read
+            }))
+        }
+      } catch (error) {
+        console.error('加载通知失败:', error)
       }
-      ElMessage.success('已标记所有消息为已读')
+    }
+
+    const markAllAsRead = async () => {
+      try {
+        // 如果没有指定类型，标记所有通知为已读
+        const response = await apiService.markAllNotificationsAsRead('')
+        if (response.success) {
+          await loadNotifications()
+          ElMessage.success('已标记所有消息为已读')
+        }
+      } catch (error) {
+        console.error('标记已读失败:', error)
+        ElMessage.error('操作失败，请稍后重试')
+      }
     }
 
     // 编辑资料功能
@@ -637,14 +791,7 @@ export default {
       }
     }
 
-    // 保存编辑
-    const saveEdit = () => {
-      userInfo.value.name = editForm.value.name
-      userInfo.value.bio = editForm.value.bio
-      userInfo.value.avatar = editForm.value.avatar
-      showEditDialog.value = false
-      ElMessage.success('资料更新成功！')
-    }
+
 
     // 头像上传
     const handleAvatarUpload = (event) => {
@@ -675,6 +822,28 @@ export default {
       })
     }
 
+    // 退出登录
+    const logout = () => {
+      ElMessageBox.confirm(
+        '确定要退出登录吗？',
+        '退出登录',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }
+      ).then(() => {
+        // 清除localStorage中的登录信息
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        ElMessage.success('已退出登录')
+        // 跳转到登录页面
+        router.push('/')
+      }).catch(() => {
+        ElMessage.info('已取消')
+      })
+    }
+
     // 显示通知详情
     const showNotifications = (type) => {
       notificationType.value = type
@@ -682,22 +851,98 @@ export default {
     }
 
     // 退出群聊
-    const leaveGroup = (group) => {
-      ElMessageBox.confirm(
-        `确定要退出群聊"${group.name}"吗？`,
-        '退出群聊',
-        {
-          confirmButtonText: '是',
-          cancelButtonText: '否',
-          type: 'warning',
+    const leaveGroup = async (group) => {
+      try {
+        await ElMessageBox.confirm(
+          `确定要退出群聊"${group.name}"吗？`,
+          '退出群聊',
+          {
+            confirmButtonText: '是',
+            cancelButtonText: '否',
+            type: 'warning',
+          }
+        )
+        
+        const response = await apiService.leaveGroup(group.id)
+        if (response.success) {
+          myGroups.value = myGroups.value.filter(g => g.id !== group.id)
+          userInfo.value.groups -= 1
+          ElMessage.success('已退出群聊')
         }
-      ).then(() => {
-        myGroups.value = myGroups.value.filter(g => g.id !== group.id)
-        userInfo.value.groups -= 1
-        ElMessage.success('已退出群聊')
-      }).catch(() => {
-        ElMessage.info('已取消')
-      })
+      } catch (error) {
+        if (error !== 'cancel') {
+          console.error('退出群聊失败:', error)
+          ElMessage.error('退出群聊失败，请稍后重试')
+        }
+      }
+    }
+
+    // 显示群组管理选项
+    const showGroupOptions = async (group) => {
+      selectedGroup.value = group
+      showGroupManageDialog.value = true
+      
+      // 加载群组成员
+      try {
+        const response = await apiService.getGroupDetail(group.id)
+        if (response.success) {
+          groupMembers.value = response.data.members.filter(m => m.user_id !== group.creator_id)
+        }
+      } catch (error) {
+        console.error('加载群组成员失败:', error)
+      }
+    }
+
+    // 解散群组
+    const confirmDissolveGroup = async () => {
+      try {
+        await ElMessageBox.confirm(
+          `确定要解散群聊"${selectedGroup.value.name}"吗？此操作不可恢复！`,
+          '解散群组',
+          {
+            confirmButtonText: '确认解散',
+            cancelButtonText: '取消',
+            type: 'danger',
+          }
+        )
+        
+        const response = await apiService.dissolveGroup(selectedGroup.value.id)
+        if (response.success) {
+          myGroups.value = myGroups.value.filter(g => g.id !== selectedGroup.value.id)
+          userInfo.value.groups -= 1
+          showGroupManageDialog.value = false
+          ElMessage.success('群组已解散')
+        }
+      } catch (error) {
+        if (error !== 'cancel') {
+          console.error('解散群组失败:', error)
+          ElMessage.error('解散群组失败，请稍后重试')
+        }
+      }
+    }
+
+    // 转让群主
+    const transferOwnership = async () => {
+      if (!selectedNewOwner.value) {
+        ElMessage.warning('请选择要转让的成员')
+        return
+      }
+      
+      try {
+        const response = await apiService.transferGroupOwnership(selectedGroup.value.id, selectedNewOwner.value)
+        if (response.success) {
+          showTransferDialog.value = false
+          showGroupManageDialog.value = false
+          selectedNewOwner.value = null
+          ElMessage.success('群主转让成功')
+          
+          // 重新加载群组列表
+          await loadUserGroups()
+        }
+      } catch (error) {
+        console.error('转让群主失败:', error)
+        ElMessage.error('转让群主失败，请稍后重试')
+      }
     }
 
     // 查看群聊
@@ -776,34 +1021,25 @@ export default {
       showCreateGroupDialog.value = false
     }
 
-    onMounted(() => {
-      // 检查是否是其他用户的个人主页
-      const userId = route.params.id
-      if (userId && userId !== 'me') {
-        isOtherUser.value = true
-        // 这里可以根据userId加载其他用户的信息
-        document.title = `${userInfo.value.name}的个人主页 - 手语教学平台`
-      } else {
-        document.title = '我的主页 - 手语教学平台'
-      }
+    // 计算属性：我创建的群组
+    const createdGroups = computed(() => {
+      return myGroups.value.filter(group => group.role === 'admin')
+    })
 
-      // 监听窗口大小变化
-      const handleResize = () => {
-        isMobile.value = window.innerWidth <= 768
-      }
-      window.addEventListener('resize', handleResize)
-
-      return () => {
-        window.removeEventListener('resize', handleResize)
-      }
+    // 计算属性：我加入的群组
+    const joinedGroups = computed(() => {
+      return myGroups.value.filter(group => group.role !== 'admin')
     })
 
     return {
       isMobile,
       activeTab,
+      groupTab,
       showEditDialog,
       showNotificationDialog,
       showCreateGroupDialog,
+      showGroupManageDialog,
+      showTransferDialog,
       notificationType,
       isOtherUser,
       editForm,
@@ -812,6 +1048,11 @@ export default {
       myPosts,
       myGroups,
       myFriends,
+      createdGroups,
+      joinedGroups,
+      selectedGroup,
+      groupMembers,
+      selectedNewOwner,
       achievements,
       notifications,
       likeComments,
@@ -826,8 +1067,12 @@ export default {
       saveEdit,
       handleAvatarUpload,
       addFriend,
+      logout,
       getAvatarUrl,
       leaveGroup,
+      showGroupOptions,
+      confirmDissolveGroup,
+      transferOwnership,
       viewGroup,
       chatWithFriend,
       deleteFriend,
@@ -835,9 +1080,6 @@ export default {
       createGroup,
       cancelCreateGroup
     }
-  },
-  mounted() {
-    document.title = '我的主页 - 手语教学平台'
   }
 }
 </script>

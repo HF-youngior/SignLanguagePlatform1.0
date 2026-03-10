@@ -131,7 +131,7 @@
                   <div v-if="!currentImage && !currentVideo" class="text-center py-8">
                     <div class="text-6xl mb-4">📷</div>
                     <p class="text-gray-600">请选择图片、视频或开启摄像头</p>
-                    <p class="text-sm text-gray-500">支持格式：JPG, PNG, MP4, AVI</p>
+                    <p class="text-sm text-gray-500">支持格式：JPG, PNG, MP4, WebM</p>
                   </div>
                   <img 
                     v-else-if="currentImage && !currentVideo"
@@ -142,12 +142,13 @@
                     @load="handleImageLoad"
                   />
                   <div v-else-if="currentVideo" class="w-full" style="background: black; min-height: 400px; display: flex; align-items: center; justify-content: center; flex-direction: column; position: relative;">
-                    <!-- 隐藏的原视频，用于同步播放 -->
+                    <!-- 显示的视频元素 -->
                     <video 
                       ref="videoElement"
                       :src="currentVideo" 
                       preload="auto"
-                      style="position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none;"
+                      controls
+                      style="max-width: 100%; max-height: 500px; display: block;"
                       @loadeddata="onVideoLoaded"
                       @play="handleVideoPlay"
                       @pause="handleVideoPause"
@@ -157,14 +158,9 @@
                       您的浏览器不支持该视频格式
                     </video>
                     
-                    <!-- 显示的canvas，用于显示检测结果 -->
-                    <canvas 
-                      ref="canvasDisplay"
-                      style="max-width: 100%; max-height: 500px; display: block;"
-                    />
-                    
                     <!-- 检测框overlay canvas -->
                     <canvas 
+                      v-if="isVideoDetecting && selectedModel.value === 'yolo'"
                       ref="canvasOverlay"
                       class="absolute"
                       style="pointer-events: none; top: 0; left: 0; z-index: 10;"
@@ -317,7 +313,7 @@
                 <input 
                   ref="videoInput" 
                   type="file" 
-                  accept="video/*" 
+                  accept="video/mp4,video/webm,video/ogg,.mp4,.webm,.ogg" 
                   @change="handleVideoUpload" 
                   style="display: none"
                 />
@@ -338,46 +334,21 @@
               </template>
               <div class="space-y-4">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">置信度阈值</label>
-                  <div class="flex items-center space-x-3">
-                    <el-slider 
-                      v-model="confidenceThreshold" 
-                      :min="0" 
-                      :max="1" 
-                      :step="0.01" 
-                      :format-tooltip="val => `${(val * 100).toFixed(0)}%`"
-                      class="flex-1"
-                    />
-                    <el-input-number 
-                      v-model="confidenceThreshold" 
-                      :min="0" 
-                      :max="1" 
-                      :step="0.01" 
-                      :precision="2"
-                      size="small"
-                      style="width: 80px"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">连续推理延时</label>
-                  <div class="flex items-center space-x-3">
-                    <el-slider 
-                      v-model="inferenceDelay" 
-                      :min="1" 
-                      :max="100" 
-                      :step="1"
-                      class="flex-1"
-                    />
-                    <el-input-number 
-                      v-model="inferenceDelay" 
-                      :min="1" 
-                      :max="100" 
-                      size="small"
-                      style="width: 80px"
-                    />
-                    <span class="text-sm text-gray-500">ms</span>
-                  </div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">AI模型选择</label>
+                  <el-radio-group v-model="selectedModel" class="w-full">
+                    <el-radio value="yolo" border class="w-full mb-2">
+                      <div class="flex flex-col">
+                        <span class="font-semibold">YOLOv8 检测模型</span>
+                        <span class="text-xs text-gray-500">单帧手语检测识别</span>
+                      </div>
+                    </el-radio>
+                    <el-radio value="seq2seq" border class="w-full">
+                      <div class="flex flex-col">
+                        <span class="font-semibold">Seq2Seq_v4 连续识别模型</span>
+                        <span class="text-xs text-gray-500">连续手语序列识别（新模型）</span>
+                      </div>
+                    </el-radio>
+                  </el-radio-group>
                 </div>
               </div>
             </el-card>
@@ -535,6 +506,7 @@ export default {
     const inferenceDelay = ref(10)
     const inferenceTime = ref(0)
     const selectedTarget = ref('all')
+    const selectedModel = ref('yolo')
     const currentFilePath = ref('')
     const videoProcessingProgress = ref('')
     const videoFPS = ref(30) // 默认30fps，从后端获取实际值
@@ -609,14 +581,53 @@ export default {
 
     const startCamera = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { width: 640, height: 480 } 
-        })
+        // 检查浏览器是否支持getUserMedia
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          showMessage('您的浏览器不支持摄像头访问', 'error')
+          return
+        }
+
+        // 移动端兼容的摄像头参数
+        const constraints = {
+          video: {
+            facingMode: 'environment', // 优先使用后置摄像头
+            width: { ideal: 640 },
+            height: { ideal: 480 }
+          }
+        }
+
+        // 尝试获取摄像头权限
+        let stream
+        try {
+          stream = await navigator.mediaDevices.getUserMedia(constraints)
+        } catch (error) {
+          // 如果后置摄像头失败，尝试前置摄像头
+          console.warn('后置摄像头访问失败，尝试前置摄像头:', error)
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: 'user',
+              width: { ideal: 640 },
+              height: { ideal: 480 }
+            }
+          })
+        }
+
         videoStream.value = stream
         
         // 创建视频元素
         const video = document.createElement('video')
         video.srcObject = stream
+        video.autoplay = true
+        video.playsInline = true // 移动端必需
+        video.muted = true // 避免音频问题
+        
+        // 等待视频加载完成
+        await new Promise((resolve) => {
+          video.onloadedmetadata = () => {
+            resolve()
+          }
+        })
+        
         video.play()
         
         isCameraOpen.value = true
@@ -625,7 +636,21 @@ export default {
         // 开始连续检测
         startContinuousDetection(video)
       } catch (error) {
-        showMessage('无法访问摄像头: ' + error.message, 'error')
+        console.error('摄像头访问错误:', error)
+        
+        // 提供更详细的错误信息
+        let errorMessage = '无法访问摄像头'
+        if (error.name === 'NotAllowedError') {
+          errorMessage = '请允许浏览器访问摄像头权限'
+        } else if (error.name === 'NotFoundError') {
+          errorMessage = '未找到摄像头设备'
+        } else if (error.name === 'NotReadableError') {
+          errorMessage = '摄像头可能被其他应用占用'
+        } else if (error.name === 'OverconstrainedError') {
+          errorMessage = '摄像头不支持请求的分辨率'
+        }
+        
+        showMessage(errorMessage + ': ' + error.message, 'error')
       }
     }
 
@@ -749,6 +774,20 @@ export default {
 
       console.log('视频文件选择:', file.name, file.type, file.size)
 
+      // 检查文件格式，AVI不被浏览器支持
+      const fileName = file.name.toLowerCase()
+      if (fileName.endsWith('.avi')) {
+        showMessage('❌ AVI格式不支持！请使用MP4格式视频。建议使用H.264编码的MP4文件。', 'error')
+        console.error('不支持的文件格式: AVI')
+        return
+      }
+
+      // 检查文件类型
+      if (file.type && !file.type.startsWith('video/')) {
+        showMessage('请选择有效的视频文件', 'warning')
+        return
+      }
+
       try {
         // 清空之前的显示和检测状态
         currentImage.value = ''
@@ -792,7 +831,7 @@ export default {
         console.log('DOM更新完成，检查videoElement:', !!videoElement.value)
         
         // 等待一下让DOM完全渲染
-        await new Promise(resolve => setTimeout(resolve, 200))
+        await new Promise(resolve => setTimeout(resolve, 500))
         
         // 再次检查videoElement
         if (videoElement.value) {
@@ -807,6 +846,12 @@ export default {
           videoElement.value.onloadeddata = () => {
             console.log('视频数据已加载')
             onVideoLoaded()
+            
+            // 如果使用Seq2Seq模型，自动开始分析
+            if (selectedModel.value === 'seq2seq') {
+              console.log('使用Seq2Seq模型，自动开始分析视频...')
+              startRealtimeDetection()
+            }
           }
           
           videoElement.value.onplay = () => {
@@ -819,11 +864,20 @@ export default {
             console.error('视频错误代码:', videoElement.value.error?.code)
             console.error('视频错误信息:', videoElement.value.error?.message)
           }
+          
+          // 自动播放视频
+          try {
+            videoElement.value.play()
+            console.log('视频自动开始播放')
+          } catch (error) {
+            console.error('自动播放失败:', error)
+            // 自动播放失败时不报错，用户可以手动播放
+          }
         } else {
           console.error('videoElement不存在！')
         }
         
-        showMessage('视频已加载，请播放视频并点击"开始实时检测"', 'success')
+        showMessage('视频已加载' + (selectedModel.value === 'seq2seq' ? '，正在分析...' : '，请播放视频并点击"开始实时检测"'), 'success')
         
       } catch (error) {
         console.error('视频处理错误:', error)
@@ -842,32 +896,79 @@ export default {
         return
       }
       
-      // 确保视频元素已加载
-      if (!videoElement.value) {
-        showMessage('视频元素未加载，请稍候再试', 'error')
-          return
+      // 检查是否使用Seq2Seq模型
+      if (selectedModel.value === 'seq2seq') {
+        // Seq2Seq模型：直接上传整个视频进行预测
+        isVideoDetecting.value = true
+        isProcessing.value = true
+        
+        showMessage('正在分析视频，请稍候...', 'info')
+        
+        try {
+          // 调用视频检测接口
+          const result = await translationApiService.detectVideo(
+            currentVideoFile.value,
+            confidenceThreshold.value,
+            selectedModel.value
+          )
+          
+          // 处理结果
+          if (result.detections && result.detections.length > 0) {
+            // 清空现有结果
+            detectionResults.value = []
+            
+            // 添加Seq2Seq的识别结果
+            result.detections.forEach((detection, index) => {
+              detectionResults.value.push({
+                index: index + 1,
+                className: detection.className,
+                confidence: detection.confidence,
+                coordinates: detection.coordinates,
+                filePath: currentVideoFile.value.name,
+                timestamp: 0
+              })
+            })
+            
+            showMessage('视频分析完成', 'success')
+          } else {
+            showMessage('未检测到手语内容', 'info')
+          }
+        } catch (error) {
+          console.error('视频分析失败:', error)
+          showMessage('视频分析失败: ' + error.message, 'error')
+        } finally {
+          isVideoDetecting.value = false
+          isProcessing.value = false
+        }
+      } else {
+        // YOLO模型：逐帧处理
+        // 确保视频元素已加载
+        if (!videoElement.value) {
+          showMessage('视频元素未加载，请稍候再试', 'error')
+            return
+          }
+          
+        // 初始化canvas显示
+        if (canvasDisplay.value && videoElement.value) {
+          canvasDisplay.value.width = videoElement.value.videoWidth
+          canvasDisplay.value.height = videoElement.value.videoHeight
+          videoDuration.value = videoElement.value.duration
         }
         
-      // 初始化canvas显示
-      if (canvasDisplay.value && videoElement.value) {
-        canvasDisplay.value.width = videoElement.value.videoWidth
-        canvasDisplay.value.height = videoElement.value.videoHeight
-        videoDuration.value = videoElement.value.duration
+        isVideoDetecting.value = true
+        isVideoPlaying.value = false
+        isProcessing.value = false
+        
+        showMessage('点击播放开始检测...', 'info')
+        
+        // 开始视频帧处理和绘制
+        processVideoFrames()
       }
-      
-      isVideoDetecting.value = true
-      isVideoPlaying.value = false
-      isProcessing.value = false
-      
-      showMessage('点击播放开始检测...', 'info')
-      
-      // 开始视频帧处理和绘制
-      processVideoFrames()
     }
 
     // 处理视频帧（逐帧检测显示）
     const processVideoFrames = async () => {
-      if (!isVideoDetecting.value || !videoElement.value || !canvasDisplay.value) {
+      if (!isVideoDetecting.value || !videoElement.value) {
         return
       }
       
@@ -888,8 +989,10 @@ export default {
       videoProgress.value = video.duration ? (video.currentTime / video.duration * 100) : 0
       
       // 抓取当前帧并检测
-      const canvas = canvasDisplay.value
-        const ctx = canvas.getContext('2d')
+      const canvas = document.createElement('canvas')
+      canvas.width = video.videoWidth
+      canvas.height = video.videoHeight
+      const ctx = canvas.getContext('2d')
       
       // 绘制当前视频帧
       if (video.readyState >= 2) {
@@ -922,8 +1025,8 @@ export default {
             })
             
                 // 在canvas上绘制检测框
-                if (result.detections.length > 0) {
-                  drawDetectionsOnCanvas(result.detections, canvas.width, canvas.height)
+                if (result.detections.length > 0 && canvasOverlay.value) {
+                  drawDetectionsOnCanvas(result.detections, canvasOverlay.value.width, canvasOverlay.value.height)
                 }
                 
           } catch (error) {
@@ -1093,8 +1196,8 @@ export default {
         const response = await fetch(imageData)
         const blob = await response.blob()
         
-        // 使用API服务进行检测
-        const result = await apiService.detectImage(blob, confidenceThreshold.value)
+        // 使用API服务进行检测，传入选择的模型
+        const result = await apiService.detectImage(blob, confidenceThreshold.value, selectedModel.value)
         
         // 更新显示图像
         currentImage.value = `data:image/jpeg;base64,${result.image}`
@@ -1257,8 +1360,8 @@ export default {
     // API健康检查
     const checkAPIHealth = async () => {
       try {
-        const result = await apiService.checkHealth()
-        if (result.model_loaded) {
+        const result = await translationApiService.checkHealth()
+        if (result.yolo_model_loaded || result.seq2seq_model_loaded) {
           showMessage('AI模型已加载，系统就绪', 'success')
         } else {
           showMessage('AI模型未加载，请检查后端服务', 'warning')
@@ -1340,6 +1443,7 @@ export default {
       inferenceDelay,
       inferenceTime,
       selectedTarget,
+      selectedModel,
       selectedDetection,
       videoProcessingProgress,
       videoFPS,

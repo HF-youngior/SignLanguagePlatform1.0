@@ -29,194 +29,198 @@
           <el-button @click="$router.back()" icon="ArrowLeft">返回</el-button>
         </div>
 
-        <!-- 帖子内容 -->
-        <el-card class="mb-6">
-          <div class="flex items-start space-x-4">
-            <el-avatar :size="50" :src="getAvatarUrl(post.avatar)">
-              {{ post.username.charAt(0) }}
-            </el-avatar>
-            <div class="flex-1">
-              <div class="flex items-center space-x-2 mb-2">
-                <span class="font-semibold">{{ post.username }}</span>
-                <el-tag size="small" :type="post.level === '初级' ? 'info' : post.level === '中级' ? 'warning' : 'success'">
-                  {{ post.level }}
-                </el-tag>
-                <span class="text-gray-500 text-sm">{{ post.time }}</span>
-                <el-tag size="small" :type="privacyType" class="ml-2">
-                  {{ privacyText }}
-                </el-tag>
-              </div>
-              <p class="text-gray-700 mb-4 text-lg">{{ post.content }}</p>
-              
-              <!-- 互动按钮 -->
-              <div class="flex items-center space-x-6 text-gray-500">
-                <div class="flex items-center space-x-2 cursor-pointer hover:text-blue-600" @click="showComments = !showComments">
-                  <el-icon><ChatDotRound /></el-icon>
-                  <span>{{ post.comments }} 评论</span>
-                </div>
-                <div class="flex items-center space-x-2 cursor-pointer hover:text-red-600" @click="showLikes = !showLikes">
-                  <el-icon><Like /></el-icon>
-                  <span>{{ post.likes }} 点赞</span>
-                </div>
-                <div class="flex items-center space-x-2 cursor-pointer hover:text-purple-600" @click="showPrivacyMenu = !showPrivacyMenu">
-                  <el-icon><Setting /></el-icon>
-                  <span>权限设置</span>
-                  <el-icon class="ml-1" :class="{ 'rotate-180': showPrivacyMenu }"><ArrowDown /></el-icon>
-                </div>
-              </div>
-              
-              <!-- 权限设置下拉菜单 -->
-              <div v-if="showPrivacyMenu" class="mt-4 p-4 bg-gray-50 rounded-lg border">
-                <div class="space-y-3">
-                  <div class="text-sm font-medium text-gray-700 mb-3">设置帖子权限</div>
-                  <div class="space-y-2">
-                    <div 
-                      class="flex items-center space-x-3 p-3 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors"
-                      :class="{ 'bg-blue-50 border border-blue-200': post.privacy === 'public' }"
-                      @click="setPrivacy('public')"
-                    >
-                      <el-icon class="text-green-600"><Check /></el-icon>
-                      <div>
-                        <div class="font-medium">公开</div>
-                        <div class="text-sm text-gray-500">所有人都可以查看此帖子</div>
-                      </div>
-                      <el-icon v-if="post.privacy === 'public'" class="text-green-600 ml-auto"><Check /></el-icon>
-                    </div>
-                    
-                    <div 
-                      class="flex items-center space-x-3 p-3 rounded-lg cursor-pointer hover:bg-orange-50 transition-colors"
-                      :class="{ 'bg-orange-50 border border-orange-200': post.privacy === 'friends' }"
-                      @click="setPrivacy('friends')"
-                    >
-                      <el-icon class="text-orange-600"><User /></el-icon>
-                      <div>
-                        <div class="font-medium">仅好友可见</div>
-                        <div class="text-sm text-gray-500">只有您的好友可以查看此帖子</div>
-                      </div>
-                      <el-icon v-if="post.privacy === 'friends'" class="text-orange-600 ml-auto"><Check /></el-icon>
-                    </div>
-                    
-                    <div 
-                      class="flex items-center space-x-3 p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-                      :class="{ 'bg-gray-50 border border-gray-200': post.privacy === 'private' }"
-                      @click="setPrivacy('private')"
-                    >
-                      <el-icon class="text-gray-600"><Lock /></el-icon>
-                      <div>
-                        <div class="font-medium">仅自己可见</div>
-                        <div class="text-sm text-gray-500">只有您可以查看此帖子</div>
-                      </div>
-                      <el-icon v-if="post.privacy === 'private'" class="text-gray-600 ml-auto"><Check /></el-icon>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </el-card>
+        <!-- 加载状态 -->
+        <div v-if="loading" class="text-center py-12">
+          <el-loading-spinner />
+          <p class="text-gray-500 mt-4">加载中...</p>
+        </div>
 
-        <!-- 评论区 -->
-        <el-card v-if="showComments" class="mb-6">
-          <template #header>
-            <span class="text-lg font-semibold">评论区</span>
-          </template>
-          
-          <!-- 评论输入框 -->
-          <div class="mb-6">
-            <div class="flex items-start space-x-3">
-              <el-avatar :size="40" :src="getAvatarUrl(currentUser.avatar)">
-                {{ currentUser.name.charAt(0) }}
+        <template v-else>
+          <!-- 帖子内容 -->
+          <el-card class="mb-6">
+            <div class="flex items-start space-x-4">
+              <el-avatar :size="50" :src="getAvatarUrl(post.author_avatar)">
+                {{ post.author_username ? post.author_username.charAt(0) : '?' }}
               </el-avatar>
               <div class="flex-1">
-                <el-input
-                  type="textarea"
-                  :rows="2"
-                  placeholder="写下你的评论..."
-                  v-model="newComment"
-                  class="mb-3"
-                ></el-input>
-                <div class="flex justify-end">
-                  <el-button type="primary" size="small" @click="addComment">发表评论</el-button>
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="font-semibold">{{ post.author_username }}</span>
+                  <el-tag size="small" :type="post.level === '初级' ? 'info' : post.level === '中级' ? 'warning' : 'success'">
+                    {{ post.level || '初级' }}
+                  </el-tag>
+                  <span class="text-gray-500 text-sm">{{ formatTime(post.created_at) }}</span>
+                  <el-tag size="small" :type="privacyType" class="ml-2">
+                    {{ privacyText }}
+                  </el-tag>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 评论列表 -->
-          <div class="space-y-4">
-            <div v-for="comment in comments" :key="comment.id" class="flex items-start space-x-3">
-              <el-avatar :size="40" :src="getAvatarUrl(comment.avatar)">
-                {{ comment.username.charAt(0) }}
-              </el-avatar>
-              <div class="flex-1">
-                <div class="flex items-center space-x-2 mb-1">
-                  <span class="font-medium text-sm">{{ comment.username }}</span>
-                  <span class="text-gray-500 text-xs">{{ comment.time }}</span>
-                </div>
-                <p class="text-gray-700 mb-2">{{ comment.content }}</p>
+                <p class="text-gray-700 mb-4 text-lg">{{ post.content }}</p>
                 
-                <!-- 评论互动 -->
-                <div class="flex items-center space-x-4 text-gray-500 text-xs">
-                  <span class="cursor-pointer hover:text-red-600 flex items-center">
-                    <el-icon class="mr-1"><Like /></el-icon>
-                    {{ comment.likes }}
-                  </span>
-                  <span class="cursor-pointer hover:text-blue-600" @click="replyToComment(comment)">
-                    回复
-                  </span>
+                <!-- 互动按钮 -->
+                <div class="flex items-center space-x-6 text-gray-500">
+                  <div class="flex items-center space-x-2 cursor-pointer hover:text-blue-600" @click="showComments = !showComments">
+                    <el-icon><ChatDotRound /></el-icon>
+                    <span>{{ post.comments_count || 0 }} 评论</span>
+                  </div>
+                  <div class="flex items-center space-x-2 cursor-pointer hover:text-red-600" @click="toggleLike">
+                    <span class="mr-1 text-lg" :class="{ 'text-red-500': isLiked }">{{ isLiked ? '❤️' : '🤍' }}</span>
+                    <span>{{ post.likes_count || 0 }} 点赞</span>
+                  </div>
+                  <div v-if="isAuthor" class="flex items-center space-x-2 cursor-pointer hover:text-purple-600" @click="showPrivacyMenu = !showPrivacyMenu">
+                    <el-icon><Setting /></el-icon>
+                    <span>权限设置</span>
+                    <el-icon class="ml-1" :class="{ 'rotate-180': showPrivacyMenu }"><ArrowDown /></el-icon>
+                  </div>
                 </div>
-
-                <!-- 回复列表 -->
-                <div v-if="comment.replies && comment.replies.length > 0" class="mt-3 ml-6 space-y-3">
-                  <div v-for="reply in comment.replies" :key="reply.id" class="flex items-start space-x-3">
-                    <el-avatar :size="32" :src="getAvatarUrl(reply.avatar)">
-                      {{ reply.username.charAt(0) }}
-                    </el-avatar>
-                    <div class="flex-1">
-                      <div class="flex items-center space-x-2 mb-1">
-                        <span class="font-medium text-xs">{{ reply.username }}</span>
-                        <span class="text-gray-500 text-xs">{{ reply.time }}</span>
+                
+                <!-- 权限设置下拉菜单 -->
+                <div v-if="showPrivacyMenu && isAuthor" class="mt-4 p-4 bg-gray-50 rounded-lg border">
+                  <div class="space-y-3">
+                    <div class="text-sm font-medium text-gray-700 mb-3">设置帖子权限</div>
+                    <div class="space-y-2">
+                      <div 
+                        class="flex items-center space-x-3 p-3 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors"
+                        :class="{ 'bg-blue-50 border border-blue-200': post.privacy === 'public' }"
+                        @click="setPrivacy('public')"
+                      >
+                        <el-icon class="text-green-600"><Check /></el-icon>
+                        <div>
+                          <div class="font-medium">公开</div>
+                          <div class="text-sm text-gray-500">所有人都可以查看此帖子</div>
+                        </div>
+                        <el-icon v-if="post.privacy === 'public'" class="text-green-600 ml-auto"><Check /></el-icon>
                       </div>
-                      <p class="text-gray-700 text-sm">{{ reply.content }}</p>
-                      <div class="flex items-center space-x-3 text-gray-500 text-xs mt-1">
-                        <span class="cursor-pointer hover:text-red-600 flex items-center">
-                          <el-icon class="mr-1"><Like /></el-icon>
-                          {{ reply.likes }}
-                        </span>
+                      
+                      <div 
+                        class="flex items-center space-x-3 p-3 rounded-lg cursor-pointer hover:bg-orange-50 transition-colors"
+                        :class="{ 'bg-orange-50 border border-orange-200': post.privacy === 'friends' }"
+                        @click="setPrivacy('friends')"
+                      >
+                        <el-icon class="text-orange-600"><User /></el-icon>
+                        <div>
+                          <div class="font-medium">仅好友可见</div>
+                          <div class="text-sm text-gray-500">只有您的好友可以查看此帖子</div>
+                        </div>
+                        <el-icon v-if="post.privacy === 'friends'" class="text-orange-600 ml-auto"><Check /></el-icon>
+                      </div>
+                      
+                      <div 
+                        class="flex items-center space-x-3 p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                        :class="{ 'bg-gray-50 border border-gray-200': post.privacy === 'private' }"
+                        @click="setPrivacy('private')"
+                      >
+                        <el-icon class="text-gray-600"><Lock /></el-icon>
+                        <div>
+                          <div class="font-medium">仅自己可见</div>
+                          <div class="text-sm text-gray-500">只有您可以查看此帖子</div>
+                        </div>
+                        <el-icon v-if="post.privacy === 'private'" class="text-gray-600 ml-auto"><Check /></el-icon>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </el-card>
+          </el-card>
 
-        <!-- 点赞用户列表 -->
-        <el-card v-if="showLikes">
-          <template #header>
-            <span class="text-lg font-semibold">点赞用户 ({{ post.likes }})</span>
-          </template>
-          
-          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <div v-for="user in likedUsers" :key="user.id" class="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-lg cursor-pointer">
-              <el-avatar :size="40" :src="getAvatarUrl(user.avatar)">
-                {{ user.name.charAt(0) }}
-              </el-avatar>
-              <div class="flex-1">
-                <div class="font-medium text-sm">{{ user.name }}</div>
-                <div class="text-gray-500 text-xs">{{ user.time }}</div>
+          <!-- 评论区 -->
+          <el-card v-if="showComments" class="mb-6">
+            <template #header>
+              <span class="text-lg font-semibold">评论区 ({{ comments.length }})</span>
+            </template>
+            
+            <!-- 评论输入框 -->
+            <div class="mb-6">
+              <div class="flex items-start space-x-3">
+                <el-avatar :size="40" :src="getAvatarUrl(currentUser.avatar)">
+                  {{ currentUser.name ? currentUser.name.charAt(0) : '?' }}
+                </el-avatar>
+                <div class="flex-1">
+                  <el-input
+                    type="textarea"
+                    :rows="2"
+                    placeholder="写下你的评论..."
+                    v-model="newComment"
+                    class="mb-3"
+                  ></el-input>
+                  <div class="flex justify-end">
+                    <el-button type="primary" size="small" @click="addComment">发表评论</el-button>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </el-card>
+
+            <!-- 评论列表 -->
+            <div class="space-y-4">
+              <div v-for="comment in comments" :key="comment.id" class="flex items-start space-x-3">
+                <el-avatar :size="40" :src="getAvatarUrl(comment.user_avatar)">
+                  {{ comment.user_username ? comment.user_username.charAt(0) : '?' }}
+                </el-avatar>
+                <div class="flex-1">
+                  <div class="flex items-center space-x-2 mb-1">
+                    <span class="font-medium text-sm">{{ comment.user_username }}</span>
+                    <span class="text-gray-500 text-xs">{{ formatTime(comment.created_at) }}</span>
+                  </div>
+                  <p class="text-gray-700 mb-2">{{ comment.content }}</p>
+                  
+                  <!-- 评论互动 -->
+                  <div class="flex items-center space-x-4 text-gray-500 text-xs">
+                    <span class="cursor-pointer hover:text-red-600 flex items-center" @click="likeComment(comment.id)">
+                      <el-icon class="mr-1"><Like /></el-icon>
+                      {{ comment.likes_count || 0 }}
+                    </span>
+                    <span class="cursor-pointer hover:text-blue-600" @click="replyToComment(comment)">
+                      回复
+                    </span>
+                  </div>
+
+                  <!-- 回复输入框 -->
+                  <div v-if="replyingTo === comment.id" class="mt-3 ml-4">
+                    <el-input
+                      type="textarea"
+                      :rows="2"
+                      :placeholder="`回复 @${comment.user_username}...`"
+                      v-model="replyContent"
+                      class="mb-2"
+                    ></el-input>
+                    <div class="flex justify-end space-x-2">
+                      <el-button size="small" @click="cancelReply">取消</el-button>
+                      <el-button type="primary" size="small" @click="submitReply(comment.id)">回复</el-button>
+                    </div>
+                  </div>
+
+                  <!-- 回复列表 -->
+                  <div v-if="comment.replies && comment.replies.length > 0" class="mt-3 ml-4 space-y-3">
+                    <div v-for="reply in comment.replies" :key="reply.id" class="flex items-start space-x-3">
+                      <el-avatar :size="32" :src="getAvatarUrl(reply.user_avatar)">
+                        {{ reply.user_username ? reply.user_username.charAt(0) : '?' }}
+                      </el-avatar>
+                      <div class="flex-1">
+                        <div class="flex items-center space-x-2 mb-1">
+                          <span class="font-medium text-xs">{{ reply.user_username }}</span>
+                          <span class="text-gray-500 text-xs">{{ formatTime(reply.created_at) }}</span>
+                        </div>
+                        <p class="text-gray-700 text-sm">{{ reply.content }}</p>
+                        <div class="flex items-center space-x-3 text-gray-500 text-xs mt-1">
+                          <span class="cursor-pointer hover:text-red-600 flex items-center" @click="likeComment(reply.id)">
+                            <el-icon class="mr-1"><Like /></el-icon>
+                            {{ reply.likes_count || 0 }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </el-card>
+        </template>
       </div>
     </main>
 
     <!-- 页脚 -->
-    <footer class="bg-gray-800 text-white py-8 mt-16">
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <p>&copy; 2025 手语教学平台. All rights reserved.</p>
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <p>&copy; 2024 掌中语-手语学习平台. All rights reserved.</p>
       </div>
     </footer>
   </div>
@@ -224,35 +228,50 @@
 
 <script>
 import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getAvatarUrl } from '@/utils/avatar'
+import apiService from '@/services/api'
 
 export default {
   name: 'PostDetail',
   setup() {
     const route = useRoute()
-    const showComments = ref(false)
+    const router = useRouter()
+    const loading = ref(true)
+    const showComments = ref(true)
     const showLikes = ref(false)
     const showPrivacyMenu = ref(false)
     const newComment = ref('')
+    const replyContent = ref('')
+    const replyingTo = ref(null)
+    const isLiked = ref(false)
+    const isAuthor = ref(false)
 
-    const post = ref({
-      id: 1,
-      username: '张三',
-      level: '中级',
-      time: '2小时前',
-      content: '今天学会了"你好"的手语表达，感觉很有成就感！大家有什么学习技巧可以分享吗？',
-      avatar: '',
-      comments: 5,
-      likes: 12,
-      privacy: 'public' // public, friends, private
-    })
-
+    const post = ref({})
+    const comments = ref([])
     const currentUser = ref({
-      name: '当前用户',
+      name: '',
       avatar: ''
     })
+
+    // 从localStorage获取当前用户信息
+    const getCurrentUser = () => {
+      const userStr = localStorage.getItem('user')
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr)
+          currentUser.value = {
+            name: user.username || user.name || '用户',
+            avatar: user.avatar || ''
+          }
+          return user
+        } catch (e) {
+          console.error('解析用户信息失败:', e)
+        }
+      }
+      return null
+    }
 
     const privacyType = computed(() => {
       switch (post.value.privacy) {
@@ -272,115 +291,209 @@ export default {
       }
     })
 
-    const comments = ref([
-      {
-        id: 1,
-        username: '小明',
-        time: '1小时前',
-        content: '我也在学习这个，可以一起交流！',
-        avatar: '',
-        likes: 3,
-        replies: [
-          {
-            id: 11,
-            username: '张三',
-            time: '30分钟前',
-            content: '好的，我们可以建个学习群',
-            avatar: '',
-            likes: 1
-          }
-        ]
-      },
-      {
-        id: 2,
-        username: '小红',
-        time: '45分钟前',
-        content: '建议多练习手指的灵活性，这样手语会更标准',
-        avatar: '',
-        likes: 5,
-        replies: []
-      },
-      {
-        id: 3,
-        username: '老师',
-        time: '30分钟前',
-        content: '很棒！建议每天坚持练习15分钟，效果会更好',
-        avatar: '',
-        likes: 8,
-        replies: []
-      }
-    ])
-
-    const likedUsers = ref([
-      { id: 1, name: '小明', time: '1小时前', avatar: '' },
-      { id: 2, name: '小红', time: '1小时前', avatar: '' },
-      { id: 3, name: '老师', time: '45分钟前', avatar: '' },
-      { id: 4, name: '小李', time: '30分钟前', avatar: '' },
-      { id: 5, name: '小王', time: '25分钟前', avatar: '' },
-      { id: 6, name: '小张', time: '20分钟前', avatar: '' },
-      { id: 7, name: '小陈', time: '15分钟前', avatar: '' },
-      { id: 8, name: '小刘', time: '10分钟前', avatar: '' }
-    ])
-
-    const addComment = () => {
-      if (newComment.value.trim()) {
-        const comment = {
-          id: Date.now(),
-          username: currentUser.value.name,
-          time: '刚刚',
-          content: newComment.value,
-          avatar: '',
-          likes: 0,
-          replies: []
-        }
-        comments.value.unshift(comment)
-        post.value.comments++
-        newComment.value = ''
-        ElMessage.success('评论发表成功！')
-      }
-    }
-
-    const replyToComment = (comment) => {
-      ElMessage.info('回复功能开发中...')
-    }
-
-    const setPrivacy = (privacy) => {
-      post.value.privacy = privacy
-      showPrivacyMenu.value = false
+    // 格式化时间
+    const formatTime = (timeStr) => {
+      if (!timeStr) return ''
+      const date = new Date(timeStr)
+      const now = new Date()
+      const diff = now - date
       
-      // 显示成功消息
-      const privacyTexts = {
-        'public': '公开',
-        'friends': '仅好友可见',
-        'private': '仅自己可见'
+      // 小于1分钟
+      if (diff < 60000) return '刚刚'
+      // 小于1小时
+      if (diff < 3600000) return `${Math.floor(diff / 60000)}分钟前`
+      // 小于24小时
+      if (diff < 86400000) return `${Math.floor(diff / 3600000)}小时前`
+      // 小于7天
+      if (diff < 604800000) return `${Math.floor(diff / 86400000)}天前`
+      
+      return date.toLocaleDateString()
+    }
+
+    // 加载帖子详情
+    const loadPostDetail = async () => {
+      const postId = route.params.id
+      if (!postId) {
+        ElMessage.error('帖子ID不存在')
+        router.push('/community')
+        return
       }
-      ElMessage.success(`帖子权限已设置为：${privacyTexts[privacy]}`)
+
+      try {
+        loading.value = true
+        const user = getCurrentUser()
+        
+        const response = await apiService.getPostById(postId)
+        if (response.success) {
+          post.value = response.data.post
+          comments.value = response.data.comments || []
+          
+          // 检查是否是作者
+          if (user && post.value.author_id === user.id) {
+            isAuthor.value = true
+          }
+          
+          // 检查是否已点赞（这里需要后端支持返回isLiked字段）
+          // 暂时使用本地存储记录
+          const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]')
+          isLiked.value = likedPosts.includes(parseInt(postId))
+        } else {
+          ElMessage.error('获取帖子详情失败')
+        }
+      } catch (error) {
+        console.error('加载帖子详情失败:', error)
+        ElMessage.error('加载帖子详情失败')
+      } finally {
+        loading.value = false
+      }
+    }
+
+    // 点赞/取消点赞
+    const toggleLike = async () => {
+      const postId = route.params.id
+      try {
+        const response = await apiService.likePost(postId)
+        if (response.success) {
+          isLiked.value = response.data.liked
+          post.value.likes_count = response.data.liked 
+            ? (post.value.likes_count || 0) + 1 
+            : Math.max(0, (post.value.likes_count || 0) - 1)
+          
+          // 保存点赞状态到本地
+          const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]')
+          if (response.data.liked) {
+            likedPosts.push(parseInt(postId))
+          } else {
+            const index = likedPosts.indexOf(parseInt(postId))
+            if (index > -1) likedPosts.splice(index, 1)
+          }
+          localStorage.setItem('likedPosts', JSON.stringify(likedPosts))
+          
+          ElMessage.success(response.data.liked ? '点赞成功' : '已取消点赞')
+        }
+      } catch (error) {
+        console.error('点赞失败:', error)
+        ElMessage.error('操作失败')
+      }
+    }
+
+    // 添加评论
+    const addComment = async () => {
+      if (!newComment.value.trim()) {
+        ElMessage.warning('请输入评论内容')
+        return
+      }
+
+      const postId = route.params.id
+      try {
+        const response = await apiService.commentPost(postId, newComment.value.trim())
+        if (response.success) {
+          newComment.value = ''
+          // 重新加载评论列表
+          await loadPostDetail()
+          ElMessage.success('评论发表成功！')
+        }
+      } catch (error) {
+        console.error('评论失败:', error)
+        ElMessage.error('评论失败')
+      }
+    }
+
+    // 回复评论
+    const replyToComment = (comment) => {
+      replyingTo.value = comment.id
+      replyContent.value = ''
+    }
+
+    // 取消回复
+    const cancelReply = () => {
+      replyingTo.value = null
+      replyContent.value = ''
+    }
+
+    // 提交回复
+    const submitReply = async (parentId) => {
+      if (!replyContent.value.trim()) {
+        ElMessage.warning('请输入回复内容')
+        return
+      }
+
+      const postId = route.params.id
+      try {
+        const response = await apiService.commentPost(postId, replyContent.value.trim(), parentId)
+        if (response.success) {
+          replyContent.value = ''
+          replyingTo.value = null
+          // 重新加载评论列表
+          await loadPostDetail()
+          ElMessage.success('回复成功！')
+        }
+      } catch (error) {
+        console.error('回复失败:', error)
+        ElMessage.error('回复失败')
+      }
+    }
+
+    // 点赞评论
+    const likeComment = async (commentId) => {
+      try {
+        // 这里需要后端支持评论点赞API
+        ElMessage.info('评论点赞功能开发中...')
+      } catch (error) {
+        console.error('点赞评论失败:', error)
+      }
+    }
+
+    // 设置帖子权限
+    const setPrivacy = async (privacy) => {
+      const postId = route.params.id
+      try {
+        const response = await apiService.updatePost(postId, { privacy })
+        if (response.success) {
+          post.value.privacy = privacy
+          showPrivacyMenu.value = false
+          
+          const privacyTexts = {
+            'public': '公开',
+            'friends': '仅好友可见',
+            'private': '仅自己可见'
+          }
+          ElMessage.success(`帖子权限已设置为：${privacyTexts[privacy]}`)
+        }
+      } catch (error) {
+        console.error('更新权限失败:', error)
+        ElMessage.error('更新权限失败')
+      }
     }
 
     onMounted(() => {
-      // 根据路由参数获取帖子详情
-      const postId = route.params.id
-      if (postId) {
-        // 这里可以根据ID获取具体的帖子数据
-        console.log('加载帖子ID:', postId)
-      }
+      loadPostDetail()
       document.title = '帖子详情 - 手语教学平台'
     })
 
     return {
+      loading,
       post,
       currentUser,
       showComments,
       showLikes,
       showPrivacyMenu,
       newComment,
+      replyContent,
+      replyingTo,
       comments,
-      likedUsers,
+      isLiked,
+      isAuthor,
       privacyType,
       privacyText,
+      toggleLike,
       addComment,
       replyToComment,
+      cancelReply,
+      submitReply,
+      likeComment,
       setPrivacy,
+      formatTime,
       getAvatarUrl
     }
   }

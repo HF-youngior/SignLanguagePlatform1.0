@@ -55,20 +55,22 @@
               <template #header>
                 <span class="text-lg font-semibold">💭 消息列表</span>
               </template>
-              <div class="space-y-4 max-h-96 overflow-y-auto chat-container">
-                <div v-for="message in messages" :key="message.id" class="flex items-start space-x-3">
+              <div class="space-y-4 max-h-96 overflow-y-auto chat-container" ref="messageContainer">
+                <div v-for="message in messages" :key="message.id" 
+                     :class="['flex items-start space-x-3', message.isSelf ? 'flex-row-reverse space-x-reverse' : '']">
                   <el-avatar :size="40" :src="getAvatarUrl(message.avatar)" class="cursor-pointer flex-shrink-0" @click="goToProfile(message.userId)">
                     {{ message.username.charAt(0) }}
                   </el-avatar>
-                  <div class="flex-1">
-                    <div class="flex items-center space-x-2 mb-1">
+                  <div class="flex-1" :class="message.isSelf ? 'text-right' : ''">
+                    <div class="flex items-center space-x-2 mb-1" :class="message.isSelf ? 'flex-row-reverse space-x-reverse' : ''">
                       <span class="font-semibold text-sm cursor-pointer hover:text-blue-600" @click="goToProfile(message.userId)">
                         {{ message.username }}
                       </span>
                       <span class="text-gray-500 text-xs">{{ message.time }}</span>
                     </div>
-                    <div class="bg-gray-100 rounded-lg p-3 max-w-xs lg:max-w-md message-bubble">
-                      <p class="text-gray-800 text-sm">{{ message.content }}</p>
+                    <div :class="['rounded-lg p-3 max-w-xs lg:max-w-md message-bubble inline-block text-left', 
+                                   message.isSelf ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800']">
+                      <p class="text-sm">{{ message.content }}</p>
                       
                       <!-- 显示图片 -->
                       <div v-if="message.images && message.images.length > 0" class="mt-2">
@@ -240,9 +242,10 @@
 <script>
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { Picture, VideoCamera } from '@element-plus/icons-vue'
 import { getAvatarUrl } from '@/utils/avatar'
+import apiService from '@/services/api'
 
 export default {
   name: 'ChatGroup',
@@ -252,6 +255,8 @@ export default {
   },
   setup() {
     const router = useRouter()
+    const route = useRoute()
+    const groupId = ref(route.params.id || 1)
     const newMessage = ref('')
     const uploadedImages = ref([])
     const uploadedVideos = ref([])
@@ -261,86 +266,21 @@ export default {
     const showEditAnnouncement = ref(false)
     const editGroupName = ref('')
     const editAnnouncement = ref('')
-    const isGroupAdmin = ref(true) // 假设当前用户是群主
+    const isGroupAdmin = ref(false)
     const groupQRCode = ref('')
+    const isLoading = ref(false)
 
     const groupInfo = ref({
       id: 1,
       name: '手语日常对话',
-      members: 234,
-      activeToday: 45,
-      avatar: ''
+      members: 0,
+      activeToday: 0,
+      avatar: '',
+      announcement: ''
     })
 
-    const messages = ref([
-      {
-        id: 1,
-        userId: 1,
-        username: '小明',
-        time: '14:30',
-        content: '大家好！今天天气真不错',
-        avatar: '',
-        images: [],
-        videos: []
-      },
-      {
-        id: 2,
-        userId: 2,
-        username: '小红',
-        time: '14:32',
-        content: '是啊，适合出去走走',
-        avatar: '',
-        images: [],
-        videos: []
-      },
-      {
-        id: 3,
-        userId: 3,
-        username: '老师',
-        time: '14:35',
-        content: '今天想和大家分享一个手语词汇：天气',
-        avatar: '',
-        images: [
-          {
-            id: 1,
-            url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzQ5NTk2NyIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuWuoOW5tOeKtuWGmTwvdGV4dD48L3N2Zz4=',
-            name: '天气手语'
-          }
-        ],
-        videos: []
-      },
-      {
-        id: 4,
-        userId: 4,
-        username: '小李',
-        time: '14:38',
-        content: '谢谢老师！学会了',
-        avatar: '',
-        images: [],
-        videos: []
-      },
-      {
-        id: 5,
-        userId: 5,
-        username: '小王',
-        time: '14:40',
-        content: '我也学会了，太棒了！',
-        avatar: '',
-        images: [],
-        videos: []
-      }
-    ])
-
-    const groupMembers = ref([
-      { id: 1, name: '小明', role: '群主', avatar: '', isOnline: true },
-      { id: 2, name: '小红', role: '管理员', avatar: '', isOnline: true },
-      { id: 3, name: '老师', role: '管理员', avatar: '', isOnline: true },
-      { id: 4, name: '小李', role: '成员', avatar: '', isOnline: false },
-      { id: 5, name: '小王', role: '成员', avatar: '', isOnline: true },
-      { id: 6, name: '小张', role: '成员', avatar: '', isOnline: false },
-      { id: 7, name: '小刘', role: '成员', avatar: '', isOnline: true },
-      { id: 8, name: '小陈', role: '成员', avatar: '', isOnline: false }
-    ])
+    const messages = ref([])
+    const groupMembers = ref([])
 
     // 返回上一页
     const goBack = () => {
@@ -352,33 +292,232 @@ export default {
       router.push(`/profile/${userId}`)
     }
 
-    // 发送消息
-    const sendMessage = () => {
-      if (newMessage.value.trim()) {
-        const messageObj = {
-          id: Date.now(),
-          userId: 999, // 当前用户ID
-          username: '我',
-          time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
-          content: newMessage.value.trim(),
-          avatar: '',
-          images: [...uploadedImages.value],
-          videos: [...uploadedVideos.value]
+    // 加载群组信息
+    const loadGroupInfo = async () => {
+      try {
+        isLoading.value = true
+        const response = await apiService.getGroupDetail(groupId.value)
+        if (response.success) {
+          const { group, members } = response.data
+          groupInfo.value = {
+            ...group,
+            activeToday: Math.floor(Math.random() * 20) + 5 // 模拟今日活跃数
+          }
+          
+          // 处理群成员数据
+          groupMembers.value = members.map(member => ({
+            id: member.user_id,
+            name: member.first_name || member.username,
+            role: member.role === 'admin' ? '管理员' : '成员',
+            avatar: member.avatar,
+            isOnline: Math.random() > 0.3 // 模拟在线状态
+          }))
+          
+          // 检查当前用户是否是管理员
+          const currentUserId = JSON.parse(localStorage.getItem('user'))?.id
+          const currentMember = members.find(m => m.user_id === currentUserId)
+          isGroupAdmin.value = currentMember?.role === 'admin'
+        }
+      } catch (error) {
+        ElMessage.error('加载群组信息失败')
+        console.error('加载群组信息错误:', error)
+      } finally {
+        isLoading.value = false
+      }
+    }
+
+    // 加载群聊消息
+    const loadMessages = async () => {
+      try {
+        isLoading.value = true
+        const currentUserId = JSON.parse(localStorage.getItem('user'))?.id
+        
+        // 先加载示例消息
+        const sampleMessages = [
+          {
+            id: 1,
+            userId: 3,
+            username: '王伟',
+            time: '14:30',
+            content: '大家好！今天天气真不错，适合学习手语',
+            avatar: '',
+            images: [],
+            videos: [],
+            isSelf: false
+          },
+          {
+            id: 2,
+            userId: 4,
+            username: '李华',
+            time: '14:32',
+            content: '是啊，我刚学会了一个新的手语词汇',
+            avatar: '',
+            images: [],
+            videos: [],
+            isSelf: false
+          },
+          {
+            id: 3,
+            userId: currentUserId || 999,
+            username: '测试1',
+            time: '14:35',
+            content: '大家好！我是测试1，很高兴加入这个群组',
+            avatar: '',
+            images: [],
+            videos: [],
+            isSelf: true
+          },
+          {
+            id: 4,
+            userId: 5,
+            username: '张明',
+            time: '14:38',
+            content: '欢迎新成员！有什么不懂的可以随时问我们',
+            avatar: '',
+            images: [],
+            videos: [],
+            isSelf: false
+          },
+          {
+            id: 5,
+            userId: 6,
+            username: '刘芳',
+            time: '14:40',
+            content: '今天想和大家分享一个手语词汇：天气 ☀️',
+            avatar: '',
+            images: [
+              {
+                id: 1,
+                url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iI0ZGNjM0NyIvPjx0ZXh0IHg9IjEwMCIgeT0iNzUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7lrqDlvbHnirbpgYc8L3RleHQ+PC9zdmc+',
+                name: '天气手语'
+              }
+            ],
+            videos: [],
+            isSelf: false
+          },
+          {
+            id: 6,
+            userId: currentUserId || 999,
+            username: '测试1',
+            time: '14:42',
+            content: '谢谢分享！这个手势我学会了 🙏',
+            avatar: '',
+            images: [],
+            videos: [],
+            isSelf: true
+          },
+          {
+            id: 7,
+            userId: 7,
+            username: '陈静',
+            time: '14:45',
+            content: '大家平时都是怎么练习手语的？',
+            avatar: '',
+            images: [],
+            videos: [],
+            isSelf: false
+          },
+          {
+            id: 8,
+            userId: 8,
+            username: '赵强',
+            time: '14:48',
+            content: '我每天都会看视频学习，然后对着镜子练习',
+            avatar: '',
+            images: [],
+            videos: [],
+            isSelf: false
+          }
+        ]
+        
+        // 尝试从API获取消息，如果失败则使用示例消息
+        try {
+          const response = await apiService.getGroupMessages(groupId.value)
+          if (response.success && response.data.messages.length > 0) {
+            messages.value = response.data.messages.map(msg => ({
+              ...msg,
+              isSelf: msg.userId === currentUserId
+            }))
+          } else {
+            messages.value = sampleMessages
+          }
+        } catch (apiError) {
+          console.log('API获取消息失败，使用示例消息:', apiError)
+          messages.value = sampleMessages
         }
         
-        messages.value.push(messageObj)
-        newMessage.value = ''
-        uploadedImages.value = []
-        uploadedVideos.value = []
-        ElMessage.success('消息发送成功！')
-        
-        // 自动滚动到底部
+        // 滚动到底部
         setTimeout(() => {
           const chatContainer = document.querySelector('.max-h-96')
           if (chatContainer) {
             chatContainer.scrollTop = chatContainer.scrollHeight
           }
         }, 100)
+      } catch (error) {
+        ElMessage.error('加载群聊消息失败')
+        console.error('加载群聊消息错误:', error)
+      } finally {
+        isLoading.value = false
+      }
+    }
+
+    // 发送消息
+    const sendMessage = async () => {
+      if (newMessage.value.trim() || uploadedImages.value.length > 0 || uploadedVideos.value.length > 0) {
+        try {
+          isLoading.value = true
+          const currentUser = JSON.parse(localStorage.getItem('user')) || {}
+          
+          // 创建本地消息对象（立即显示）
+          const localMessage = {
+            id: Date.now(),
+            userId: currentUser.id || 999,
+            username: currentUser.first_name || '测试1',
+            time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+            content: newMessage.value.trim(),
+            avatar: currentUser.avatar || '',
+            images: [...uploadedImages.value],
+            videos: [...uploadedVideos.value],
+            isSelf: true
+          }
+          
+          // 立即添加到消息列表
+          messages.value.push(localMessage)
+          
+          // 清空输入
+          newMessage.value = ''
+          uploadedImages.value = []
+          uploadedVideos.value = []
+          
+          // 自动滚动到底部
+          setTimeout(() => {
+            const chatContainer = document.querySelector('.max-h-96')
+            if (chatContainer) {
+              chatContainer.scrollTop = chatContainer.scrollHeight
+            }
+          }, 100)
+          
+          // 尝试发送到服务器
+          try {
+            const response = await apiService.sendGroupMessage(groupId.value, {
+              content: localMessage.content,
+              images: localMessage.images,
+              videos: localMessage.videos
+            })
+            
+            if (response.success) {
+              ElMessage.success('消息发送成功！')
+            }
+          } catch (apiError) {
+            console.log('API发送消息失败，但已本地显示:', apiError)
+            ElMessage.warning('消息已显示，但同步到服务器失败')
+          }
+        } catch (error) {
+          ElMessage.error('消息发送失败')
+          console.error('发送消息错误:', error)
+        } finally {
+          isLoading.value = false
+        }
       } else {
         ElMessage.warning('请输入消息内容')
       }
@@ -452,23 +591,51 @@ export default {
     }
 
     // 修改群名
-    const saveGroupName = () => {
+    const saveGroupName = async () => {
       if (editGroupName.value.trim()) {
-        groupInfo.value.name = editGroupName.value.trim()
-        showEditGroupName.value = false
-        editGroupName.value = ''
-        ElMessage.success('群名称修改成功！')
+        try {
+          isLoading.value = true
+          const response = await apiService.updateGroup(groupId.value, {
+            name: editGroupName.value.trim()
+          })
+          
+          if (response.success) {
+            groupInfo.value.name = editGroupName.value.trim()
+            showEditGroupName.value = false
+            editGroupName.value = ''
+            ElMessage.success('群名称修改成功！')
+          }
+        } catch (error) {
+          ElMessage.error('修改群名称失败')
+          console.error('修改群名称错误:', error)
+        } finally {
+          isLoading.value = false
+        }
       } else {
         ElMessage.warning('请输入群名称')
       }
     }
 
     // 修改群公告
-    const saveAnnouncement = () => {
-      groupInfo.value.announcement = editAnnouncement.value.trim()
-      showEditAnnouncement.value = false
-      editAnnouncement.value = ''
-      ElMessage.success('群公告修改成功！')
+    const saveAnnouncement = async () => {
+      try {
+        isLoading.value = true
+        const response = await apiService.updateGroup(groupId.value, {
+          description: editAnnouncement.value.trim()
+        })
+        
+        if (response.success) {
+          groupInfo.value.announcement = editAnnouncement.value.trim()
+          showEditAnnouncement.value = false
+          editAnnouncement.value = ''
+          ElMessage.success('群公告修改成功！')
+        }
+      } catch (error) {
+        ElMessage.error('修改群公告失败')
+        console.error('修改群公告错误:', error)
+      } finally {
+        isLoading.value = false
+      }
     }
 
     // 解散群聊
@@ -481,15 +648,28 @@ export default {
           cancelButtonText: '取消',
           type: 'warning',
         }
-      ).then(() => {
-        ElMessage.success('群聊已解散')
-        router.push('/profile')
+      ).then(async () => {
+        try {
+          isLoading.value = true
+          const response = await apiService.dissolveGroup(groupId.value)
+          if (response.success) {
+            ElMessage.success('群聊已解散')
+            router.push('/profile')
+          }
+        } catch (error) {
+          ElMessage.error('解散群聊失败')
+          console.error('解散群聊错误:', error)
+        } finally {
+          isLoading.value = false
+        }
       }).catch(() => {
         ElMessage.info('已取消')
       })
     }
 
-    onMounted(() => {
+    onMounted(async () => {
+      await loadGroupInfo()
+      await loadMessages()
       document.title = `${groupInfo.value.name} - 手语教学平台`
       generateQRCode()
       editGroupName.value = groupInfo.value.name
@@ -521,7 +701,8 @@ export default {
       saveAnnouncement,
       openImageModal,
       getAvatarUrl,
-      deleteGroup
+      deleteGroup,
+      isLoading
     }
   }
 }
@@ -689,22 +870,87 @@ export default {
   color: #2563eb !important;
 }
 
-/* 消息气泡样式 */
+/* 消息气泡样式 - 微信风格 */
 .message-bubble {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
   transition: all 0.3s ease !important;
+  position: relative;
+  word-wrap: break-word;
+  word-break: break-all;
 }
 
 .message-bubble:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
 }
 
-/* 聊天容器样式 */
+/* 自己的消息气泡 - 蓝色 */
+.message-bubble.bg-blue-500 {
+  background: linear-gradient(135deg, #95ec69 0%, #95ec69 100%) !important;
+  color: #000 !important;
+  border-radius: 12px 12px 4px 12px !important;
+}
+
+/* 别人的消息气泡 - 灰色 */
+.message-bubble.bg-gray-100 {
+  background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%) !important;
+  color: #000 !important;
+  border-radius: 12px 12px 12px 4px !important;
+}
+
+/* 聊天容器样式 - 微信风格背景 */
 .chat-container {
-  background: rgba(249, 250, 251, 0.5);
+  background: linear-gradient(135deg, #f5f5f5 0%, #ebebeb 100%);
   border-radius: 12px;
-  padding: 12px;
+  padding: 16px;
+  min-height: 400px;
+}
+
+/* 消息项动画 */
+.chat-container > div {
+  animation: messageSlideIn 0.3s ease-out;
+}
+
+@keyframes messageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 自己的消息动画 - 从右边滑入 */
+.flex-row-reverse {
+  animation: messageSlideInRight 0.3s ease-out;
+}
+
+@keyframes messageSlideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 别人的消息动画 - 从左边滑入 */
+:not(.flex-row-reverse) {
+  animation: messageSlideInLeft 0.3s ease-out;
+}
+
+@keyframes messageSlideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 /* 图片预览样式 */

@@ -159,6 +159,10 @@
                         <span class="mr-1 text-lg" :class="{ 'text-red-500': post.isLiked }">{{ post.isLiked ? '❤️' : '🤍' }}</span>
                         {{ post.likes }} 点赞
                       </span>
+                      <span class="flex items-center cursor-pointer hover:text-green-600" @click="viewPostDetail(post.id)">
+                        <el-icon class="mr-1"><View /></el-icon>
+                        查看详情
+                      </span>
                     </div>
 
                     <!-- 评论输入框 -->
@@ -176,9 +180,9 @@
                       </div>
                     </div>
 
-                    <!-- 评论列表 -->
+                    <!-- 评论列表 - 只显示前3条 -->
                     <div v-if="post.commentList && post.commentList.length > 0" class="border-t pt-4">
-                      <div v-for="comment in post.commentList" :key="comment.id" class="mb-4">
+                      <div v-for="comment in post.commentList.slice(0, 3)" :key="comment.id" class="mb-4">
                         <div class="flex items-start space-x-3">
                           <el-avatar :size="35" :src="getAvatarUrl(comment.avatar)">
                             {{ comment.username.charAt(0) }}
@@ -192,6 +196,10 @@
                             <div class="flex items-center space-x-4 text-xs text-gray-500">
                               <span class="cursor-pointer hover:text-blue-600" @click="toggleReplyInput(post.id, comment.id)">
                                 回复
+                              </span>
+                              <span class="cursor-pointer hover:text-red-600" @click="toggleCommentLike(comment.id, post.id, 'comment')">
+                                <span :class="comment.isLiked ? 'text-red-500' : ''">{{ comment.isLiked ? '❤️' : '🤍' }}</span>
+                                {{ comment.likes || 0 }} 点赞
                               </span>
                             </div>
 
@@ -224,12 +232,24 @@
                                       <span class="text-gray-500 text-xs">{{ reply.time }}</span>
                                     </div>
                                     <p class="text-gray-700 text-xs">{{ reply.content }}</p>
+                                    <div class="flex items-center space-x-4 text-xs text-gray-500 mt-1">
+                                      <span class="cursor-pointer hover:text-red-600" @click="toggleCommentLike(reply.id, post.id, 'comment')">
+                                        <span :class="reply.isLiked ? 'text-red-500' : ''">{{ reply.isLiked ? '❤️' : '🤍' }}</span>
+                                        {{ reply.likes || 0 }} 点赞
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
                             </div>
                           </div>
                         </div>
+                      </div>
+                      <!-- 查看更多评论提示 -->
+                      <div v-if="post.commentList.length > 3" class="text-center pt-2 border-t">
+                        <span class="text-blue-600 text-sm cursor-pointer hover:underline" @click="viewPostDetail(post.id)">
+                          查看全部 {{ post.commentList.length }} 条评论
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -304,19 +324,15 @@
 </template>
 
 <script>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
-import { Picture, VideoCamera, ChatDotRound } from '@element-plus/icons-vue'
+import { Picture, VideoCamera, ChatDotRound, View } from '@element-plus/icons-vue'
 import { getAvatarUrl } from '@/utils/avatar'
+import apiService from '@/services/api'
 
 export default {
   name: 'Community',
-  components: {
-    Picture,
-    VideoCamera,
-    ChatDotRound
-  },
   setup() {
     const router = useRouter()
     const newPost = ref('')
@@ -333,91 +349,71 @@ export default {
     const hashtagCursorPosition = ref(0)
     const newHashtag = ref('')
 
-    const posts = ref([
-      {
-        id: 1,
-        username: '小明',
-        level: '初级',
-        time: '2小时前',
-        content: '今天学会了"你好"的手语表达，感觉很有成就感！大家有什么学习技巧可以分享吗？',
-        avatar: '',
-        comments: 5,
-        likes: 12,
-        isLiked: false,
-        commentList: [
-          {
-            id: 1,
-            username: '小红',
-            content: '很棒！建议多练习基础手势',
-            time: '1小时前',
-            replies: [
-              {
-                id: 11,
-                username: '小明',
-                content: '谢谢建议！',
-                time: '30分钟前',
-                replyTo: '小红'
-              }
-            ]
-          },
-          {
-            id: 2,
-            username: '老师',
-            content: '可以尝试对着镜子练习，观察手势是否标准',
-            time: '45分钟前',
-            replies: []
-          }
-        ]
-      },
-      {
-        id: 2,
-        username: '小红',
-        level: '中级',
-        time: '4小时前',
-        content: '分享一个学习心得：每天坚持练习15分钟，比一次性练习2小时效果更好。循序渐进很重要！',
-        avatar: '',
-        comments: 8,
-        likes: 23,
-        isLiked: false,
-        commentList: [
-          {
-            id: 3,
-            username: '老师',
-            content: '非常赞同！质量比数量更重要',
-            time: '3小时前',
-            replies: []
-          }
-        ]
-      },
-      {
-        id: 3,
-        username: '老师',
-        level: '高级',
-        time: '6小时前',
-        content: '本周的挑战：学会用手语表达"今天天气很好"。大家可以尝试一下，有问题随时提问！',
-        avatar: '',
-        comments: 15,
-        likes: 45,
-        isLiked: false,
-        commentList: [
-          {
-            id: 4,
-            username: '小明',
-            content: '老师，这个手势怎么做？',
-            time: '5小时前',
-            replies: [
-              {
-                id: 41,
-                username: '老师',
-                content: '先做"今天"，然后做"天气"，最后做"很好"',
-                time: '4小时前',
-                replyTo: '小明'
-              }
-            ]
-          }
-        ]
+    const posts = ref([])
+
+    // 加载帖子列表
+    const loadPosts = async () => {
+      try {
+        console.log('正在加载帖子...')
+        const response = await apiService.getPosts()
+        console.log('帖子响应:', response)
+        if (response.success) {
+          posts.value = response.data.posts.map(post => ({
+            id: post.id,
+            username: post.username,
+            level: '中级',
+            time: new Date(post.created_at).toLocaleString('zh-CN'),
+            content: post.content,
+            avatar: post.avatar,
+            comments: post.comments_count || 0,
+            likes: post.likes_count || 0,
+            isLiked: post.isLiked || false,
+            commentList: post.commentList || []
+          }))
+          console.log('加载的帖子数量:', posts.value.length)
+        } else {
+          console.error('加载帖子失败:', response.message)
+        }
+      } catch (error) {
+        console.error('加载帖子失败:', error)
       }
-    ])
+    }
+
+    // 提交帖子
+    const submitPost = async () => {
+      if (!newPost.value.trim()) {
+        ElMessage.warning('请输入内容')
+        return
+      }
+
+      try {
+        const response = await apiService.createPost({
+          content: newPost.value,
+          privacy: 'public'
+        })
+
+        if (response.success) {
+          // 清空表单
+          newPost.value = ''
+          uploadedImages.value = []
+          uploadedVideos.value = []
+          
+          // 重新加载帖子列表
+          await loadPosts()
+          ElMessage.success('发布成功！')
+        }
+      } catch (error) {
+        console.error('发布帖子失败:', error)
+        ElMessage.error('发布失败，请稍后重试')
+      }
+    }
+
+    // 初始化数据
+    onMounted(async () => {
+      await loadPosts()
+      await loadHotGroups()
+      await loadDeafHearingGroups()
+    })
 
 
     const hotTopics = ref([
@@ -431,20 +427,45 @@ export default {
       { id: 8, name: '#手语差异', count: 43 }
     ])
 
-    const hotChatGroups = ref([
-      { id: 1, name: '手语日常对话', members: 234, activeToday: 45, avatar: '' },
-      { id: 2, name: 'AI翻译讨论组', members: 189, activeToday: 38, avatar: '' },
-      { id: 3, name: '聋人文化分享', members: 167, activeToday: 32, avatar: '' },
-      { id: 4, name: '手语学习打卡', members: 298, activeToday: 67, avatar: '' },
-      { id: 5, name: '新手指南群', members: 145, activeToday: 28, avatar: '' }
-    ])
+    const hotChatGroups = ref([])
+    const deafHearingGroups = ref([])
 
-    const deafHearingGroups = ref([
-      { id: 1, name: '聋健交流组', members: 120, avatar: '', type: 'mixed', description: '聋人朋友与听力正常朋友交流的平台' },
-      { id: 2, name: '聋人文化分享组', members: 80, avatar: '', type: 'deaf', description: '分享聋人文化、艺术、生活经验' },
-      { id: 3, name: '手语差异讨论组', members: 95, avatar: '', type: 'mixed', description: '讨论教学手语与聋人实际使用手语的差异' },
-      { id: 4, name: '聋人生活现状组', members: 65, avatar: '', type: 'mixed', description: '了解聋人的日常生活、工作、学习现状' }
-    ])
+    // 加载热门群组
+    const loadHotGroups = async () => {
+      try {
+        const response = await apiService.getHotGroups(5)
+        if (response.success) {
+          hotChatGroups.value = response.data.groups.map(group => ({
+            id: group.id,
+            name: group.name,
+            members: group.member_count || 0,
+            activeToday: Math.floor(Math.random() * 50) + 20, // 模拟今日活跃人数
+            avatar: group.avatar
+          }))
+        }
+      } catch (error) {
+        console.error('加载热门群组失败:', error)
+      }
+    }
+
+    // 加载聋健交流组
+    const loadDeafHearingGroups = async () => {
+      try {
+        const response = await apiService.getGroups({ category: '聋健交流' })
+        if (response.success) {
+          deafHearingGroups.value = response.data.groups.map(group => ({
+            id: group.id,
+            name: group.name,
+            members: group.member_count || 0,
+            avatar: group.avatar,
+            type: group.category === '聋健交流' ? 'mixed' : 'deaf',
+            description: group.description
+          }))
+        }
+      } catch (error) {
+        console.error('加载聋健交流组失败:', error)
+      }
+    }
 
     // 处理图片上传
     const handleImageUpload = (event) => {
@@ -501,31 +522,31 @@ export default {
     }
 
     // 发布新帖子
-    const publishPost = () => {
-      if (newPost.value.trim() || uploadedImages.value.length > 0 || uploadedVideos.value.length > 0) {
-        const currentTime = new Date()
-        const newPostObj = {
-          id: Date.now(), // 使用时间戳作为唯一ID
-          username: '我', // 当前用户
-          level: '初级',
-          time: '刚刚',
-          content: newPost.value.trim(),
-          avatar: '',
-          comments: 0,
-          likes: 0,
-          commentList: [],
-          images: [...uploadedImages.value],
-          videos: [...uploadedVideos.value]
-        }
-        
-        // 将新帖子添加到数组开头
-        posts.value.unshift(newPostObj)
-        newPost.value = ''
-        uploadedImages.value = []
-        uploadedVideos.value = []
-        ElMessage.success('发布成功！')
-      } else {
+    const publishPost = async () => {
+      if (!newPost.value.trim() && uploadedImages.value.length === 0 && uploadedVideos.value.length === 0) {
         ElMessage.warning('请输入内容或上传图片/视频')
+        return
+      }
+
+      try {
+        const response = await apiService.createPost({
+          content: newPost.value.trim(),
+          privacy: 'public'
+        })
+
+        if (response.success) {
+          // 清空表单
+          newPost.value = ''
+          uploadedImages.value = []
+          uploadedVideos.value = []
+          
+          // 重新加载帖子列表
+          await loadPosts()
+          ElMessage.success('发布成功！')
+        }
+      } catch (error) {
+        console.error('发布帖子失败:', error)
+        ElMessage.error('发布失败，请稍后重试')
       }
     }
 
@@ -544,26 +565,25 @@ export default {
     }
 
     // 添加评论
-    const addComment = (postId) => {
-      if (newComment.value.trim()) {
-        const post = posts.value.find(p => p.id === postId)
-        if (post) {
-          const newCommentObj = {
-            id: Date.now(),
-            username: '我',
-            content: newComment.value.trim(),
-            time: '刚刚',
-            replies: []
-          }
-          
-          post.commentList.push(newCommentObj)
-          post.comments += 1
+    const addComment = async (postId) => {
+      if (!newComment.value.trim()) {
+        ElMessage.warning('请输入评论内容')
+        return
+      }
+
+      try {
+        const response = await apiService.commentPost(postId, newComment.value.trim())
+        
+        if (response.success) {
+          // 重新加载帖子列表以获取最新评论
+          await loadPosts()
           newComment.value = ''
           showCommentInput.value[postId] = false
           ElMessage.success('评论成功！')
         }
-      } else {
-        ElMessage.warning('请输入评论内容')
+      } catch (error) {
+        console.error('评论失败:', error)
+        ElMessage.error('评论失败，请稍后重试')
       }
     }
 
@@ -612,9 +632,9 @@ export default {
     }
 
     // 处理话题标签输入
-    const handleHashtagInput = (event) => {
-      const cursorPos = event.target.selectionStart
-      const text = newPost.value
+    const handleHashtagInput = (value) => {
+      const text = value || newPost.value
+      const cursorPos = text.length
       const beforeCursor = text.substring(0, cursorPos)
       
       // 查找最近的#符号
@@ -677,18 +697,34 @@ export default {
     }
 
     // 切换点赞状态
-    const toggleLike = (postId) => {
-      const post = posts.value.find(p => p.id === postId)
-      if (post) {
-        if (post.isLiked) {
-          post.likes -= 1
-          post.isLiked = false
-          ElMessage.success('取消点赞')
-        } else {
-          post.likes += 1
-          post.isLiked = true
+    const toggleLike = async (postId) => {
+      try {
+        const response = await apiService.likePost(postId)
+        
+        if (response.success) {
+          // 重新加载帖子列表以获取最新点赞数
+          await loadPosts()
           ElMessage.success('点赞成功')
         }
+      } catch (error) {
+        console.error('点赞失败:', error)
+        ElMessage.error('点赞失败，请稍后重试')
+      }
+    }
+
+    // 切换评论点赞状态
+    const toggleCommentLike = async (commentId, postId, type) => {
+      try {
+        const response = await apiService.likeComment(commentId)
+        
+        if (response.success) {
+          // 重新加载帖子列表以获取最新点赞状态
+          await loadPosts()
+          ElMessage.success('评论点赞成功')
+        }
+      } catch (error) {
+        console.error('评论点赞失败:', error)
+        ElMessage.error('评论点赞失败，请稍后重试')
       }
     }
 
@@ -696,6 +732,11 @@ export default {
     const openImageModal = (imageUrl) => {
       // 创建一个新的窗口来显示大图
       window.open(imageUrl, '_blank')
+    }
+
+    // 查看帖子详情
+    const viewPostDetail = (postId) => {
+      router.push(`/post/${postId}`)
     }
 
     return {
@@ -732,7 +773,9 @@ export default {
       createNewHashtag,
       goToHashtagPage,
       toggleLike,
+      toggleCommentLike,
       openImageModal,
+      viewPostDetail,
       getAvatarUrl
     }
   },

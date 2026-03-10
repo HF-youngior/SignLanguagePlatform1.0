@@ -95,10 +95,36 @@ class ApiService {
   /**
    * 评论帖子
    */
-  async commentPost(id, content) {
+  async commentPost(id, content, parentId = null) {
     return this.request(`/community/posts/${id}/comments`, {
       method: 'POST',
-      body: JSON.stringify({ content })
+      body: JSON.stringify({ content, parentId })
+    })
+  }
+
+  /**
+   * 点赞评论
+   */
+  async likeComment(id) {
+    return this.request(`/community/comments/${id}/like`, {
+      method: 'POST'
+    })
+  }
+
+  /**
+   * 检查评论是否被点赞
+   */
+  async checkCommentLike(id) {
+    return this.request(`/community/comments/${id}/like`)
+  }
+
+  /**
+   * 更新帖子
+   */
+  async updatePost(id, data) {
+    return this.request(`/community/posts/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
     })
   }
 
@@ -155,6 +181,184 @@ class ApiService {
     return this.request(`/learning/progress/${lessonId}`, {
       method: 'PUT',
       body: JSON.stringify({ progress })
+    })
+  }
+
+  // ==================== 用户相关 ====================
+
+  /**
+   * 获取用户个人资料
+   */
+  async getUserProfile() {
+    return this.request('/users/profile')
+  }
+
+  /**
+   * 更新用户个人资料
+   */
+  async updateUserProfile(data) {
+    return this.request('/users/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    })
+  }
+
+  /**
+   * 获取用户帖子
+   */
+  async getUserPosts(params = {}) {
+    const queryString = new URLSearchParams(params).toString()
+    return this.request(`/users/posts?${queryString}`)
+  }
+
+  // ==================== 通知相关 ====================
+
+  /**
+   * 获取通知列表
+   */
+  async getNotifications(params = {}) {
+    const queryString = new URLSearchParams(params).toString()
+    return this.request(`/notifications?${queryString}`)
+  }
+
+  /**
+   * 标记通知为已读
+   */
+  async markNotificationAsRead(id) {
+    return this.request(`/notifications/${id}/read`, {
+      method: 'PATCH'
+    })
+  }
+
+  /**
+   * 标记所有通知为已读
+   */
+  async markAllNotificationsAsRead(type = '') {
+    return this.request('/notifications/read-all', {
+      method: 'PATCH',
+      body: JSON.stringify({ type })
+    })
+  }
+
+  /**
+   * 删除通知
+   */
+  async deleteNotification(id) {
+    return this.request(`/notifications/${id}`, {
+      method: 'DELETE'
+    })
+  }
+
+  // ==================== 群组相关API ====================
+
+  /**
+   * 获取群组列表
+   */
+  async getGroups(params = {}) {
+    const queryString = new URLSearchParams(params).toString()
+    return this.request(`/groups?${queryString}`)
+  }
+
+  /**
+   * 获取单个群组详情
+   */
+  async getGroupDetail(id) {
+    return this.request(`/groups/${id}`)
+  }
+
+  /**
+   * 创建群组
+   */
+  async createGroup(data) {
+    return this.request('/groups', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
+  }
+
+  /**
+   * 加入群组
+   */
+  async joinGroup(id) {
+    return this.request(`/groups/${id}/join`, {
+      method: 'POST'
+    })
+  }
+
+  /**
+   * 退出群组
+   */
+  async leaveGroup(id) {
+    return this.request(`/groups/${id}/leave`, {
+      method: 'POST'
+    })
+  }
+
+  /**
+   * 解散群组
+   */
+  async dissolveGroup(id) {
+    return this.request(`/groups/${id}`, {
+      method: 'DELETE'
+    })
+  }
+
+  /**
+   * 转让群主
+   */
+  async transferGroupOwnership(groupId, newOwnerId) {
+    return this.request(`/groups/${groupId}/transfer-ownership`, {
+      method: 'POST',
+      body: JSON.stringify({ newOwnerId })
+    })
+  }
+
+  /**
+   * 更新群组信息
+   */
+  async updateGroup(groupId, data) {
+    return this.request(`/groups/${groupId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    })
+  }
+
+  /**
+   * 获取用户加入的群组
+   */
+  async getMyGroups() {
+    return this.request('/groups/user/my-groups')
+  }
+
+  /**
+   * 获取热门群组
+   */
+  async getHotGroups(limit = 5) {
+    return this.request(`/groups/hot/list?limit=${limit}`)
+  }
+
+  /**
+   * 获取群组分类
+   */
+  async getGroupCategories() {
+    return this.request('/groups/categories/list')
+  }
+
+  /**
+   * 获取群聊消息
+   */
+  async getGroupMessages(groupId, params = {}) {
+    const queryString = new URLSearchParams(params).toString()
+    return this.request(`/groups/${groupId}/messages?${queryString}`)
+  }
+
+  /**
+   * 发送群聊消息
+   */
+  async sendGroupMessage(groupId, data) {
+    return this.request(`/groups/${groupId}/messages`, {
+      method: 'POST',
+      body: JSON.stringify(data)
     })
   }
 }

@@ -13,6 +13,7 @@ export default defineConfig({
     port: 3000,
     host: '0.0.0.0', // 监听所有网络接口，允许手机访问
     open: true,
+    https: false, // 开发环境使用HTTP，生产环境需要HTTPS
     fs: {
       // 允许访问node_modules中的MediaPipe文件
       allow: ['..']

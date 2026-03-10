@@ -96,10 +96,12 @@ export const login = async (req, res, next) => {
       });
     }
 
-    const { email, password } = req.body;
+    const { username, password } = req.body;
 
-    // 查找用户（包含密码字段）
-    const user = await User.findOne({ email }).select('+password');
+    // 查找用户（包含密码字段）- 支持用户名或邮箱登录
+    const user = await User.findOne({
+      $or: [{ email: username }, { username: username }]
+    }).select('+password');
 
     if (!user) {
       return res.status(401).json({
@@ -145,8 +147,8 @@ export const login = async (req, res, next) => {
           firstName: user.firstName,
           lastName: user.lastName,
           role: user.role,
-          isEmailVerified: user.isEmailVerified,
-          learningProgress: user.learningProgress
+          isEmailVerified: user.isEmailVerified
+          // 移除learningProgress字段，避免localStorage存储空间不足
         },
         token,
         refreshToken

@@ -3,54 +3,81 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-class SignLanguageDB {
-  constructor() {
-    this.connection = null;
+// MySQL数据库配置
+const dbConfig = {
+  host: process.env.MYSQL_HOST || 'localhost',
+  user: process.env.MYSQL_USER || 'root',
+  password: process.env.MYSQL_PASSWORD || 'asdfgh0625YYH',
+  database: process.env.MYSQL_DATABASE || 'signlanguage_platform',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0
+};
+
+// 创建连接池
+const pool = mysql.createPool(dbConfig);
+
+// 测试连接
+const testConnection = async () => {
+  try {
+    const connection = await pool.getConnection();
+    console.log('📦 MySQL数据库连接成功');
+    connection.release();
+    return true;
+  } catch (error) {
+    console.error('❌ MySQL数据库连接失败:', error.message);
+    return false;
   }
+};
 
-  async connect() {
-    try {
-      this.connection = await mysql.createConnection({
-        host: process.env.MYSQL_HOST || 'localhost',
-        user: process.env.MYSQL_USER || 'newuser',
-        password: process.env.MYSQL_PASSWORD || '123qwe,./',
-        database: process.env.MYSQL_DATABASE || 'sign_language_learning',
-        port: process.env.MYSQL_PORT || 3306,
-        charset: 'utf8mb4'
-      });
-
-      console.log('📦 MySQL连接成功');
-      return this.connection;
-    } catch (error) {
-      console.error('MySQL连接失败:', error.message);
-      throw error;
-    }
-  }
-
-  async disconnect() {
-    if (this.connection) {
-      await this.connection.end();
-      console.log('MySQL连接已关闭');
-    }
-  }
-
-  async query(sql, params = []) {
-    if (!this.connection) {
-      await this.connect();
-    }
+// 执行查询的辅助函数
+const query = async (sql, params) => {
+  try {
+    // 确保params是数组
+    const safeParams = Array.isArray(params) ? params : [];
     
-    try {
-      const [rows] = await this.connection.execute(sql, params);
-      return rows;
-    } catch (error) {
-      console.error('数据库查询错误:', error.message);
-      throw error;
-    }
+    // 确保所有参数都是有效的类型
+    const processedParams = safeParams.map(param => {
+      if (typeof param === 'number') {
+        // 确保数字不是NaN
+        return isNaN(param) ? 0 : param;
+      }
+      if (typeof param === 'string') {
+        const trimmed = param.trim();
+        if (trimmed !== '' && !isNaN(trimmed) && !isNaN(parseFloat(trimmed))) {
+          return Number(trimmed);
+        }
+      }
+      return param;
+    });
+    
+    // 执行查询
+    const [results] = await pool.query(sql, processedParams);
+    return results;
+  } catch (error) {
+    console.error('SQL查询错误:', error);
+    console.error('SQL语句:', sql);
+    console.error('参数:', params);
+    throw error;
   }
-}
+};
 
-// 创建单例实例
-const db = new SignLanguageDB();
+// 事务处理
+const transaction = async (callback) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    const result = await callback(connection);
+    await connection.commit();
+    return result;
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+};
 
-export { db };
-
+export { pool, query, transaction, testConnection };

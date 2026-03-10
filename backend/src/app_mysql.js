@@ -15,9 +15,8 @@ import learningRoutes from './routes/learning_mysql.js';
 import translationRoutes from './routes/translation_mysql.js';
 import communityRoutes from './routes/community_mysql.js';
 import adminRoutes from './routes/admin.js';
-import notificationRoutes from './routes/notifications_mysql.js';
-import groupRoutes from './routes/groups_mysql.js';
-import groupInvitationRoutes from './routes/group_invitations_mysql.js';
+import groupsRoutes from './routes/groups_mysql.js';
+import notificationsRoutes from './routes/notifications_mysql.js';
 
 // 导入中间件
 import { errorHandler } from './middleware/errorHandler.js';
@@ -86,9 +85,9 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('combined'));
 }
 
-// 解析JSON和URL编码数据
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// 解析JSON和URL编码数据 - 增加限制以支持大图片上传
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // 静态文件服务
 app.use('/uploads', express.static('uploads'));
@@ -110,10 +109,9 @@ app.use('/api/users', userRoutes);
 app.use('/api/learning', learningRoutes);
 app.use('/api/translation', translationRoutes);
 app.use('/api/community', communityRoutes);
-app.use('/api/notifications', notificationRoutes);
-app.use('/api/groups', groupRoutes);
-app.use('/api/groups', groupInvitationRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/groups', groupsRoutes);
+app.use('/api/notifications', notificationsRoutes);
 
 // API文档端点
 app.get('/api', (req, res) => {

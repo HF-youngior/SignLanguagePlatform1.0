@@ -4,27 +4,25 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import compression from 'compression';
 import rateLimit from 'express-rate-limit';
+import mongoSanitize from 'express-mongo-sanitize';
+import xss from 'xss-clean';
 import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 
 // 导入路由
-import authRoutes from './routes/auth_mysql.js';
-import userRoutes from './routes/user_mysql.js';
-import learningRoutes from './routes/learning_mysql.js';
-import translationRoutes from './routes/translation_mysql.js';
-import communityRoutes from './routes/community_mysql.js';
-import adminRoutes from './routes/admin.js';
-import notificationRoutes from './routes/notifications_mysql.js';
-import groupRoutes from './routes/groups_mysql.js';
-import groupInvitationRoutes from './routes/group_invitations_mysql.js';
+import authRoutes from './routes/auth.js';
+import userRoutes from './routes/user.js';
+import learningRoutes from './routes/learning.js';
+import translationRoutes from './routes/translation.js';
+import communityRoutes from './routes/community.js';
 
 // 导入中间件
 import { errorHandler } from './middleware/errorHandler.js';
 import { notFound } from './middleware/notFound.js';
 
-// 导入MySQL数据库配置
-import { testConnection } from './config/mysql.js';
+// 导入数据库配置
+import { connectDB } from './config/database.js';
 
 // 加载环境变量
 dotenv.config();
@@ -38,8 +36,8 @@ const io = new Server(server, {
   }
 });
 
-// 测试MySQL连接
-testConnection();
+// 连接数据库
+connectDB();
 
 // 安全中间件
 app.use(helmet({
@@ -76,6 +74,10 @@ const limiter = rateLimit({
 
 app.use('/api/', limiter);
 
+// 数据清理中间件
+app.use(mongoSanitize()); // 防止NoSQL注入
+app.use(xss()); // 防止XSS攻击
+
 // 压缩响应
 app.use(compression());
 
@@ -99,8 +101,7 @@ app.get('/health', (req, res) => {
     status: 'success',
     message: '服务运行正常',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development',
-    database: 'MySQL'
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
@@ -110,25 +111,20 @@ app.use('/api/users', userRoutes);
 app.use('/api/learning', learningRoutes);
 app.use('/api/translation', translationRoutes);
 app.use('/api/community', communityRoutes);
-app.use('/api/notifications', notificationRoutes);
-app.use('/api/groups', groupRoutes);
-app.use('/api/groups', groupInvitationRoutes);
-app.use('/api/admin', adminRoutes);
 
 // API文档端点
 app.get('/api', (req, res) => {
   res.json({
     message: '手语教学平台 API',
     version: '1.0.0',
-    database: 'MySQL',
     endpoints: {
       auth: '/api/auth',
       users: '/api/users',
       learning: '/api/learning',
       translation: '/api/translation',
-      community: '/api/community',
-      admin: '/api/admin'
-    }
+      community: '/api/community'
+    },
+    documentation: '/api/docs'
   });
 });
 
@@ -146,6 +142,16 @@ io.on('connection', (socket) => {
   socket.on('join-community', (data) => {
     socket.join(`community-${data.roomId}`);
     console.log(`用户加入社区房间 ${data.roomId}`);
+  });
+  
+  // 实时翻译
+  socket.on('translation-request', (data) => {
+    // 处理实时翻译请求
+    socket.emit('translation-response', {
+      id: data.id,
+      result: '翻译结果',
+      confidence: 0.95
+    });
   });
   
   // 断开连接
@@ -168,7 +174,6 @@ server.listen(PORT, () => {
   console.log(`📚 API文档: http://localhost:${PORT}/api`);
   console.log(`🏥 健康检查: http://localhost:${PORT}/health`);
   console.log(`🌍 环境: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🗄️ 数据库: MySQL`);
 });
 
 // 优雅关闭

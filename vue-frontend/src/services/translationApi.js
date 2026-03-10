@@ -43,13 +43,15 @@ class TranslationApiService {
    * 检测图片
    * @param {File|Blob} imageFile - 图片文件
    * @param {number} confidence - 置信度阈值
+   * @param {string} model - 模型类型 ('yolo' 或 'seq2seq')
    * @returns {Promise<Object>} 检测结果
    */
-  async detectImage(imageFile, confidence = 0.5) {
+  async detectImage(imageFile, confidence = 0.5, model = 'yolo') {
     try {
       const formData = new FormData()
       formData.append('image', imageFile)
       formData.append('confidence', confidence.toString())
+      formData.append('model', model)
 
       const response = await fetch(`${this.baseURL}/detect/image`, {
         method: 'POST',
@@ -77,13 +79,15 @@ class TranslationApiService {
    * 检测视频
    * @param {File} videoFile - 视频文件
    * @param {number} confidence - 置信度阈值
+   * @param {string} model - 模型类型 ('yolo' 或 'seq2seq')
    * @returns {Promise<Object>} 检测结果
    */
-  async detectVideo(videoFile, confidence = 0.5) {
+  async detectVideo(videoFile, confidence = 0.5, model = 'yolo') {
     try {
       const formData = new FormData()
       formData.append('video', videoFile)
       formData.append('confidence', confidence.toString())
+      formData.append('model', model)
 
       const response = await fetch(`${this.baseURL}/detect/video`, {
         method: 'POST',
