@@ -6,7 +6,8 @@
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center">
             <router-link to="/" class="flex items-center text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
-              <img src="/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3" />
+              <!-- 使用已有的默认头像图片代替缺失的 logo 文件，避免 Vite 解析错误 -->
+              <img src="/images/default-avatar.png" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
               <span>掌中语-手语学习平台</span>
             </router-link>
           </div>
@@ -31,7 +32,9 @@
           <h1 class="text-5xl font-bold text-blue-700 mb-4 animate-fade-in-down">
             👥 我的社区
           </h1>
-          <p class="text-xl text-gray-700 font-medium animate-fade-in-up">我在这里有话说</p>
+          <p class="text-xl text-gray-700 font-medium animate-fade-in-up">
+            用手语连接爱与理解，让沟通无碍
+          </p>
         </div>
 
         <div class="grid lg:grid-cols-3 gap-8">
@@ -293,6 +296,49 @@
               </div>
             </el-card>
 
+            <!-- 手语公益星 -->
+            <el-card>
+              <template #header>
+                <span class="text-lg font-semibold">⭐ 手语公益星</span>
+              </template>
+              <div class="space-y-3">
+                <p class="text-sm text-gray-600">
+                  每月走近一位热心的手语公益实践者，记录他们用双手带来的温暖改变。
+                </p>
+                <div class="p-3 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100">
+                  <div class="flex items-center space-x-3 mb-2">
+                    <el-avatar :size="40" :src="getAvatarUrl(currentCharityStar.avatar)">
+                      {{ currentCharityStar.name.charAt(0) }}
+                    </el-avatar>
+                    <div>
+                      <div class="font-medium text-gray-900">
+                        {{ currentCharityStar.month }} · {{ currentCharityStar.name }}
+                      </div>
+                      <div class="text-xs text-blue-600">
+                        {{ currentCharityStar.tagline }}
+                      </div>
+                    </div>
+                  </div>
+                  <p class="text-sm text-gray-700 leading-relaxed">
+                    {{ currentCharityStar.story }}
+                  </p>
+                  <div class="mt-3 flex justify-between items-center text-xs text-gray-500">
+                    <span>本月公益主题：{{ currentCharityStar.topic }}</span>
+                    <el-button type="primary" link @click="viewCharityStar">
+                      查看完整故事
+                    </el-button>
+                  </div>
+                </div>
+                <p class="text-xs text-gray-400">
+                  想成为下一位「手语公益星」？在社区发布你的公益实践并添加
+                  <span class="text-blue-500 font-medium">#手语助残行动</span>
+                  或
+                  <span class="text-blue-500 font-medium">#聋人文化守护</span>
+                  话题标签吧。
+                </p>
+              </div>
+            </el-card>
+
             <!-- 热门群聊 -->
             <el-card>
               <template #header>
@@ -397,7 +443,7 @@ export default {
           newPost.value = ''
           uploadedImages.value = []
           uploadedVideos.value = []
-          
+
           // 重新加载帖子列表
           await loadPosts()
           ElMessage.success('发布成功！')
@@ -539,7 +585,7 @@ export default {
           newPost.value = ''
           uploadedImages.value = []
           uploadedVideos.value = []
-          
+
           // 重新加载帖子列表
           await loadPosts()
           ElMessage.success('发布成功！')
@@ -573,7 +619,7 @@ export default {
 
       try {
         const response = await apiService.commentPost(postId, newComment.value.trim())
-        
+
         if (response.success) {
           // 重新加载帖子列表以获取最新评论
           await loadPosts()
@@ -629,6 +675,11 @@ export default {
       ElMessage.success(`正在加入 ${group.name}...`)
       // 跳转到群聊页面
       router.push(`/chat-group/${group.id}`)
+    }
+
+    // 查看手语公益星详情（预留入口）
+    const viewCharityStar = () => {
+      ElMessage.info('后续可以在这里跳转到完整的公益故事详情页')
     }
 
     // 处理话题标签输入
@@ -700,7 +751,7 @@ export default {
     const toggleLike = async (postId) => {
       try {
         const response = await apiService.likePost(postId)
-        
+
         if (response.success) {
           // 重新加载帖子列表以获取最新点赞数
           await loadPosts()
@@ -716,7 +767,7 @@ export default {
     const toggleCommentLike = async (commentId, postId, type) => {
       try {
         const response = await apiService.likeComment(commentId)
-        
+
         if (response.success) {
           // 重新加载帖子列表以获取最新点赞状态
           await loadPosts()
@@ -756,6 +807,7 @@ export default {
       posts,
       hotTopics,
       hotChatGroups,
+      currentCharityStar,
       deafHearingGroups,
       publishPost,
       toggleCommentInput,
@@ -768,6 +820,7 @@ export default {
       removeVideo,
       joinGroup,
       joinChatGroup,
+      viewCharityStar,
       handleHashtagInput,
       selectHashtag,
       createNewHashtag,
