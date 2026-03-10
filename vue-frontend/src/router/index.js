@@ -44,16 +44,17 @@ const routes = [
     component: ChallengeLevelCalendar,
     meta: { requiresAuth: true }
   },
-  {
-    path: '/learn/challenge/level-2',
-    name: 'HomeMap',
-    component: HomeMap
-  },
-  {
-    path: '/learn/challenge/level-2/living-room',
-    name: 'LivingRoom',
-    component: LivingRoom
-  },
+  // 暂时注释掉未定义的组件路由
+  // {
+  //   path: '/learn/challenge/level-2',
+  //   name: 'HomeMap',
+  //   component: HomeMap
+  // },
+  // {
+  //   path: '/learn/challenge/level-2/living-room',
+  //   name: 'LivingRoom',
+  //   component: LivingRoom
+  // },
   {
     path: '/translate',
     name: 'Translate',

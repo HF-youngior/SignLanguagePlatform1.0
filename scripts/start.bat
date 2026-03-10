@@ -1,6 +1,7 @@
 @echo off
 
 cd /d "%~dp0"
+cd ..
 
 echo Starting services...
 

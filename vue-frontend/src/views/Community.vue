@@ -396,6 +396,14 @@ export default {
     const newHashtag = ref('')
 
     const posts = ref([])
+    const currentCharityStar = ref({
+      month: '2025年3月',
+      name: '张老师',
+      tagline: '手语推广志愿者',
+      avatar: '',
+      story: '张老师是一位资深的手语推广志愿者，从事手语教学工作已有10年。她不仅在学校教授手语，还经常到社区开展公益手语培训，帮助更多人了解和使用手语。',
+      topic: '手语进社区'
+    })
 
     // 加载帖子列表
     const loadPosts = async () => {

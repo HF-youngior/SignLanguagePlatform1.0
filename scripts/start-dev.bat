@@ -1,4 +1,6 @@
 @echo off
+cd /d "%~dp0"
+cd ..
 echo 启动手语教学平台开发环境...
 echo.
 
