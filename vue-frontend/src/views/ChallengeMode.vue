@@ -66,8 +66,16 @@
 
         <section class="map-section fade-in">
           <div class="map-section__header">
-            <h2 class="text-2xl font-semibold text-slate-900">章节地图</h2>
-            <p class="text-slate-600 text-sm">沿着路径前进，点亮篇章，更多故事正等待你解锁。</p>
+            <div class="flex justify-between items-center">
+              <div>
+                <h2 class="text-2xl font-semibold text-slate-900">章节地图</h2>
+                <p class="text-slate-600 text-sm">沿着路径前进，点亮篇章，更多故事正等待你解锁。</p>
+              </div>
+              <router-link to="/learn" class="back-button">
+                <span class="back-button__icon">←</span>
+                <span class="back-button__text">返回学习模式</span>
+              </router-link>
+            </div>
           </div>
 
           <div class="map-container">
@@ -77,16 +85,17 @@
                 :key="level.id"
                 class="map-node"
                 :class="[`status-${level.status}`, { 'is-first': index === 0 }]"
-                :style="{ top: `${index * 140}px`, left: index % 2 === 0 ? '12%' : '58%' }"
+                :style="{ top: `${index * 200}px`, left: '50%', transform: 'translateX(-50%)' }"
                 @mouseenter="hoveredLevel = level.id"
                 @mouseleave="hoveredLevel = null"
                 @click="handleNodeClick(level)"
               >
                 <div class="map-node__halo"></div>
-                <div class="map-node__circle">
-                  <span v-if="level.status === 'locked'" class="map-node__lock">🔒</span>
+                <div class="map-node__circle" :class="{ 'calendar-shape': index === 0, 'house-shape': index === 1 }">
+                  <span v-if="level.status === 'locked' && index === 1" class="map-node__lock">🔒</span>
                   <span v-else-if="level.status === 'completed'" class="map-node__check">✨</span>
-                  <span v-else class="map-node__index">{{ level.id }}</span>
+                  <span v-else-if="index === 0" class="map-node__icon calendar-icon">📅</span>
+                  <span v-else-if="index === 1" class="map-node__icon house-icon">🏠</span>
                 </div>
                 <transition name="fade">
                   <div v-if="hoveredLevel === level.id" class="map-node__label">
@@ -98,9 +107,17 @@
                       type="primary"
                       plain
                       @click.stop="handleNodeClick(level)"
+                      class="start-button"
                     >
                       {{ level.status === 'completed' ? '回顾' : '开始' }}
                     </el-button>
+                  </div>
+                </transition>
+                <transition name="tooltip">
+                  <div v-if="hoveredLevel === level.id" class="map-node__tooltip">
+                    <span v-if="index === 0">篇章一：数字与日历 学习主题：认识数字和日历</span>
+                    <span v-else-if="level.status === 'locked'">篇章二：我的新家 解锁条件：完成篇章一（数字与日历）</span>
+                    <span v-else>篇章二：我的新家 学习主题：认识日常物品</span>
                   </div>
                 </transition>
               </div>
@@ -130,16 +147,16 @@ export default {
         {
           id: 1,
           title: '篇章一',
-          subtitle: '过日子',
+          subtitle: '数字与日历',
           status: 'available',
           routeName: 'ChallengeLevelCalendar'
         },
         {
           id: 2,
           title: '篇章二',
-          subtitle: '即将开启',
+          subtitle: '我的新家',
           status: 'locked',
-          routeName: null
+          routeName: 'HomeMap'
         }
       ]
     }
@@ -313,9 +330,39 @@ export default {
   border-bottom: 1px solid rgba(99, 102, 241, 0.08);
 }
 
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+  color: white;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
+.back-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);
+  background: linear-gradient(135deg, #4f46e5 0%, #6d28d9 100%);
+}
+
+.back-button__icon {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.back-button__text {
+  white-space: nowrap;
+}
+
 .map-container {
   position: relative;
-  height: 520px;
+  height: 600px;
   overflow: hidden;
   padding: 20px 0;
 }
@@ -343,13 +390,21 @@ export default {
 
 .map-node {
   position: absolute;
-  width: 160px;
+  width: 180px;
   text-align: center;
   cursor: pointer;
   transition: transform 0.3s ease;
 }
-.map-node:hover {
-  transform: translateY(-6px);
+.map-node:hover:not(.status-locked) {
+  transform: translateY(-6px) scale(1.05);
+}
+.map-node.status-locked:hover {
+  animation: shake 0.5s ease-in-out;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(-50%) rotate(0deg); }
+  25% { transform: translateX(-50%) rotate(-2deg); }
+  75% { transform: translateX(-50%) rotate(2deg); }
 }
 .map-node__halo {
   position: absolute;
@@ -363,8 +418,8 @@ export default {
   opacity: 1;
 }
 .map-node__circle {
-  width: 70px;
-  height: 70px;
+  width: 80px;
+  height: 80px;
   border-radius: 24px;
   background: #ffffff;
   margin: 0 auto;
@@ -377,15 +432,30 @@ export default {
   color: #4338ca;
   box-shadow: 0 12px 30px rgba(129, 140, 248, 0.18);
   position: relative;
+  transition: all 0.3s ease;
 }
-.map-node__index {
-  transform: translateY(2px);
+.map-node__circle.calendar-shape {
+  background: linear-gradient(135deg, #7c3aed, #c026d3);
+  border-color: #7c3aed;
+  color: white;
+}
+.map-node__circle.house-shape {
+  background: #ffffff;
+  border-color: rgba(129, 140, 248, 0.35);
+  color: #4338ca;
+}
+.map-node__icon {
+  font-size: 32px;
 }
 .map-node__check {
   font-size: 28px;
 }
 .map-node__lock {
-  font-size: 22px;
+  font-size: 24px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 .map-node__label {
   margin-top: 16px;
@@ -397,6 +467,7 @@ export default {
   flex-direction: column;
   gap: 6px;
   color: #4338ca;
+  transition: all 0.3s ease;
 }
 .map-node__label strong {
   font-size: 1rem;
@@ -405,10 +476,38 @@ export default {
   font-size: 0.85rem;
   color: #4c1d95;
 }
+.map-node__tooltip {
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  margin-left: 16px;
+  z-index: 10;
+}
+.map-node__tooltip::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 100%;
+  transform: translateY(-50%);
+  border: 6px solid transparent;
+  border-right-color: rgba(0, 0, 0, 0.8);
+}
 .map-node.status-locked .map-node__circle {
   border-color: rgba(148, 163, 184, 0.4);
   color: rgba(148, 163, 184, 0.8);
   background: rgba(248, 250, 252, 0.92);
+  box-shadow: none;
+  opacity: 0.7;
+}
+.map-node.status-locked .map-node__label {
+  color: rgba(148, 163, 184, 0.8);
   box-shadow: none;
 }
 .map-node.status-completed .map-node__circle {
@@ -418,6 +517,14 @@ export default {
 }
 .map-node.status-completed .map-node__label {
   color: #047857;
+}
+.start-button {
+  margin-top: 8px;
+  transition: all 0.3s ease;
+}
+.start-button:hover {
+  background-color: #6366f1;
+  color: white;
 }
 
 .map-overlay-top,
@@ -446,6 +553,18 @@ export default {
 .fade-leave-to {
   opacity: 0;
 }
+.tooltip-enter-active,
+.tooltip-leave-active {
+  transition: all 0.2s ease;
+}
+.tooltip-enter-from {
+  opacity: 0;
+  transform: translateY(-50%) translateX(10px);
+}
+.tooltip-leave-to {
+  opacity: 0;
+  transform: translateY(-50%) translateX(10px);
+}
 
 @media (max-width: 768px) {
   .challenge-banner {
@@ -456,12 +575,45 @@ export default {
     height: 60px;
     font-size: 28px;
   }
+  .map-section__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .map-section__header > div {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .back-button {
+    align-self: flex-start;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
   .map-node {
     left: 50% !important;
     transform: translateX(-50%);
   }
-  .map-node:hover {
-    transform: translate(-50%, -6px);
+  .map-node:hover:not(.status-locked) {
+    transform: translateX(-50%) translateY(-6px) scale(1.05);
+  }
+  .map-node.status-locked:hover {
+    transform: translateX(-50%) rotate(0deg);
+  }
+  .map-node__tooltip {
+    left: 50%;
+    top: 100%;
+    transform: translateX(-50%);
+    margin-left: 0;
+    margin-top: 16px;
+  }
+  .map-node__tooltip::before {
+    top: -12px;
+    right: 50%;
+    transform: translateX(50%);
+    border-right-color: transparent;
+    border-bottom-color: rgba(0, 0, 0, 0.8);
   }
 }
 </style>

@@ -45,6 +45,16 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/learn/challenge/level-2',
+    name: 'HomeMap',
+    component: HomeMap
+  },
+  {
+    path: '/learn/challenge/level-2/living-room',
+    name: 'LivingRoom',
+    component: LivingRoom
+  },
+  {
     path: '/translate',
     name: 'Translate',
     component: Translate,

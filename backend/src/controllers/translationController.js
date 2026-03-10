@@ -124,3 +124,20 @@ export const deleteTranslation = asyncHandler(async (req, res) => {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

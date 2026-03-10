@@ -179,7 +179,7 @@
                   </el-card>
                 </div>
               </el-tab-pane>
-              
+
               <el-tab-pane label="我加入的群聊" name="joined">
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                   <el-card v-for="group in joinedGroups" :key="group.id" class="hover:shadow-lg transition-shadow">
@@ -202,7 +202,7 @@
                 </div>
               </el-tab-pane>
             </el-tabs>
-            
+
             <!-- 创建新群聊卡片 -->
             <el-card class="hover:shadow-lg transition-shadow cursor-pointer border-2 border-dashed border-blue-300 hover:border-blue-500" @click="createNewGroup">
               <div class="text-center py-8">
@@ -584,7 +584,7 @@ export default {
           bio: editForm.value.bio,
           avatar: editForm.value.avatar ? '有头像数据' : '无头像数据'
         })
-        
+
         const response = await apiService.updateUserProfile({
           first_name: editForm.value.name,
           bio: editForm.value.bio,
@@ -616,7 +616,7 @@ export default {
       if (token) {
         await loadNotifications()
       }
-      
+
       // 检查是否是其他用户的个人主页
       const userId = route.params.id
       if (userId && userId !== 'me') {
@@ -733,7 +733,7 @@ export default {
           notifications.value.comments = 0
           notifications.value.friendRequests = response.data.friendUnreadCount || 0
           notifications.value.friendMessages = 0
-          
+
           // 更新通知列表
           const allNotifications = response.data.notifications || []
           likeComments.value = allNotifications
@@ -749,7 +749,7 @@ export default {
               targetPostId: n.target_id,
               isRead: n.is_read
             }))
-          
+
           friendMessages.value = allNotifications
             .filter(n => n.type === 'friend_request' || n.type === 'friend_accept')
             .map(n => ({
@@ -862,7 +862,7 @@ export default {
             type: 'warning',
           }
         )
-        
+
         const response = await apiService.leaveGroup(group.id)
         if (response.success) {
           myGroups.value = myGroups.value.filter(g => g.id !== group.id)
@@ -881,7 +881,7 @@ export default {
     const showGroupOptions = async (group) => {
       selectedGroup.value = group
       showGroupManageDialog.value = true
-      
+
       // 加载群组成员
       try {
         const response = await apiService.getGroupDetail(group.id)
@@ -905,7 +905,7 @@ export default {
             type: 'danger',
           }
         )
-        
+
         const response = await apiService.dissolveGroup(selectedGroup.value.id)
         if (response.success) {
           myGroups.value = myGroups.value.filter(g => g.id !== selectedGroup.value.id)
@@ -927,7 +927,7 @@ export default {
         ElMessage.warning('请选择要转让的成员')
         return
       }
-      
+
       try {
         const response = await apiService.transferGroupOwnership(selectedGroup.value.id, selectedNewOwner.value)
         if (response.success) {
@@ -935,7 +935,7 @@ export default {
           showGroupManageDialog.value = false
           selectedNewOwner.value = null
           ElMessage.success('群主转让成功')
-          
+
           // 重新加载群组列表
           await loadUserGroups()
         }
