@@ -5,7 +5,8 @@ import bcrypt from 'bcryptjs';
 const dbConfig = {
   host: 'localhost',
   user: 'root',
-  password: 'asdfgh0625YYH',
+  // 与项目默认配置保持一致，如需修改请同步更新 MYSQL_PASSWORD
+  password: 'LXF521',
   database: 'signlanguage_platform'
 };
 

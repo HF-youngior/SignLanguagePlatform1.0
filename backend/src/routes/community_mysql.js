@@ -91,13 +91,48 @@ router.get('/posts', async (req, res) => {
         isLiked = likeResult.length > 0;
       }
       
+      // 安全解析JSON字段
+      let hashtags = [];
+      let images = [];
+      let videos = [];
+      
+      try {
+        if (post.hashtags) {
+          // 尝试作为JSON解析
+          try {
+            hashtags = JSON.parse(post.hashtags);
+          } catch (jsonError) {
+            // 如果不是JSON格式，尝试作为逗号分隔的字符串处理
+            console.log('Hashtags不是JSON格式，尝试作为逗号分隔字符串处理');
+            hashtags = post.hashtags.split(',').map(tag => tag.trim()).filter(tag => tag);
+          }
+        }
+      } catch (e) {
+        console.error('解析hashtags失败:', e);
+        hashtags = [];
+      }
+      
+      try {
+        images = post.images ? JSON.parse(post.images) : [];
+      } catch (e) {
+        console.error('解析images失败:', e);
+        images = [];
+      }
+      
+      try {
+        videos = post.videos ? JSON.parse(post.videos) : [];
+      } catch (e) {
+        console.error('解析videos失败:', e);
+        videos = [];
+      }
+      
       return {
         ...post,
         // 优先使用first_name（昵称），如果没有则使用username
         username: post.first_name || post.username,
-        hashtags: post.hashtags ? JSON.parse(post.hashtags) : [],
-        images: post.images ? JSON.parse(post.images) : [],
-        videos: post.videos ? JSON.parse(post.videos) : [],
+        hashtags: hashtags,
+        images: images,
+        videos: videos,
         commentList: commentsWithReplies,
         isLiked: isLiked
       };
@@ -122,9 +157,11 @@ router.get('/posts', async (req, res) => {
     });
   } catch (error) {
     console.error('获取帖子列表错误:', error);
+    console.error('错误堆栈:', error.stack);
     res.status(500).json({
       success: false,
-      message: '获取帖子列表失败'
+      message: '获取帖子列表失败',
+      error: error.message
     });
   }
 });
