@@ -145,7 +145,7 @@
                     <!-- 显示帖子中的图片 -->
                     <div v-if="post.images && post.images.length > 0" class="mb-3">
                       <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        <img v-for="image in post.images" :key="image.id" :src="image.url" :alt="image.name" class="w-full h-32 object-cover rounded border cursor-pointer hover:opacity-80" @click="openImageModal(image.url)">
+                        <img v-for="image in post.images" :key="image.id" :src="image.url" :alt="image.name" class="w-full h-32 object-cover rounded border cursor-pointer hover:opacity-80" @click="openImageModal(image.url)" loading="lazy">
                       </div>
                     </div>
 
@@ -259,6 +259,18 @@
                 </div>
               </el-card>
             </div>
+            
+            <!-- 加载更多提示 -->
+            <div v-if="loading" class="text-center py-4">
+              <el-icon class="is-loading"><Loading /></el-icon>
+              <span class="ml-2">加载中...</span>
+            </div>
+            <div v-else-if="!hasMore && posts.length > 0" class="text-center py-4 text-gray-500">
+              没有更多内容了
+            </div>
+            <div v-else-if="posts.length === 0" class="text-center py-8 text-gray-500">
+              暂无帖子，快来发布第一条动态吧！
+            </div>
           </div>
 
           <!-- 侧边栏 -->
@@ -370,11 +382,12 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
-import { Picture, VideoCamera, ChatDotRound, View } from '@element-plus/icons-vue'
+import { Picture, VideoCamera, ChatDotRound, View, Loading } from '@element-plus/icons-vue'
 import { getAvatarUrl } from '@/utils/avatar'
+import { handleImageUploadWithCompression } from '@/utils/imageCompressor'
 import apiService from '@/services/api'
 
 export default {
@@ -396,6 +409,11 @@ export default {
     const newHashtag = ref('')
 
     const posts = ref([])
+    const currentPage = ref(1)
+    const pageSize = ref(10)
+    const totalPosts = ref(0)
+    const loading = ref(false)
+    const hasMore = ref(true)
     const currentCharityStar = ref({
       month: '2025年3月',
       name: '张老师',
@@ -406,13 +424,23 @@ export default {
     })
 
     // 加载帖子列表
-    const loadPosts = async () => {
+    const loadPosts = async (isLoadMore = false) => {
+      if (loading.value || (!isLoadMore && !hasMore.value)) {
+        return
+      }
+      
       try {
-        console.log('正在加载帖子...')
-        const response = await apiService.getPosts()
+        loading.value = true
+        console.log('正在加载帖子...', { page: currentPage.value, pageSize: pageSize.value })
+        
+        const response = await apiService.getPosts({
+          page: currentPage.value,
+          limit: pageSize.value
+        })
+        
         console.log('帖子响应:', response)
         if (response.success) {
-          posts.value = response.data.posts.map(post => ({
+          const newPosts = response.data.posts.map(post => ({
             id: post.id,
             username: post.username,
             level: '中级',
@@ -424,12 +452,25 @@ export default {
             isLiked: post.isLiked || false,
             commentList: post.commentList || []
           }))
-          console.log('加载的帖子数量:', posts.value.length)
+          
+          if (isLoadMore) {
+            posts.value = [...posts.value, ...newPosts]
+          } else {
+            posts.value = newPosts
+          }
+          
+          totalPosts.value = response.data.pagination.total || 0
+          hasMore.value = posts.value.length < totalPosts.value
+          currentPage.value += 1
+          
+          console.log('加载的帖子数量:', newPosts.length, '总帖子数:', totalPosts.value, '是否有更多:', hasMore.value)
         } else {
           console.error('加载帖子失败:', response.message)
         }
       } catch (error) {
         console.error('加载帖子失败:', error)
+      } finally {
+        loading.value = false
       }
     }
 
@@ -464,9 +505,40 @@ export default {
 
     // 初始化数据
     onMounted(async () => {
+      // 重置分页状态
+      currentPage.value = 1
+      hasMore.value = true
       await loadPosts()
       await loadHotGroups()
       await loadDeafHearingGroups()
+    })
+    
+    // 加载更多帖子
+    const loadMorePosts = async () => {
+      if (hasMore.value && !loading.value) {
+        await loadPosts(true)
+      }
+    }
+    
+    // 监听滚动事件
+    const handleScroll = () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+      const scrollHeight = document.documentElement.scrollHeight
+      const clientHeight = document.documentElement.clientHeight
+      
+      if (scrollTop + clientHeight >= scrollHeight - 100 && hasMore.value && !loading.value) {
+        loadMorePosts()
+      }
+    }
+    
+    // 添加滚动事件监听
+    onMounted(() => {
+      window.addEventListener('scroll', handleScroll)
+    })
+    
+    // 清理滚动事件监听
+    onUnmounted(() => {
+      window.removeEventListener('scroll', handleScroll)
     })
 
 
@@ -522,24 +594,31 @@ export default {
     }
 
     // 处理图片上传
-    const handleImageUpload = (event) => {
+    const handleImageUpload = async (event) => {
       const files = event.target.files
       if (files && files.length > 0) {
-        Array.from(files).forEach(file => {
+        for (const file of Array.from(files)) {
           if (file.type.startsWith('image/')) {
-            const reader = new FileReader()
-            reader.onload = (e) => {
+            try {
+              // 使用压缩工具处理图片
+              const compressedImage = await handleImageUploadWithCompression(file, {
+                maxWidth: 800,
+                maxHeight: 800,
+                quality: 0.8,
+                maxSize: 1024 * 1024 // 1MB
+              })
               uploadedImages.value.push({
                 id: Date.now() + Math.random(),
-                url: e.target.result,
+                url: compressedImage,
                 name: file.name
               })
+            } catch (error) {
+              ElMessage.error(error.message || '图片上传失败')
             }
-            reader.readAsDataURL(file)
           } else {
             ElMessage.warning('请选择图片文件')
           }
-        })
+        }
       }
     }
 
@@ -813,6 +892,11 @@ export default {
       hashtagCursorPosition,
       newHashtag,
       posts,
+      currentPage,
+      pageSize,
+      totalPosts,
+      loading,
+      hasMore,
       hotTopics,
       hotChatGroups,
       currentCharityStar,
@@ -837,6 +921,7 @@ export default {
       toggleCommentLike,
       openImageModal,
       viewPostDetail,
+      loadMorePosts,
       getAvatarUrl
     }
   },

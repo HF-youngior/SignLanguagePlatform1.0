@@ -50,8 +50,8 @@ def init_seq2seq_model():
     """初始化Seq2Seq_v4模型"""
     global seq2seq_model
     try:
-        # Seq2Seq模型路径
-        model_path = os.path.join('..', '..', 'continuous_slr_epoch021.pth')
+        # Seq2Seq模型路径 - 使用准确率最高的模型
+        model_path = os.path.join('..', '..', 'continuous_slr_epoch047.pth')
         
         # 先加载词汇表
         dict_path = os.path.join('..', '..', 'dictionary.txt')
@@ -65,7 +65,7 @@ def init_seq2seq_model():
         # 重新加载模型（现在词汇表已经加载）
         seq2seq_model._load_model(model_path)
         
-        print("Seq2Seq模型加载成功")
+        print("Seq2Seq模型加载成功 (continuous_slr_epoch047.pth)")
         return True
     except Exception as e:
         print(f"Seq2Seq模型加载失败: {e}")

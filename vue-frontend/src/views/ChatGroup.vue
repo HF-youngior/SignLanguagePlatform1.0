@@ -317,10 +317,133 @@ export default {
           const currentUserId = JSON.parse(localStorage.getItem('user'))?.id
           const currentMember = members.find(m => m.user_id === currentUserId)
           isGroupAdmin.value = currentMember?.role === 'admin'
+        } else {
+          // 如果API失败，使用模拟数据
+          const currentUser = JSON.parse(localStorage.getItem('user')) || {}
+          groupMembers.value = [
+            {
+              id: 3,
+              name: '测试1',
+              role: '管理员',
+              avatar: '',
+              isOnline: true
+            },
+            {
+              id: 4,
+              name: '王伟',
+              role: '成员',
+              avatar: '',
+              isOnline: true
+            },
+            {
+              id: 5,
+              name: '李华',
+              role: '成员',
+              avatar: '',
+              isOnline: false
+            },
+            {
+              id: 6,
+              name: '张明',
+              role: '成员',
+              avatar: '',
+              isOnline: true
+            },
+            {
+              id: 7,
+              name: '刘芳',
+              role: '成员',
+              avatar: '',
+              isOnline: false
+            },
+            {
+              id: 8,
+              name: '陈静',
+              role: '成员',
+              avatar: '',
+              isOnline: true
+            },
+            {
+              id: 9,
+              name: '赵强',
+              role: '成员',
+              avatar: '',
+              isOnline: false
+            },
+            // 添加当前用户到群成员列表
+            {
+              id: currentUser.id || 999,
+              name: currentUser.first_name || '社区',
+              role: '成员',
+              avatar: currentUser.avatar || '',
+              isOnline: true
+            }
+          ]
         }
       } catch (error) {
         ElMessage.error('加载群组信息失败')
         console.error('加载群组信息错误:', error)
+        // 出错时使用模拟数据
+        const currentUser = JSON.parse(localStorage.getItem('user')) || {}
+        groupMembers.value = [
+          {
+            id: 3,
+            name: '测试1',
+            role: '管理员',
+            avatar: '',
+            isOnline: true
+          },
+          {
+            id: 4,
+            name: '王伟',
+            role: '成员',
+            avatar: '',
+            isOnline: true
+          },
+          {
+            id: 5,
+            name: '李华',
+            role: '成员',
+            avatar: '',
+            isOnline: false
+          },
+          {
+            id: 6,
+            name: '张明',
+            role: '成员',
+            avatar: '',
+            isOnline: true
+          },
+          {
+            id: 7,
+            name: '刘芳',
+            role: '成员',
+            avatar: '',
+            isOnline: false
+          },
+          {
+            id: 8,
+            name: '陈静',
+            role: '成员',
+            avatar: '',
+            isOnline: true
+          },
+          {
+            id: 9,
+            name: '赵强',
+            role: '成员',
+            avatar: '',
+            isOnline: false
+          },
+          // 添加当前用户到群成员列表
+          {
+            id: currentUser.id || 999,
+            name: currentUser.first_name || '社区',
+            role: '成员',
+            avatar: currentUser.avatar || '',
+            isOnline: true
+          }
+        ]
       } finally {
         isLoading.value = false
       }
@@ -439,11 +562,19 @@ export default {
               isSelf: msg.userId === currentUserId
             }))
           } else {
-            messages.value = sampleMessages
+            // 处理示例消息，根据当前用户ID计算isSelf
+            messages.value = sampleMessages.map(msg => ({
+              ...msg,
+              isSelf: msg.userId === currentUserId
+            }))
           }
         } catch (apiError) {
           console.log('API获取消息失败，使用示例消息:', apiError)
-          messages.value = sampleMessages
+          // 处理示例消息，根据当前用户ID计算isSelf
+          messages.value = sampleMessages.map(msg => ({
+            ...msg,
+            isSelf: msg.userId === currentUserId
+          }))
         }
         
         // 滚动到底部
@@ -478,11 +609,12 @@ export default {
             avatar: currentUser.avatar || '',
             images: [...uploadedImages.value],
             videos: [...uploadedVideos.value],
-            isSelf: true
+            isSelf: true,
+            isSynced: false // 添加同步状态
           }
           
           // 立即添加到消息列表
-          messages.value.push(localMessage)
+          const messageIndex = messages.value.push(localMessage) - 1
           
           // 清空输入
           newMessage.value = ''
@@ -506,11 +638,17 @@ export default {
             })
             
             if (response.success) {
+              // 更新消息的同步状态
+              messages.value[messageIndex].isSynced = true
               ElMessage.success('消息发送成功！')
             }
           } catch (apiError) {
             console.log('API发送消息失败，但已本地显示:', apiError)
             ElMessage.warning('消息已显示，但同步到服务器失败')
+            // 可以添加重试机制
+            setTimeout(() => {
+              retrySendMessage(messageIndex)
+            }, 3000)
           }
         } catch (error) {
           ElMessage.error('消息发送失败')
@@ -520,6 +658,27 @@ export default {
         }
       } else {
         ElMessage.warning('请输入消息内容')
+      }
+    }
+
+    // 重试发送消息
+    const retrySendMessage = async (messageIndex) => {
+      try {
+        const message = messages.value[messageIndex]
+        if (message && !message.isSynced) {
+          const response = await apiService.sendGroupMessage(groupId.value, {
+            content: message.content,
+            images: message.images,
+            videos: message.videos
+          })
+          
+          if (response.success) {
+            messages.value[messageIndex].isSynced = true
+            ElMessage.success('消息同步成功！')
+          }
+        }
+      } catch (error) {
+        console.log('重试发送消息失败:', error)
       }
     }
 
