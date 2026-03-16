@@ -343,7 +343,7 @@ def get_seq2seq_recognizer(model_path=None, device='cuda'):
     
     if _seq2seq_recognizer is None:
         if model_path is None:
-            model_path = os.path.join('..', '..', 'continuous_slr_epoch021.pth')
+            model_path = os.path.join('..', '..', 'continuous_slr_epoch047.pth')
         _seq2seq_recognizer = Seq2SeqRecognizer(model_path, device)
     
     return _seq2seq_recognizer
