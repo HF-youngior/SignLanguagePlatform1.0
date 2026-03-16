@@ -7,7 +7,7 @@
           <div class="flex items-center">
             <router-link to="/" class="flex items-center text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
               <!-- 使用已有的默认头像图片代替缺失的 logo 文件，避免 Vite 解析错误 -->
-              <img src="/images/default-avatar.png" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
+              <img src="/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
               <span>掌中语-手语学习平台</span>
             </router-link>
           </div>
@@ -32,24 +32,7 @@
           <p class="text-xl text-gray-700 font-medium animate-fade-in-up">学习A-J手语字母的正确手势</p>
         </div>
 
-        <!-- 学习进度 -->
-        <el-card class="mb-8" shadow="hover">
-          <template #header>
-            <div class="flex justify-between items-center">
-              <span class="text-lg font-semibold">📊 学习进度</span>
-              <el-tag type="info">{{ currentLetterIndex + 1 }}/{{ totalLetters }}</el-tag>
-            </div>
-          </template>
-          
-          <div class="text-center">
-            <div class="text-4xl font-bold text-blue-600 mb-2">{{ Math.round(((currentLetterIndex + 1) / totalLetters) * 100) }}%</div>
-            <el-progress 
-              :percentage="Math.round(((currentLetterIndex + 1) / totalLetters) * 100)" 
-              :color="getProgressColor(Math.round(((currentLetterIndex + 1) / totalLetters) * 100))"
-              :stroke-width="20"
-            />
-          </div>
-        </el-card>
+
 
         <!-- 学习题目 -->
         <el-card v-if="currentQuestion" class="mb-8" shadow="hover">

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>路由测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        button { padding: 10px 20px; font-size: 16px; margin: 10px; }
+        .test-result { margin: 20px 0; padding: 10px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h1>路由跳转测试</h1>
+    <p>请点击下面的按钮测试路由跳转：</p>
+    <button onclick="window.location.href='http://localhost:3000/learn/challenge'">跳转到闯关地图</button>
+    <button onclick="window.location.href='http://localhost:3000/learn/challenge/level-1'">跳转到数字日历关卡</button>
+    <div class="test-result">
+        <h2>测试结果：</h2>
+        <p>1. 点击"跳转到数字日历关卡"按钮，进入关卡页面</p>
+        <p>2. 在关卡页面点击"返回闯关地图"按钮</p>
+        <p>3. 观察是否成功跳转到闯关地图页面</p>
+    </div>
+</body>
+</html>

@@ -9,7 +9,7 @@
               class="flex items-center text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300"
             >
               <!-- 使用已有的默认头像图片代替缺失的 logo 文件，避免 Vite 解析错误 -->
-              <img src="/images/default-avatar.png" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
+              <img src="/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
               <span>掌中语-手语学习平台</span>
             </router-link>
           </div>
@@ -34,9 +34,9 @@
                 <p class="text-base md:text-lg text-white/85">把数字和日期编进生活日常，每天的日历都是一次手语练习。</p>
               </div>
             </div>
-            <el-button type="primary" round size="large" @click="$router.back()">
+            <router-link to="/learn/challenge" class="el-button el-button--primary el-button--round el-button--large" style="position: relative; z-index: 10;">
               返回闯关地图
-            </el-button>
+            </router-link>
           </div>
           <div class="calendar-banner__hand" aria-hidden="true"></div>
         </section>
@@ -45,7 +45,7 @@
           <div class="info-left">
             <h2 class="text-2xl font-semibold text-slate-900 mb-3">关卡信息</h2>
             <p class="text-slate-600 leading-relaxed">
-              当前篇章围绕生活中的日期与数字，从打招呼约时间、安排日程，到节日纪念。把2025年的每一天都变成手语练习的契机。
+              当前篇章围绕生活中的日期与数字，从打招呼约时间、安排日程，到节日纪念。把2026年的每一天都变成手语练习的契机。
             </p>
             <div class="milestone-progress">
               <div class="milestone-progress__bar">
@@ -57,7 +57,7 @@
           <div class="info-right">
             <ul>
               <li><span>📌 目标：</span>完成 {{ totalDates }} 道题目</li>
-              <li><span>🎯 进度：</span>{{ completedDates.size }} / {{ totalDates }} 已完成</li>
+              <li><span>🎯 进度：</span>{{ validCompletedDates.length }} / {{ totalDates }} 已完成</li>
               <li><span>✨ 小提示：</span>点击日历上<strong class="text-indigo-600">白色光点</strong>的日期答题，正确完成即可点亮该日期。</li>
               <li><span>🏆 成就：</span>完成所有题目将获得特别鼓励提示</li>
             </ul>
@@ -67,17 +67,25 @@
         <section class="calendar-panel fade-in">
           <div class="calendar-panel__header">
             <div class="year-display">
-              <button class="year-button" disabled>2025</button>
+              <button class="year-button" disabled>2026</button>
               <span>数字日期练习</span>
             </div>
             <div class="month-selector">
               <button
                 v-for="(month, index) in months"
                 :key="month.value"
-                :class="['month-button', { active: currentMonthIndex === index }]"
+                :class="[
+                  'month-button', 
+                  { 
+                    active: currentMonthIndex === index,
+                    'has-uncompleted-questions': hasUncompletedQuestionsInMonth(index),
+                    'has-questions': hasQuestionsInMonth(index)
+                  }
+                ]"
                 @click="currentMonthIndex = index"
               >
                 {{ month.label }}
+                <span v-if="hasUncompletedQuestionsInMonth(index)" class="month-marker"></span>
               </button>
             </div>
           </div>
@@ -178,6 +186,64 @@
             <el-button type="primary" round @click="closeTeachingDialog">下一题</el-button>
           </div>
         </el-dialog>
+
+        <el-dialog
+          v-model="lessonDialogVisible"
+          width="600px"
+          align-center
+          class="lesson-dialog"
+          :show-close="false"
+        >
+          <template #header>
+            <div class="lesson-dialog__header">
+              <div class="lesson-dialog__title">🎯 小课堂｜用手语"说"出年月日</div>
+              <button class="lesson-dialog__close" @click="closeLessonDialog">
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+          </template>
+
+          <div class="lesson-dialog__body">
+            <p class="lesson-dialog__content">
+              恭喜你学会了手语数字！现在，我们现在来总结一下如何用手语表达日期。
+            </p>
+            <div class="lesson-section">
+              <h3 class="lesson-section__title">📅 年​份</h3>
+              <p class="lesson-section__content">
+                右手食指从左拳关节（象征四季）向下划——一年就这样"划"出来啦。想表示几年右手就摆数字几。
+              </p>
+            </div>
+            <div class="lesson-section">
+              <h3 class="lesson-section__title">🌙 月​份</h3>
+              <p class="lesson-section__content">
+                左手食指横伸，手背向外，右手食指指尖沿左手下向左一撇，模拟"月"字的第一个笔画。要表达几个月，左手就摆数字几。
+              </p>
+            </div>
+            <div class="lesson-section">
+              <h3 class="lesson-section__title">☀️ 日期</h3>
+              <p class="lesson-section__content">
+                左手在上表月份（比数字），右手在下列日期（比数字），比如左手"6"+右手"8"，就是 6月8日。
+              </p>
+            </div>
+            <div class="lesson-section">
+              <h3 class="lesson-section__title">💡 试试看</h3>
+              <p class="lesson-section__content">
+                用你学到的数字，搭配上面的手势和位置规则，就能组合出任意日期啦！快去日历里挑几个日子，用手语"说"出来吧～✋💬
+              </p>
+            </div>
+          </div>
+
+          <template #footer>
+            <div class="lesson-dialog__footer">
+              <button v-if="!lessonSavedToBag" class="lesson-dialog__button save-button" @click="saveToBag">
+                💼 保存到锦囊
+              </button>
+              <button class="lesson-dialog__button" @click="closeLessonDialog">
+                {{ lessonSavedToBag ? '关闭' : '我知道了' }}
+              </button>
+            </div>
+          </template>
+        </el-dialog>
       </div>
     </main>
   </div>
@@ -227,7 +293,7 @@ export default {
       months: Array.from({ length: 12 }).map((_, idx) => ({
         value: idx,
         label: `${idx + 1}月`,
-        days: new Date(2025, idx + 1, 0).getDate()
+        days: new Date(2026, idx + 1, 0).getDate()
       })),
       weekdays: ['日', '一', '二', '三', '四', '五', '六'],
       completedDates: new Set(),
@@ -248,7 +314,9 @@ export default {
       quizClosingTimer: null,
       teachingDialogVisible: false,
       teachingImageSrc: null,
-      lastQuestion: null
+      lastQuestion: null,
+      lessonDialogVisible: false,
+      lessonSavedToBag: false
     }
   },
   computed: {
@@ -256,34 +324,94 @@ export default {
       return this.months[this.currentMonthIndex].days
     },
     monthLeadingBlanks() {
-      const firstDay = new Date(2025, this.currentMonthIndex, 1).getDay()
+      const firstDay = new Date(2026, this.currentMonthIndex, 1).getDay()
       return Array.from({ length: firstDay }, (_, idx) => idx)
     },
+    validCompletedDates() {
+      // 只计算当前questionMap中存在的已完成题目
+      return Array.from(this.completedDates).filter(dateKey => this.questionMap[dateKey])
+    },
     progressPercent() {
-      return Math.round((this.completedDates.size / this.totalDates) * 100)
+      return Math.round((this.validCompletedDates.length / this.totalDates) * 100)
     },
     totalDates() {
       // 只计算题目数量，不是所有日期
       return Object.keys(this.questionMap).length
     },
     isAllCompleted() {
-      return this.completedDates.size >= this.totalDates
-    }
-  },
-  mounted() {
-    this.restoreProgress()
-  },
-  beforeUnmount() {
-    if (this.quizClosingTimer) {
-      clearTimeout(this.quizClosingTimer)
-      this.quizClosingTimer = null
+      return this.validCompletedDates.length >= this.totalDates
     }
   },
   methods: {
+    hasQuestionsInMonth(monthIndex) {
+      // 检查指定月份是否有题目
+      const month = String(monthIndex + 1).padStart(2, '0')
+      return Object.keys(this.questionMap).some(dateKey => {
+        return dateKey.startsWith(`2026-${month}-`)
+      })
+    },
+    hasUncompletedQuestionsInMonth(monthIndex) {
+      // 检查指定月份是否有未完成的题目
+      const month = String(monthIndex + 1).padStart(2, '0')
+      return Object.keys(this.questionMap).some(dateKey => {
+        return dateKey.startsWith(`2026-${month}-`) && !this.completedDates.has(dateKey)
+      })
+    },
+    addTodayTomorrowYesterdayQuestions() {
+      const today = new Date()
+      const tomorrow = new Date(today)
+      tomorrow.setDate(tomorrow.getDate() + 1)
+      const dayAfterTomorrow = new Date(tomorrow)
+      dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 1)
+
+      // 生成今天、明天、后天的日期键
+      const todayKey = this.getDateKeyFromDate(today)
+      const tomorrowKey = this.getDateKeyFromDate(tomorrow)
+      const dayAfterTomorrowKey = this.getDateKeyFromDate(dayAfterTomorrow)
+
+      // 添加今天的题目
+      if (!this.questionMap[todayKey]) {
+        this.questionMap[todayKey] = {
+          dateKey: todayKey,
+          displayTitle: `${today.getFullYear()} 年 ${today.getMonth() + 1} 月 ${today.getDate()} 日（今天）`,
+          prompt: '哪一个手语是"今天"？',
+          correct: 'today.png',
+          distractors: ['tomorrow.png', 'weekday-monday.png', 'year-2025.png']
+        }
+      }
+
+      // 添加明天的题目
+      if (!this.questionMap[tomorrowKey]) {
+        this.questionMap[tomorrowKey] = {
+          dateKey: tomorrowKey,
+          displayTitle: `${tomorrow.getFullYear()} 年 ${tomorrow.getMonth() + 1} 月 ${tomorrow.getDate()} 日（明天）`,
+          prompt: '哪一个手语是"明天"？',
+          correct: 'tomorrow.png',
+          distractors: ['today.png', 'weekday-monday.png', 'year-2026.png']
+        }
+      }
+
+      // 添加后天的题目
+      if (!this.questionMap[dayAfterTomorrowKey]) {
+        this.questionMap[dayAfterTomorrowKey] = {
+          dateKey: dayAfterTomorrowKey,
+          displayTitle: `${dayAfterTomorrow.getFullYear()} 年 ${dayAfterTomorrow.getMonth() + 1} 月 ${dayAfterTomorrow.getDate()} 日（后天）`,
+          prompt: '哪一个手语是"后天"？',
+          correct: 'day_after_tomorrow.png',
+          distractors: ['today.png', 'tomorrow.png', 'weekday-monday.png']
+        }
+      }
+    },
+    getDateKeyFromDate(date) {
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    },
     getDateKey(day) {
       const month = String(this.currentMonthIndex + 1).padStart(2, '0')
       const date = String(day).padStart(2, '0')
-      return `2025-${month}-${date}`
+      return `2026-${month}-${date}`
     },
     isDateCompleted(day) {
       return this.completedDates.has(this.getDateKey(day))
@@ -423,7 +551,7 @@ export default {
     },
     isToday(day) {
       const today = new Date()
-      return today.getFullYear() === 2025 && today.getMonth() === this.currentMonthIndex && today.getDate() === day
+      return today.getFullYear() === 2026 && today.getMonth() === this.currentMonthIndex && today.getDate() === day
     },
     persistProgress() {
       localStorage.setItem(STORAGE_KEYS.completedDates, JSON.stringify(Array.from(this.completedDates)))
@@ -440,9 +568,11 @@ export default {
       milestones.forEach((milestone) => {
         if (this.progressPercent >= milestone && !this.milestoneFlags[milestone]) {
           this.milestoneFlags[milestone] = true
-          this.showMilestoneDialog(milestone)
           if (milestone === 100) {
+            this.showLessonDialog()
             this.markLevelCompleted()
+          } else {
+            this.showMilestoneDialog(milestone)
           }
         }
       })
@@ -452,34 +582,38 @@ export default {
       const messages = {
         25: '很棒！完成了第一题，闯关旅程正式启程啦！',
         50: '已经完成一半，继续保持，马上完成所有题目！',
-        75: '离终点只差一步，冲刺一下就能掌握所有内容！',
-        100: '🎉 恭喜完成第一关！你已经掌握了"年"、"星期一"、"二十"和"1月份"的手语表达！'
+        75: '离终点只差一步，冲刺一下就能掌握所有内容！'
       }
       
-      if (percent === 100) {
-        // 100%完成时，显示特殊提示并引导返回
-        ElMessageBox.confirm(
-          messages[percent] + '\n\n返回闯关地图查看你的成就，下一章节即将解锁！',
-          '🎊 关卡完成',
-          {
-            confirmButtonText: '返回闯关地图',
-            cancelButtonText: '继续浏览',
-            type: 'success',
-            customClass: 'milestone-dialog',
-            center: true
-          }
-        ).then(() => {
-          this.$router.push({ name: 'ChallengeMode' })
-        }).catch(() => {
-          // 用户选择继续浏览，不做任何操作
-        })
-      } else {
-        ElMessageBox.alert(messages[percent], `达成 ${percent}% 里程碑`, {
+      ElMessageBox.alert(
+        messages[percent],
+        '🎉 闯关进度',
+        {
           confirmButtonText: '继续加油',
           type: 'success',
-          customClass: 'milestone-dialog'
-        })
-      }
+          customClass: 'milestone-dialog',
+          center: true
+        }
+      )
+    },
+    showLessonDialog() {
+      this.lessonDialogVisible = true
+      this.lessonSavedToBag = this.isLessonSaved()
+    },
+    isLessonSaved() {
+      return localStorage.getItem('lessonSavedToBag') === 'true'
+    },
+    closeLessonDialog() {
+      this.lessonDialogVisible = false
+    },
+    saveToBag() {
+      localStorage.setItem('lessonSavedToBag', 'true')
+      this.lessonSavedToBag = true
+      ElMessage({
+        message: '已保存到锦囊',
+        type: 'success',
+        duration: 2000
+      })
     },
     markLevelCompleted() {
       const storedCompleted = Number(localStorage.getItem(STORAGE_KEYS.completedLevels) || 0)
@@ -532,6 +666,16 @@ export default {
           this.checkMilestones()
         }
       })
+    }
+  },
+  mounted() {
+    this.restoreProgress()
+    this.addTodayTomorrowYesterdayQuestions()
+  },
+  beforeUnmount() {
+    if (this.quizClosingTimer) {
+      clearTimeout(this.quizClosingTimer)
+      this.quizClosingTimer = null
     }
   }
 }
@@ -594,6 +738,7 @@ export default {
   height: 320px;
   background: radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
   opacity: 0.6;
+  pointer-events: none;
 }
 
 .calendar-info-card {
@@ -682,12 +827,55 @@ export default {
   color: #4338ca;
   font-weight: 600;
   transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
 }
+
+.month-button:hover {
+  border-color: #6366f1;
+  color: #6366f1;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+}
+
 .month-button.active {
   background: linear-gradient(135deg, #6366f1, #7c3aed);
   color: #fff;
   border-color: transparent;
   box-shadow: 0 12px 30px rgba(99, 102, 241, 0.2);
+}
+
+.month-button.has-questions {
+  border-color: #a78bfa;
+  color: #7e22ce;
+}
+
+.month-button.has-uncompleted-questions {
+  border-color: #f472b6;
+  color: #db2777;
+  animation: pulse 2s infinite;
+}
+
+.month-marker {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  background: #ec4899;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(236, 72, 153, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(236, 72, 153, 0);
+  }
 }
 
 .calendar-grid {
@@ -967,69 +1155,230 @@ export default {
 }
 
 /* 教学对话框样式 */
-.teaching-dialog :deep(.el-dialog__header) {
-  margin: 0;
-  padding: 0;
+.teaching-dialog {
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
 
 .teaching-dialog__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 22px 0;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .teaching-dialog__title {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #312e81;
-}
-
-.teaching-dialog__subtitle {
-  font-size: 0.9rem;
-  color: #6366f1;
-  margin-top: 6px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
 }
 
 .teaching-dialog__close {
+  background: none;
   border: none;
-  background: rgba(99, 102, 241, 0.12);
-  color: #4c1d95;
-  font-size: 20px;
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #999;
+  padding: 0;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: background 0.2s ease;
+  border-radius: 50%;
+  transition: all 0.3s ease;
 }
 
 .teaching-dialog__close:hover {
-  background: rgba(99, 102, 241, 0.22);
+  background-color: #f0f0f0;
+  color: #666;
 }
 
 .teaching-dialog__body {
-  padding: 24px 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 300px;
+  padding: 30px 24px;
 }
 
-.teaching-dialog__body img {
+.teaching-image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.teaching-image {
   max-width: 100%;
   max-height: 400px;
-  object-fit: contain;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .teaching-dialog__footer {
-  padding: 0 22px 20px;
   display: flex;
   justify-content: center;
+  padding: 20px 24px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.teaching-dialog__button {
+  background: #6366f1;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.teaching-dialog__button:hover {
+  background: #4f46e5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+/* 小课堂对话框样式 */
+.lesson-dialog {
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.lesson-dialog__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 28px;
+  border-bottom: 1px solid #f0f0f0;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  border-radius: 16px 16px 0 0;
+}
+
+.lesson-dialog__title {
+  font-size: 20px;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.lesson-dialog__close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: white;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.lesson-dialog__close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.lesson-dialog__body {
+  padding: 32px 28px;
+  background: #f9fafb;
+}
+
+.lesson-dialog__content {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #4b5563;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.lesson-section {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.lesson-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.lesson-section__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lesson-section__content {
+  font-size: 15px;
+  line-height: 1.5;
+  color: #4b5563;
+  margin: 0;
+}
+
+.lesson-dialog__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 24px 28px;
+  border-top: 1px solid #f0f0f0;
+  background: white;
+  border-radius: 0 0 16px 16px;
+}
+
+.lesson-dialog__button {
+  background: #6366f1;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+  max-width: 180px;
+}
+
+.lesson-dialog__button:hover {
+  background: #4f46e5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.lesson-dialog__button.save-button {
+  background: #10b981;
+}
+
+.lesson-dialog__button.save-button:hover {
+  background: #059669;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .lesson-dialog {
+    width: 90% !important;
+  }
+  
+  .lesson-dialog__header,
+  .lesson-dialog__body,
+  .lesson-dialog__footer {
+    padding: 20px;
+  }
+  
+  .lesson-dialog__button {
+    max-width: none;
+  }
 }
 
 @media (max-width: 992px) {

@@ -7,6 +7,7 @@ import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import os from 'os';
 
 // 导入路由
 import authRoutes from './routes/auth_mysql.js';
@@ -57,7 +58,7 @@ app.use(helmet({
 
 // CORS配置
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:3000",
+  origin: '*', // 允许所有来源，在生产环境中应该设置具体的域名
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -163,12 +164,28 @@ app.use(errorHandler);
 // 启动服务器
 const PORT = process.env.PORT || 8000;
 
-server.listen(PORT, () => {
-  console.log(`🚀 服务器运行在端口 ${PORT}`);
-  console.log(`📚 API文档: http://localhost:${PORT}/api`);
-  console.log(`🏥 健康检查: http://localhost:${PORT}/health`);
-  console.log(`🌍 环境: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🗄️ 数据库: MySQL`);
+// 监听所有网络接口，允许通过IP地址访问
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`\n🚀 服务器成功启动！`);
+  console.log(`📡 服务器运行在 http://localhost:${PORT}`);
+  // 获取网络接口信息
+  const interfaces = os.networkInterfaces();
+  let networkAddress = '127.0.0.1';
+  // 查找非本地的IPv4地址
+  for (const interfaceName in interfaces) {
+    const iface = interfaces[interfaceName];
+    for (const addr of iface) {
+      if (addr.family === 'IPv4' && !addr.internal && addr.address !== '127.0.0.1') {
+        networkAddress = addr.address;
+        break;
+      }
+    }
+    if (networkAddress !== '127.0.0.1') break;
+  }
+  console.log(`🌐 网络访问地址: http://${networkAddress}:${PORT}`);
+  console.log(`📚 API文档地址: http://localhost:${PORT}/api`);
+  console.log(`🏥 健康检查地址: http://localhost:${PORT}/health`);
+  console.log(`\n✅ 后端服务已就绪\n`);
 });
 
 // 优雅关闭

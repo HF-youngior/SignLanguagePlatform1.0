@@ -20,8 +20,9 @@ REM Wait
 ping 127.0.0.1 -n 5 > nul
 
 REM Start frontend
-start powershell -Command "cd vue-frontend; npm run dev"
+start powershell -Command "cd vue-frontend; npm run dev-with-ip"
 echo Frontend: http://localhost:3000
+rem 手机访问链接会在前端启动后显示
 
 echo All services started!
 pause

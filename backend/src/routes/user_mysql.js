@@ -199,22 +199,38 @@ router.get('/profile', protect, async (req, res) => {
 router.put('/profile', protect, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { first_name, last_name, bio, avatar } = req.body;
+    const { first_name, last_name, bio, avatar, name } = req.body;
     
-    console.log('更新用户资料:', { userId, first_name, bio: bio ? '有内容' : '无内容', avatar: avatar ? `有头像数据(${avatar.length}字符)` : '无头像' });
+    console.log('更新用户资料请求:', { userId, body: req.body });
+    
+    // 处理可能的字段名差异
+    const actualFirstName = first_name || name;
     
     // 将undefined值替换为null
-    const safeFirstName = first_name !== undefined ? first_name : null;
+    const safeFirstName = actualFirstName !== undefined ? actualFirstName : null;
     const safeLastName = last_name !== undefined ? last_name : null;
     const safeBio = bio !== undefined ? bio : null;
     const safeAvatar = avatar !== undefined ? avatar : null;
     
-    await query(
+    console.log('更新用户资料数据:', { safeFirstName, safeLastName, safeBio, safeAvatar, userId });
+    
+    // 执行更新
+    const result = await query(
       `UPDATE users 
        SET first_name = ?, last_name = ?, bio = ?, avatar = ? 
        WHERE id = ?`,
       [safeFirstName, safeLastName, safeBio, safeAvatar, userId]
     );
+    
+    console.log('数据库更新结果:', result);
+    
+    // 检查是否更新成功
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: '用户不存在或无更新内容'
+      });
+    }
     
     console.log('用户资料更新成功');
     
@@ -226,7 +242,8 @@ router.put('/profile', protect, async (req, res) => {
     console.error('更新用户资料错误:', error);
     res.status(500).json({
       success: false,
-      message: '更新用户资料失败'
+      message: '更新用户资料失败',
+      error: error.message
     });
   }
 });

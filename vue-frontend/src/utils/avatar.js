@@ -1,6 +1,5 @@
 // 默认头像路径
-// 用户需要将默认头像图片放在 public/images/default-avatar.png
-export const DEFAULT_AVATAR = '/images/default-avatar.png'
+export const DEFAULT_AVATAR = '/logo-zhangzhongyu.svg'
 
 /**
  * 获取用户头像URL

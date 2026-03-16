@@ -9,32 +9,39 @@
  */
 export const level1QuestionBank = [
   {
-    dateKey: '2025-01-01',
-    displayTitle: '2025 年 1 月 1 日',
+    dateKey: '2026-01-01',
+    displayTitle: '2026 年 1 月 1 日',
     prompt: '哪一个手语是"年"？',
-    correct: 'year-2025.png',
+    correct: 'year-2026.png',
     distractors: ['weekday-monday.png', 'number-20.png', 'month-01.png']
   },
   {
-    dateKey: '2025-01-06',
-    displayTitle: '2025 年 1 月 6 日（星期一）',
+    dateKey: '2026-01-06',
+    displayTitle: '2026 年 1 月 6 日（星期一）',
     prompt: '哪一个手语是"星期一"？',
     correct: 'weekday-monday.png',
-    distractors: ['year-2025.png', 'number-20.png', 'month-01.png']
+    distractors: ['year-2026.png', 'number-20.png', 'month-01.png']
   },
   {
-    dateKey: '2025-01-20',
-    displayTitle: '2025 年 1 月 20 日',
+    dateKey: '2026-01-20',
+    displayTitle: '2026 年 1 月 20 日',
     prompt: '哪一个手语是"二十"？',
     correct: 'number-20.png',
-    distractors: ['year-2025.png', 'weekday-monday.png', 'month-01.png']
+    distractors: ['year-2026.png', 'weekday-monday.png', 'month-01.png']
   },
   {
-    dateKey: '2025-01-05',
-    displayTitle: '2025 年 1 月 5 日',
+    dateKey: '2026-01-05',
+    displayTitle: '2026 年 1 月 5 日',
     prompt: '哪一个手语是"1月份"？',
     correct: 'month-01.png',
-    distractors: ['year-2025.png', 'weekday-monday.png', 'number-20.png']
+    distractors: ['year-2026.png', 'weekday-monday.png', 'number-20.png']
+  },
+  {
+    dateKey: '2026-01-10',
+    displayTitle: '2026 年 1 月 10 日',
+    prompt: '哪一个手语是"十"？',
+    correct: 'number-10.png',
+    distractors: ['year-2026.png', 'weekday-monday.png', 'month-01.png']
   }
 ]
 

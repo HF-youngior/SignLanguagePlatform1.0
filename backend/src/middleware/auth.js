@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
+import { query } from '../config/mysql.js';
 
 export const protect = async (req, res, next) => {
   try {
@@ -22,15 +22,20 @@ export const protect = async (req, res, next) => {
       // 验证token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       
-      // 获取用户信息
-      const user = await User.findById(decoded.id).select('-password');
+      // 获取用户信息 (使用MySQL)
+      const [users] = await query(
+        'SELECT id, username, email, first_name, last_name, bio, avatar, is_active as isActive, role FROM users WHERE id = ?',
+        [decoded.id]
+      );
       
-      if (!user) {
+      if (users.length === 0) {
         return res.status(401).json({
           success: false,
           message: '令牌无效，用户不存在'
         });
       }
+
+      const user = users[0];
 
       // 检查用户是否被禁用
       if (!user.isActive) {
@@ -43,6 +48,7 @@ export const protect = async (req, res, next) => {
       req.user = user;
       next();
     } catch (error) {
+      console.error('认证错误:', error);
       return res.status(401).json({
         success: false,
         message: '令牌无效或已过期'

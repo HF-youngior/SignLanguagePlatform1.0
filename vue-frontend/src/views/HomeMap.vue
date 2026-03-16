@@ -76,48 +76,73 @@
                 <div class="outer-wall"></div>
                 <!-- 内墙 -->
                 <div class="inner-walls">
-                  <div class="wall horizontal-wall top-wall"></div>
-                  <div class="wall horizontal-wall middle-wall"></div>
-                  <div class="wall vertical-wall left-wall"></div>
-                  <div class="wall vertical-wall right-wall"></div>
+                  <!-- 卧室与客厅分隔墙 -->
+                  <div class="wall vertical-wall bedroom-living-wall"></div>
+                  <!-- 卧室与浴室分隔墙 -->
+                  <div class="wall horizontal-wall bedroom-bathroom-wall"></div>
+                  <!-- 客厅与厨房分隔墙 -->
+                  <div class="wall horizontal-wall living-kitchen-wall"></div>
+                  <!-- 浴室与厨房分隔墙 -->
+                  <div class="wall vertical-wall bathroom-kitchen-wall"></div>
+                  <!-- 浴室内部分隔墙 -->
+                  <div class="wall vertical-wall bathroom-inner-wall"></div>
                 </div>
                 <!-- 门 -->
                 <div class="doors">
-                  <div class="door living-room-door"></div>
-                  <div class="door kitchen-door"></div>
                   <div class="door bedroom-door"></div>
+                  <div class="door living-room-door"></div>
                   <div class="door bathroom-door"></div>
+                  <div class="door kitchen-door"></div>
+                  <div class="door bathroom-inner-door"></div>
                 </div>
               </div>
               
               <!-- 房间 -->
               <div class="rooms">
-                <div :class="['room', 'living-room', livingRoomLocked ? 'locked' : '']" @click="navigateToRoom('living-room')">
-                  <div class="room-content">
-                    <span class="room-symbol">🛋️</span>
-                    <span class="room-label">客厅</span>
-                    <span v-if="livingRoomLocked" class="room-lock">🔒</span>
-                  </div>
-                </div>
-                <div :class="['room', 'kitchen', kitchenLocked ? 'locked' : '']" @click="navigateToRoom('kitchen')">
-                  <div class="room-content">
-                    <span class="room-symbol">🍳</span>
-                    <span class="room-label">厨房</span>
-                    <span v-if="kitchenLocked" class="room-lock">🔒</span>
-                  </div>
-                </div>
+                <!-- 卧室 -->
                 <div :class="['room', 'bedroom', bedroomLocked ? 'locked' : '']" @click="navigateToRoom('bedroom')">
                   <div class="room-content">
-                    <span class="room-symbol">🛏️</span>
+                    <div class="furniture bed">🛏️</div>
+                    <div class="furniture nightstand-1">📱</div>
+                    <div class="furniture nightstand-2">📱</div>
+                    <div class="furniture wardrobe">🚪</div>
                     <span class="room-label">卧室</span>
                     <span v-if="bedroomLocked" class="room-lock">🔒</span>
                   </div>
                 </div>
+                <!-- 客厅 -->
+                <div :class="['room', 'living-room', livingRoomLocked ? 'locked' : '']" @click="navigateToRoom('living-room')">
+                  <div class="room-content">
+                    <div class="furniture sofa">🛋️</div>
+                    <div class="furniture tv">📺</div>
+                    <div class="furniture coffee-table">☕</div>
+                    <div class="furniture chair-1">🪑</div>
+                    <div class="furniture chair-2">🪑</div>
+                    <span class="room-label">客厅</span>
+                    <span v-if="livingRoomLocked" class="room-lock">🔒</span>
+                  </div>
+                </div>
+                <!-- 浴室 -->
                 <div :class="['room', 'bathroom', bathroomLocked ? 'locked' : '']" @click="navigateToRoom('bathroom')">
                   <div class="room-content">
-                    <span class="room-symbol">🚿</span>
+                    <div class="furniture bathtub">🛁</div>
+                    <div class="furniture toilet">🚽</div>
+                    <div class="furniture sink">🚿</div>
+                    <div class="furniture bathroom-cabinet">📦</div>
                     <span class="room-label">浴室</span>
                     <span v-if="bathroomLocked" class="room-lock">🔒</span>
+                  </div>
+                </div>
+                <!-- 厨房 -->
+                <div :class="['room', 'kitchen', kitchenLocked ? 'locked' : '']" @click="navigateToRoom('kitchen')">
+                  <div class="room-content">
+                    <div class="furniture stove">🍳</div>
+                    <div class="furniture kitchen-sink">🚿</div>
+                    <div class="furniture kitchen-cabinet-1">📦</div>
+                    <div class="furniture kitchen-cabinet-2">📦</div>
+                    <div class="furniture kitchen-table">☕</div>
+                    <span class="room-label">厨房</span>
+                    <span v-if="kitchenLocked" class="room-lock">🔒</span>
                   </div>
                 </div>
               </div>
@@ -128,6 +153,7 @@
                 <div class="decoration decoration-2"></div>
                 <div class="decoration decoration-3"></div>
                 <div class="decoration decoration-4"></div>
+                <div class="decoration decoration-5"></div>
               </div>
             </div>
           </div>
@@ -422,235 +448,348 @@ export default {
 }
 
 /* 房屋平面图样式 */
-.house-floorplan {
-  position: relative;
-  width: 100%;
-  height: 66.66%;
-  max-width: 600px;
-  max-height: 300px;
-  margin: 0 auto;
-  transform: translateY(10%);
-}
+  .house-floorplan {
+    position: relative;
+    width: 100%;
+    height: 80%;
+    max-width: 700px;
+    max-height: 500px;
+    margin: 0 auto;
+    transform: translateY(5%);
+  }
 
-/* 墙壁 */
-.house-walls {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-}
+  /* 墙壁 */
+  .house-walls {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
 
-.outer-wall {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border: 4px solid #333;
-  border-radius: 8px;
-  background: rgba(240, 249, 255, 0.5);
-}
+  .outer-wall {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 4px solid #333;
+    border-radius: 8px;
+    background: rgba(240, 249, 255, 0.5);
+  }
 
-.inner-walls {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
+  .inner-walls {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
 
-.wall {
-  background: #333;
-  position: absolute;
-}
+  .wall {
+    background: #333;
+    position: absolute;
+  }
 
-.horizontal-wall {
-  width: 100%;
-  height: 4px;
-}
+  .horizontal-wall {
+    height: 4px;
+    background: #333;
+  }
 
-.vertical-wall {
-  width: 4px;
-  height: 100%;
-}
+  .vertical-wall {
+    width: 4px;
+    background: #333;
+  }
 
-.top-wall {
-  top: 33.33%;
-  left: 0;
-}
+  /* 墙壁位置 */
+  .bedroom-living-wall {
+    left: 35%;
+    top: 0;
+    height: 100%;
+  }
 
-.middle-wall {
-  top: 66.66%;
-  left: 0;
-}
+  .living-kitchen-wall {
+    top: 50%;
+    left: 35%;
+    width: 65%;
+  }
 
-.left-wall {
-  left: 50%;
-  top: 0;
-  height: 33.33%;
-}
+  .bedroom-bathroom-wall {
+    top: 50%;
+    left: 0;
+    width: 35%;
+  }
 
-.right-wall {
-  left: 50%;
-  top: 33.33%;
-  height: 33.33%;
-}
+  .bathroom-kitchen-wall {
+    left: 35%;
+    top: 50%;
+    height: 50%;
+  }
 
-/* 门 */
-.doors {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 2;
-}
+  .bathroom-inner-wall {
+    left: 18%;
+    top: 50%;
+    height: 50%;
+  }
 
-.door {
-  position: absolute;
-  width: 20px;
-  height: 4px;
-  background: #8B4513;
-  border-radius: 2px;
-}
+  /* 门 */
+  .doors {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+  }
 
-.living-room-door {
-  top: 33.33%;
-  left: 35%;
-  transform: translateY(-50%);
-}
+  .door {
+    position: absolute;
+    width: 20px;
+    height: 4px;
+    background: #8B4513;
+    border-radius: 2px;
+  }
 
-.kitchen-door {
-  top: 33.33%;
-  right: 35%;
-  transform: translateY(-50%);
-}
+  .bedroom-door {
+    top: 50%;
+    left: 35%;
+    transform: translateX(-50%);
+  }
 
-.bedroom-door {
-  top: 66.66%;
-  left: 35%;
-  transform: translateY(-50%);
-}
+  .living-room-door {
+    top: 50%;
+    left: 35%;
+    transform: translateX(-50%);
+  }
 
-.bathroom-door {
-  top: 66.66%;
-  right: 35%;
-  transform: translateY(-50%);
-}
+  .bathroom-door {
+    top: 50%;
+    left: 18%;
+    transform: translateX(-50%);
+  }
 
-/* 房间 */
-.rooms {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 3;
-}
+  .kitchen-door {
+    top: 50%;
+    left: 35%;
+    transform: translateX(-50%);
+  }
 
-.room {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  border-radius: 4px;
-  overflow: hidden;
-}
+  .bathroom-inner-door {
+    top: 75%;
+    left: 18%;
+    transform: translateX(-50%);
+  }
 
-.room:hover {
-  transform: scale(1.02);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
+  /* 房间 */
+  .rooms {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+  }
 
-.room.locked {
-  opacity: 0.6;
-  filter: grayscale(100%);
-}
+  .room {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border-radius: 4px;
+    overflow: hidden;
+  }
 
-.room-content {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 20px;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.85);
-  border: 2px solid rgba(129, 140, 248, 0.2);
-  transition: all 0.3s ease;
-}
+  .room:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
 
-.room:hover .room-content {
-  background: rgba(255, 255, 255, 0.95);
-  border-color: rgba(129, 140, 248, 0.5);
-}
+  .room.locked {
+    opacity: 0.6;
+    filter: grayscale(100%);
+  }
 
-.room-symbol {
-  font-size: 2.5rem;
-  margin-bottom: 10px;
-  transition: transform 0.3s ease;
-}
+  .room-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.85);
+    border: 2px solid rgba(129, 140, 248, 0.2);
+    transition: all 0.3s ease;
+  }
 
-.room:hover .room-symbol {
-  transform: scale(1.1);
-}
+  .room:hover .room-content {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(129, 140, 248, 0.5);
+  }
 
-.room-label {
-  font-size: 1rem;
-  font-weight: bold;
-  color: #333;
-  margin-top: 5px;
-}
+  .room-label {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #333;
+    margin-top: 5px;
+  }
 
-.room-lock {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 18px;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
+  .room-lock {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 18px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
 
-/* 房间位置 - 房屋平面图布局 */
-.room.living-room {
-  top: 0;
-  left: 0;
-  width: 50%;
-  height: 33.33%;
-}
+  /* 家具样式 */
+  .furniture {
+    position: absolute;
+    font-size: 1.5rem;
+    transition: transform 0.3s ease;
+  }
 
-.room.kitchen {
-  top: 0;
-  right: 0;
-  width: 50%;
-  height: 33.33%;
-}
+  .room:hover .furniture {
+    transform: scale(1.1);
+  }
 
-.room.bedroom {
-  top: 33.33%;
-  left: 0;
-  width: 50%;
-  height: 33.33%;
-}
+  /* 卧室家具 */
+  .bedroom .bed {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
 
-.room.bathroom {
-  top: 33.33%;
-  right: 0;
-  width: 50%;
-  height: 33.33%;
-}
+  .bedroom .nightstand-1 {
+    top: 70%;
+    left: 20%;
+  }
+
+  .bedroom .nightstand-2 {
+    top: 70%;
+    right: 20%;
+  }
+
+  .bedroom .wardrobe {
+    top: 20%;
+    right: 20%;
+  }
+
+  /* 客厅家具 */
+  .living-room .sofa {
+    top: 20%;
+    left: 20%;
+  }
+
+  .living-room .tv {
+    top: 20%;
+    right: 20%;
+  }
+
+  .living-room .coffee-table {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .living-room .chair-1 {
+    bottom: 20%;
+    left: 30%;
+  }
+
+  .living-room .chair-2 {
+    bottom: 20%;
+    right: 30%;
+  }
+
+  /* 浴室家具 */
+  .bathroom .bathtub {
+    top: 70%;
+    left: 30%;
+  }
+
+  .bathroom .toilet {
+    bottom: 20%;
+    left: 30%;
+  }
+
+  .bathroom .sink {
+    top: 30%;
+    right: 30%;
+  }
+
+  .bathroom .bathroom-cabinet {
+    top: 60%;
+    right: 30%;
+  }
+
+  /* 厨房家具 */
+  .kitchen .stove {
+    top: 30%;
+    left: 20%;
+  }
+
+  .kitchen .kitchen-sink {
+    top: 30%;
+    right: 20%;
+  }
+
+  .kitchen .kitchen-cabinet-1 {
+    bottom: 20%;
+    left: 20%;
+  }
+
+  .kitchen .kitchen-cabinet-2 {
+    bottom: 20%;
+    right: 20%;
+  }
+
+  .kitchen .kitchen-table {
+    top: 70%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  /* 房间位置 - 房屋平面图布局 */
+  .room.bedroom {
+    top: 0;
+    left: 0;
+    width: 35%;
+    height: 50%;
+  }
+
+  .room.living-room {
+    top: 0;
+    left: 35%;
+    width: 65%;
+    height: 50%;
+  }
+
+  .room.bathroom {
+    top: 50%;
+    left: 0;
+    width: 35%;
+    height: 50%;
+  }
+
+  .room.kitchen {
+    top: 50%;
+    left: 35%;
+    width: 65%;
+    height: 50%;
+  }
 
 /* 返回按钮样式 */
 .back-button {

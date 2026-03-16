@@ -32,10 +32,9 @@ router.post('/register', [
 
 // 登录
 router.post('/login', [
-  body('email')
-    .isEmail()
-    .withMessage('请输入有效的邮箱地址')
-    .normalizeEmail(),
+  body('username')
+    .notEmpty()
+    .withMessage('用户名或邮箱不能为空'),
   body('password')
     .notEmpty()
     .withMessage('密码不能为空')
