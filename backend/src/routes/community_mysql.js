@@ -42,37 +42,37 @@ router.get('/posts', async (req, res) => {
        LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`
     );
     
-    // 为每个帖子获取前3条评论
+    // 为每个帖子获取所有评论
     const postsWithComments = await Promise.all(posts.map(async (post) => {
       const comments = await query(
         `SELECT c.*, u.username as user_username, u.first_name as user_first_name, u.avatar as user_avatar
          FROM comments c
          JOIN users u ON c.user_id = u.id
          WHERE c.post_id = ? AND c.is_deleted = false AND c.parent_id IS NULL
-         ORDER BY c.created_at ASC
-         LIMIT 3`,
+         ORDER BY c.created_at ASC`,
         [post.id]
       );
       
-      // 为每条评论获取回复
+      // 为每条评论获取所有回复
       const commentsWithReplies = await Promise.all(comments.map(async (comment) => {
         const replies = await query(
           `SELECT r.*, u.username as user_username, u.first_name as user_first_name, u.avatar as user_avatar
            FROM comments r
            JOIN users u ON r.user_id = u.id
            WHERE r.parent_id = ? AND r.is_deleted = false
-           ORDER BY r.created_at ASC
-           LIMIT 2`,
+           ORDER BY r.created_at ASC`,
           [comment.id]
         );
         
         return {
           ...comment,
+          user_id: comment.user_id,
           username: comment.user_first_name || comment.user_username,
           avatar: comment.user_avatar,
           time: comment.created_at,
           replies: replies.map(r => ({
             ...r,
+            user_id: r.user_id,
             username: r.user_first_name || r.user_username,
             avatar: r.user_avatar,
             time: r.created_at,
@@ -91,13 +91,48 @@ router.get('/posts', async (req, res) => {
         isLiked = likeResult.length > 0;
       }
       
+      // 安全解析JSON字段
+      let hashtags = [];
+      let images = [];
+      let videos = [];
+      
+      try {
+        if (post.hashtags) {
+          // 尝试作为JSON解析
+          try {
+            hashtags = JSON.parse(post.hashtags);
+          } catch (jsonError) {
+            // 如果不是JSON格式，尝试作为逗号分隔的字符串处理
+            console.log('Hashtags不是JSON格式，尝试作为逗号分隔字符串处理');
+            hashtags = post.hashtags.split(',').map(tag => tag.trim()).filter(tag => tag);
+          }
+        }
+      } catch (e) {
+        console.error('解析hashtags失败:', e);
+        hashtags = [];
+      }
+      
+      try {
+        images = post.images ? JSON.parse(post.images) : [];
+      } catch (e) {
+        console.error('解析images失败:', e);
+        images = [];
+      }
+      
+      try {
+        videos = post.videos ? JSON.parse(post.videos) : [];
+      } catch (e) {
+        console.error('解析videos失败:', e);
+        videos = [];
+      }
+      
       return {
         ...post,
         // 优先使用first_name（昵称），如果没有则使用username
         username: post.first_name || post.username,
-        hashtags: post.hashtags ? JSON.parse(post.hashtags) : [],
-        images: post.images ? JSON.parse(post.images) : [],
-        videos: post.videos ? JSON.parse(post.videos) : [],
+        hashtags: hashtags,
+        images: images,
+        videos: videos,
         commentList: commentsWithReplies,
         isLiked: isLiked
       };
@@ -122,9 +157,11 @@ router.get('/posts', async (req, res) => {
     });
   } catch (error) {
     console.error('获取帖子列表错误:', error);
+    console.error('错误堆栈:', error.stack);
     res.status(500).json({
       success: false,
-      message: '获取帖子列表失败'
+      message: '获取帖子列表失败',
+      error: error.message
     });
   }
 });

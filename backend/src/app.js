@@ -93,6 +93,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // 静态文件服务
 app.use('/uploads', express.static('uploads'));
+app.use('/public', express.static('public'));
 
 // 健康检查端点
 app.get('/health', (req, res) => {

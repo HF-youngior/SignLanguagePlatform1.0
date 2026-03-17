@@ -195,6 +195,94 @@ router.get('/profile', protect, async (req, res) => {
   }
 });
 
+// 获取其他用户个人资料
+router.get('/profile/:id', protect, async (req, res) => {
+  try {
+    const targetUserId = req.params.id;
+    const currentUserId = req.user.id;
+    
+    const user = await query(
+      `SELECT id, username, first_name, last_name, avatar, bio, role, 
+              created_at, last_login 
+       FROM users 
+       WHERE id = ?`,
+      [targetUserId]
+    );
+    
+    if (user.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: '用户不存在'
+      });
+    }
+    
+    // 获取用户统计信息
+    const postCount = await query(
+      'SELECT COUNT(*) as count FROM posts WHERE author_id = ? AND is_deleted = false',
+      [targetUserId]
+    );
+    
+    const commentCount = await query(
+      'SELECT COUNT(*) as count FROM comments WHERE user_id = ? AND is_deleted = false',
+      [targetUserId]
+    );
+    
+    const likeCount = await query(
+      `SELECT COUNT(*) as count FROM likes WHERE user_id = ?`,
+      [targetUserId]
+    );
+    
+    // 获取好友数量（假设有friends表）
+    let friendCount = { count: 0 };
+    try {
+      friendCount = await query(
+        `SELECT COUNT(*) as count FROM friends 
+         WHERE (user_id = ? OR friend_id = ?) AND status = 'accepted'`,
+        [targetUserId, targetUserId]
+      );
+    } catch (e) {
+      // 好友表可能不存在，忽略错误
+    }
+    
+    // 检查是否是当前用户
+    const isCurrentUser = currentUserId === targetUserId;
+    
+    // 检查是否已经是好友
+    let isFriend = false;
+    try {
+      const friendResult = await query(
+        `SELECT id FROM friends 
+         WHERE ((user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)) 
+         AND status = 'accepted'`,
+        [currentUserId, targetUserId, targetUserId, currentUserId]
+      );
+      isFriend = friendResult.length > 0;
+    } catch (e) {
+      // 好友表可能不存在，忽略错误
+    }
+    
+    res.json({
+      success: true,
+      data: {
+        user: {
+          ...user[0],
+          postsCount: postCount[0].count,
+          friendsCount: friendCount[0]?.count || 0,
+          likesCount: likeCount[0].count
+        },
+        isCurrentUser,
+        isFriend
+      }
+    });
+  } catch (error) {
+    console.error('获取用户资料错误:', error);
+    res.status(500).json({
+      success: false,
+      message: '获取用户资料失败'
+    });
+  }
+});
+
 // 更新用户个人资料
 router.put('/profile', protect, async (req, res) => {
   try {
@@ -251,7 +339,7 @@ router.put('/profile', protect, async (req, res) => {
 // 获取用户帖子
 router.get('/posts', protect, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.query.userId || req.user.id;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const offset = (page - 1) * limit;
@@ -271,7 +359,8 @@ router.get('/posts', protect, async (req, res) => {
     
     const posts = await query(
       `SELECT p.*, u.username, u.first_name, u.avatar,
-              (SELECT COUNT(*) FROM comments WHERE post_id = p.id AND is_deleted = false) as comments_count
+              (SELECT COUNT(*) FROM comments WHERE post_id = p.id AND is_deleted = false) as comments_count,
+              (SELECT COUNT(*) FROM likes WHERE target_type = 'post' AND target_id = p.id) as likes_count
        FROM posts p 
        JOIN users u ON p.author_id = u.id
        WHERE p.author_id = ? AND p.is_deleted = false
@@ -320,6 +409,86 @@ router.get('/posts', protect, async (req, res) => {
     res.status(500).json({
       success: false,
       message: '获取用户帖子失败'
+    });
+  }
+});
+
+// 添加好友
+router.post('/friends/:id', protect, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const friendId = req.params.id;
+    
+    // 检查是否是自己
+    if (userId === friendId) {
+      return res.status(400).json({
+        success: false,
+        message: '不能添加自己为好友'
+      });
+    }
+    
+    // 检查用户是否存在
+    const userExists = await query(
+      'SELECT id FROM users WHERE id = ?',
+      [friendId]
+    );
+    
+    if (userExists.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: '用户不存在'
+      });
+    }
+    
+    // 检查是否已经是好友或有未处理的请求
+    const existingFriendship = await query(
+      `SELECT id, status FROM friends 
+       WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)`,
+      [userId, friendId, friendId, userId]
+    );
+    
+    if (existingFriendship.length > 0) {
+      if (existingFriendship[0].status === 'accepted') {
+        return res.status(400).json({
+          success: false,
+          message: '已经是好友了'
+        });
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: '好友请求已发送，等待对方确认'
+        });
+      }
+    }
+    
+    // 发送好友请求
+    await query(
+      `INSERT INTO friends (user_id, friend_id, status) 
+       VALUES (?, ?, 'pending')`,
+      [userId, friendId]
+    );
+    
+    // 创建通知
+    try {
+      await query(
+        `INSERT INTO notifications (user_id, sender_id, type, target_type, target_id, content)
+         VALUES (?, ?, 'friend_request', 'user', ?, ?)`,
+        [friendId, userId, userId, '发送了好友请求']
+      );
+    } catch (notifyError) {
+      console.error('创建好友请求通知失败:', notifyError);
+      // 不影响好友请求操作
+    }
+    
+    res.json({
+      success: true,
+      message: '好友请求已发送'
+    });
+  } catch (error) {
+    console.error('添加好友错误:', error);
+    res.status(500).json({
+      success: false,
+      message: '添加好友失败'
     });
   }
 });
