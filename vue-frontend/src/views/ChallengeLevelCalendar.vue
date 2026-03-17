@@ -672,22 +672,25 @@ export default {
       // 检查是否所有题目都已完成
       this.$nextTick(() => {
         if (this.isAllCompleted && !this.milestoneFlags[100]) {
-          // 如果全部完成但还没有显示100%提示，先提示用户完成情况，然后再显示锦囊
-          ElMessageBox.alert(
-            '恭喜你完成了所有题目！现在可以查看锦囊总结了。',
-            '🎉 闯关完成',
-            {
-              confirmButtonText: '查看锦囊',
-              type: 'success',
-              customClass: 'milestone-dialog',
-              center: true,
-              callback: (action) => {
-                if (action === 'confirm') {
-                  this.checkMilestones()
+          // 延迟两秒后显示完成提示和锦囊
+          setTimeout(() => {
+            // 如果全部完成但还没有显示100%提示，先提示用户完成情况，然后再显示锦囊
+            ElMessageBox.alert(
+              '恭喜你完成了所有题目！现在可以查看锦囊总结了。',
+              '🎉 闯关完成',
+              {
+                confirmButtonText: '查看锦囊',
+                type: 'success',
+                customClass: 'milestone-dialog',
+                center: true,
+                callback: (action) => {
+                  if (action === 'confirm') {
+                    this.checkMilestones()
+                  }
                 }
               }
-            }
-          )
+            )
+          }, 2000)
         }
       })
     }
