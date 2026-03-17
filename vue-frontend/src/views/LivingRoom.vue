@@ -474,36 +474,38 @@ export default {
   opacity: 0.7;
 }
 
-/* 沙发 */
+/* 沙发 - 重新设计形状和位置 */
 .furniture-outline.sofa {
-  top: 60%;
-  left: 20%;
-  width: 180px;
-  height: 90px;
-  transform: perspective(800px) rotateX(5deg);
+  top: 65%;
+  left: 40%;
+  width: 200px;
+  height: 100px;
+  transform: translateX(-50%) perspective(800px) rotateX(5deg);
 }
 
 .furniture-outline.sofa .furniture-shape {
-  background: linear-gradient(to bottom, #8b4513, #a0522d);
-  border: 2px solid #6e370f;
-  border-radius: 10px 10px 0 0;
+  background: linear-gradient(to bottom, #6495ed, #4169e1);
+  border: 2px solid #191970;
+  border-radius: 15px 15px 0 0;
   position: relative;
   box-shadow: 0 8px 16px rgba(0,0,0,0.2);
 }
 
+/* 沙发靠背 */
 .furniture-outline.sofa .furniture-shape::before {
   content: '';
   position: absolute;
-  top: -15px;
-  left: 10px;
-  right: 10px;
-  height: 15px;
-  background: linear-gradient(to bottom, #6e370f, #8b4513);
-  border: 2px solid #6e370f;
-  border-radius: 8px 8px 0 0;
+  top: -20px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(to bottom, #191970, #4169e1);
+  border: 2px solid #191970;
+  border-radius: 10px 10px 0 0;
   box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
 }
 
+/* 沙发座位边缘 */
 .furniture-outline.sofa .furniture-shape::after {
   content: '';
   position: absolute;
@@ -511,16 +513,16 @@ export default {
   left: 0;
   right: 0;
   height: 5px;
-  background: #6e370f;
+  background: #191970;
   border-radius: 0 0 4px 4px;
 }
 
-/* 电视 */
+/* 电视 - 调整位置，正对沙发 */
 .furniture-outline.tv {
   top: 30%;
-  left: 70%;
-  width: 100px;
-  height: 70px;
+  left: 65%;
+  width: 120px;
+  height: 80px;
   transform: perspective(800px) rotateY(-15deg);
 }
 
@@ -538,7 +540,7 @@ export default {
   bottom: -15px;
   left: 50%;
   transform: translateX(-50%);
-  width: 60px;
+  width: 70px;
   height: 15px;
   background: linear-gradient(to bottom, #333, #555);
   border: 2px solid #444;
@@ -558,18 +560,18 @@ export default {
   box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
 }
 
-/* 茶几 */
+/* 茶几 - 调整位置，放在沙发前面 */
 .furniture-outline.coffee-table {
-  top: 75%;
-  left: 45%;
-  width: 120px;
-  height: 80px;
+  top: 80%;
+  left: 40%;
+  width: 140px;
+  height: 90px;
   transform: translateX(-50%) perspective(800px) rotateX(10deg);
 }
 
 .furniture-outline.coffee-table .furniture-shape {
-  background: linear-gradient(to bottom, #8b4513, #a0522d);
-  border: 2px solid #6e370f;
+  background: linear-gradient(to bottom, #2c3e50, #34495e);
+  border: 2px solid #1a252f;
   border-radius: 8px;
   position: relative;
   box-shadow: 0 6px 12px rgba(0,0,0,0.2);
@@ -579,11 +581,11 @@ export default {
   content: '';
   position: absolute;
   bottom: -10px;
-  left: 20px;
+  left: 25px;
   width: 15px;
   height: 10px;
-  background: #6e370f;
-  border: 2px solid #5a2c0a;
+  background: #1a252f;
+  border: 2px solid #0f171e;
   border-radius: 0 0 4px 4px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
@@ -592,19 +594,19 @@ export default {
   content: '';
   position: absolute;
   bottom: -10px;
-  right: 20px;
+  right: 25px;
   width: 15px;
   height: 10px;
-  background: #6e370f;
-  border: 2px solid #5a2c0a;
+  background: #1a252f;
+  border: 2px solid #0f171e;
   border-radius: 0 0 4px 4px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* 吊灯 */
+/* 吊灯 - 移动到沙发和茶几区域上方中央 */
 .furniture-outline.chandelier {
   top: 10%;
-  left: 50%;
+  left: 40%;
   width: 80px;
   height: 80px;
   transform: translateX(-50%) perspective(800px) rotateY(5deg);
@@ -644,18 +646,18 @@ export default {
   box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
 }
 
-/* 书架 */
+/* 书架 - 靠墙放，调整到窗户旁边 */
 .furniture-outline.bookshelf {
   top: 40%;
-  left: 10%;
-  width: 80px;
-  height: 150px;
+  left: 15%;
+  width: 90px;
+  height: 160px;
   transform: perspective(800px) rotateY(15deg);
 }
 
 .furniture-outline.bookshelf .furniture-shape {
-  background: linear-gradient(to right, #8b4513, #a0522d);
-  border: 2px solid #6e370f;
+  background: linear-gradient(to right, #d2b48c, #bc8f8f);
+  border: 2px solid #8b4513;
   border-radius: 5px;
   position: relative;
   box-shadow: 0 6px 12px rgba(0,0,0,0.2);
@@ -668,7 +670,7 @@ export default {
   left: 0;
   width: 100%;
   height: 3px;
-  background: #6e370f;
+  background: #8b4513;
   box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
@@ -679,28 +681,28 @@ export default {
   left: 0;
   width: 100%;
   height: 3px;
-  background: #6e370f;
+  background: #8b4513;
   box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
-/* 地毯 */
+/* 地毯 - 铺在沙发和茶几区域下方 */
 .furniture-outline.carpet {
-  top: 65%;
-  left: 60%;
-  width: 200px;
-  height: 120px;
+  top: 60%;
+  left: 40%;
+  width: 280px;
+  height: 150px;
   transform: translateX(-50%) perspective(800px) rotateX(5deg);
 }
 
 .furniture-outline.carpet .furniture-shape {
-  background: linear-gradient(45deg, #cd5c5c 25%, #8b0000 25%, #8b0000 50%, #cd5c5c 50%, #cd5c5c 75%, #8b0000 75%, #8b0000 100%);
+  background: linear-gradient(45deg, #f5f5dc 25%, #f0e68c 25%, #f0e68c 50%, #f5f5dc 50%, #f5f5dc 75%, #f0e68c 75%, #f0e68c 100%);
   background-size: 20px 20px;
-  border: 2px solid #8b0000;
+  border: 2px solid #d2b48c;
   border-radius: 15px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
-/* 窗户 */
+/* 窗户 - 保持在一面墙上 */
 .furniture-outline.window {
   top: 20%;
   left: 30%;
