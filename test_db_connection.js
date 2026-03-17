@@ -22,9 +22,9 @@ const testConfigs = [
     }
   },
   {
-    name: '阿里云RDS（公网地址 - 需要手动填写）',
+    name: '阿里云RDS（公网地址）',
     config: {
-      host: 'YOUR_PUBLIC_RDS_ADDRESS_HERE', // 请替换为您的公网地址
+      host: 'rm-2ze90ovu5a037y1ujxo.mysql.rds.aliyuncs.com', // 公网地址
       user: 'test1',
       password: 'asdfgh0625YYH',
       database: 'signlanguage_platform',

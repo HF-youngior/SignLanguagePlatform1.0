@@ -41,14 +41,15 @@ export const updateProfile = async (req, res) => {
       });
     }
     
-    const { username, email, firstName, lastName, bio } = req.body;
+    const { username, email, firstName, lastName, bio, avatar, first_name } = req.body;
     const updateData = {};
     
     if (username) updateData.username = username;
     if (email) updateData.email = email;
-    if (firstName) updateData.firstName = firstName;
+    if (firstName || first_name) updateData.firstName = firstName || first_name;
     if (lastName) updateData.lastName = lastName;
     if (bio) updateData.bio = bio;
+    if (avatar !== undefined) updateData.avatar = avatar;
     
     const user = await User.findByIdAndUpdate(
       req.user.id,

@@ -9,7 +9,7 @@
               class="flex items-center text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300"
             >
               <!-- 使用已有的默认头像图片代替缺失的 logo 文件，避免 Vite 解析错误 -->
-              <img src="/images/default-avatar.png" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
+              <img src="/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
               <span>掌中语-手语学习平台</span>
             </router-link>
           </div>
@@ -36,34 +36,7 @@
           <div class="banner-hand-illustration" aria-hidden="true"></div>
         </section>
 
-        <section class="progress-card fade-in">
-          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div>
-              <h2 class="text-2xl font-semibold text-slate-900 mb-2">学习进度</h2>
-              <p class="text-slate-600">已点亮 {{ progressPercent }}% 的学习旅程</p>
-            </div>
-            <div class="flex items-center gap-3">
-              <div class="progress-ring">
-                <svg viewBox="0 0 120 120">
-                  <circle cx="60" cy="60" r="52" class="progress-ring__background" />
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r="52"
-                    class="progress-ring__value"
-                    :style="{ strokeDashoffset: progressDashOffset }"
-                  />
-                </svg>
-                <span class="progress-ring__text">{{ progressPercent }}%</span>
-              </div>
-              <div class="flex flex-col text-sm text-slate-500 leading-relaxed">
-                <span>完成章节：{{ completedLevels }}/{{ totalLevels }}</span>
-                <span>下一章节解锁条件：完成当前篇章</span>
-              </div>
-            </div>
-          </div>
-          <el-progress :percentage="progressPercent" :stroke-width="18" striped striped-flow color="#6366f1" />
-        </section>
+
 
         <section class="map-section fade-in">
           <div class="map-section__header">
@@ -72,10 +45,16 @@
                 <h2 class="text-2xl font-semibold text-slate-900">章节地图</h2>
                 <p class="text-slate-600 text-sm">沿着路径前进，点亮篇章，更多故事正等待你解锁。</p>
               </div>
-              <router-link to="/learn" class="back-button">
-                <span class="back-button__icon">←</span>
-                <span class="back-button__text">返回学习模式</span>
-              </router-link>
+              <div class="flex items-center space-x-4">
+                <button @click="showBagDialog" class="bag-button">
+                  <span class="bag-icon">💼</span>
+                  <span class="bag-text">我的锦囊</span>
+                </button>
+                <router-link to="/learn" class="back-button">
+                  <span class="back-button__icon">←</span>
+                  <span class="back-button__text">返回学习模式</span>
+                </router-link>
+              </div>
             </div>
           </div>
 
@@ -86,7 +65,7 @@
                 :key="level.id"
                 class="map-node"
                 :class="[`status-${level.status}`, { 'is-first': index === 0 }]"
-                :style="{ top: `${index * 200}px`, left: '50%', transform: 'translateX(-50%)' }"
+                :style="{ top: `${index * 280}px`, left: '50%', transform: 'translateX(-50%)' }"
                 @mouseenter="hoveredLevel = level.id"
                 @mouseleave="hoveredLevel = null"
                 @click="handleNodeClick(level)"
@@ -130,6 +109,73 @@
             <div class="map-overlay-bottom" aria-hidden="true"></div>
           </div>
         </section>
+
+        <!-- 锦囊对话框 -->
+        <el-dialog
+          v-model="bagDialogVisible"
+          width="600px"
+          align-center
+          class="bag-dialog"
+          :show-close="false"
+        >
+          <template #header>
+            <div class="bag-dialog__header">
+              <div class="bag-dialog__title">💼 我的锦囊</div>
+              <button class="bag-dialog__close" @click="closeBagDialog">
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+          </template>
+
+          <div class="bag-dialog__body">
+            <div v-if="isLessonSaved" class="bag-item">
+              <div class="bag-item__header">
+                <h3 class="bag-item__title">🎯 小课堂｜用手语"说"出年月日</h3>
+                <span class="bag-item__source">来自：篇章一 · 数字与日历</span>
+              </div>
+              <div class="bag-item__content">
+                <p class="bag-item__text">
+                  恭喜你学会了手语数字！现在，我们现在来总结一下如何用手语表达日期。
+                </p>
+                <div class="bag-item__section">
+                  <h4 class="bag-item__section-title">📅 年​份</h4>
+                  <p class="bag-item__section-content">
+                    右手食指从左拳关节（象征四季）向下划——一年就这样"划"出来啦。想表示几年右手就摆数字几。
+                  </p>
+                </div>
+                <div class="bag-item__section">
+                  <h4 class="bag-item__section-title">🌙 月​份</h4>
+                  <p class="bag-item__section-content">
+                    左手食指横伸，手背向外，右手食指指尖沿左手下向左一撇，模拟"月"字的第一个笔画。要表达几个月，左手就摆数字几。
+                  </p>
+                </div>
+                <div class="bag-item__section">
+                  <h4 class="bag-item__section-title">☀️ 日期</h4>
+                  <p class="bag-item__section-content">
+                    左手在上表月份（比数字），右手在下列日期（比数字），比如左手"6"+右手"8"，就是 6月8日。
+                  </p>
+                </div>
+                <div class="bag-item__section">
+                  <h4 class="bag-item__section-title">💡 试试看</h4>
+                  <p class="bag-item__section-content">
+                    用你学到的数字，搭配上面的手势和位置规则，就能组合出任意日期啦！快去日历里挑几个日子，用手语"说"出来吧～✋💬
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div v-else class="bag-empty">
+              <div class="bag-empty__icon">📭</div>
+              <h3 class="bag-empty__title">锦囊是空的</h3>
+              <p class="bag-empty__text">完成关卡并保存小课堂内容到锦囊，这里就会显示你收集的学习资料啦！</p>
+            </div>
+          </div>
+
+          <template #footer>
+            <div class="bag-dialog__footer">
+              <el-button type="primary" round @click="closeBagDialog">关闭</el-button>
+            </div>
+          </template>
+        </el-dialog>
       </div>
     </main>
   </div>
@@ -144,6 +190,7 @@ export default {
       completedLevels: 0,
       progressPercent: 0,
       hoveredLevel: null,
+      bagDialogVisible: false,
       levels: [
         {
           id: 1,
@@ -156,13 +203,16 @@ export default {
           id: 2,
           title: '篇章二',
           subtitle: '我的新家',
-          status: 'locked',
+          status: 'available',
           routeName: 'HomeMap'
         }
       ]
     }
   },
   computed: {
+    isLessonSaved() {
+      return localStorage.getItem('lessonSavedToBag') === 'true'
+    },
     progressDashOffset() {
       const circumference = 2 * Math.PI * 52
       return circumference * (1 - this.progressPercent / 100)
@@ -209,6 +259,12 @@ export default {
           type: 'info'
         })
       }
+    },
+    showBagDialog() {
+      this.bagDialogVisible = true
+    },
+    closeBagDialog() {
+      this.bagDialogVisible = false
     }
   }
 }
@@ -361,9 +417,44 @@ export default {
   white-space: nowrap;
 }
 
+  /* 锦囊按钮样式 */
+  .bag-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  }
+
+  .bag-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+  }
+
+  .bag-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  }
+
+  .bag-icon {
+    font-size: 18px;
+  }
+
+  .bag-text {
+    white-space: nowrap;
+  }
+
 .map-container {
   position: relative;
-  height: 600px;
+  height: 800px;
   overflow: hidden;
   padding: 20px 0;
 }
@@ -536,6 +627,119 @@ export default {
   height: 60px;
   pointer-events: none;
   z-index: 2;
+}
+
+/* 锦囊对话框样式 */
+.bag-dialog__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.bag-dialog__title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #4338ca;
+}
+
+.bag-dialog__close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #94a3b8;
+  transition: color 0.3s ease;
+}
+
+.bag-dialog__close:hover {
+  color: #475569;
+}
+
+.bag-dialog__body {
+  padding: 20px 0;
+}
+
+.bag-item {
+  background: rgba(248, 250, 252, 0.8);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.bag-item__header {
+  margin-bottom: 16px;
+}
+
+.bag-item__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #4338ca;
+  margin-bottom: 4px;
+}
+
+.bag-item__source {
+  font-size: 0.875rem;
+  color: #94a3b8;
+}
+
+.bag-item__content {
+  line-height: 1.6;
+  color: #475569;
+}
+
+.bag-item__text {
+  margin-bottom: 16px;
+}
+
+.bag-item__section {
+  margin-bottom: 16px;
+}
+
+.bag-item__section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #4338ca;
+  margin-bottom: 8px;
+}
+
+.bag-item__section-content {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.bag-empty {
+  text-align: center;
+  padding: 40px 0;
+}
+
+.bag-empty__icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.bag-empty__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 8px;
+}
+
+.bag-empty__text {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  max-width: 80%;
+  margin: 0 auto;
+}
+
+.bag-dialog__footer {
+  display: flex;
+  justify-content: center;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
 }
 .map-overlay-top {
   top: 0;

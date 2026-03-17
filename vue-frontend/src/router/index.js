@@ -12,6 +12,8 @@ import HashtagPage from '@/views/HashtagPage.vue'
 import PrivateChat from '@/views/PrivateChat.vue'
 import ChallengeMode from '@/views/ChallengeMode.vue'
 import ChallengeLevelCalendar from '@/views/ChallengeLevelCalendar.vue'
+import HomeMap from '@/views/HomeMap.vue'
+import LivingRoom from '@/views/LivingRoom.vue'
 import Admin from '@/views/Admin.vue'
 
 const routes = [
@@ -44,17 +46,19 @@ const routes = [
     component: ChallengeLevelCalendar,
     meta: { requiresAuth: true }
   },
-  // 暂时注释掉未定义的组件路由
-  // {
-  //   path: '/learn/challenge/level-2',
-  //   name: 'HomeMap',
-  //   component: HomeMap
-  // },
-  // {
-  //   path: '/learn/challenge/level-2/living-room',
-  //   name: 'LivingRoom',
-  //   component: LivingRoom
-  // },
+  // 第二关：我的新家
+  {
+    path: '/learn/challenge/level-2',
+    name: 'HomeMap',
+    component: HomeMap,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/learn/challenge/level-2/living-room',
+    name: 'LivingRoom',
+    component: LivingRoom,
+    meta: { requiresAuth: true }
+  },
   {
     path: '/translate',
     name: 'Translate',

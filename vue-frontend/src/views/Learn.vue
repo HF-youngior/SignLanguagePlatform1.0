@@ -7,7 +7,7 @@
           <div class="flex items-center">
             <router-link to="/" class="flex items-center text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
               <!-- 使用已有的默认头像图片代替缺失的 logo 文件，避免 Vite 解析错误 -->
-              <img src="/images/default-avatar.png" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
+              <img src="/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
               <span>掌中语-手语学习平台</span>
             </router-link>
           </div>
@@ -130,38 +130,7 @@
           </div>
         </div>
 
-        <!-- 学习进度 -->
-        <el-card class="mb-8">
-          <template #header>
-            <div class="flex justify-between items-center">
-              <span class="text-lg font-semibold">学习进度</span>
-              <el-tag type="info">初级</el-tag>
-            </div>
-          </template>
-          <div class="space-y-4">
-            <div>
-              <div class="flex justify-between mb-2">
-                <span>手语基础</span>
-                <span>8/36</span>
-              </div>
-              <el-progress :percentage="22" color="#409EFF"></el-progress>
-            </div>
-            <div>
-              <div class="flex justify-between mb-2">
-                <span>词汇积累</span>
-                <span>12/50</span>
-              </div>
-              <el-progress :percentage="24" color="#67C23A"></el-progress>
-            </div>
-            <div>
-              <div class="flex justify-between mb-2">
-                <span>手语语法</span>
-                <span>3/20</span>
-              </div>
-              <el-progress :percentage="15" color="#E6A23C"></el-progress>
-            </div>
-          </div>
-        </el-card>
+
       </div>
     </main>
 
@@ -215,7 +184,7 @@ export default {
           iconBg: 'linear-gradient(135deg, #fff1d6 0%, #ffe4b5 100%)',
           accent: '#f97316',
           accentLight: 'rgba(249, 115, 22, 0.18)',
-          progress: 65,
+          progress: 0,
           actionLabel: '开始闯关',
           buttonType: 'primary',
           isDeveloping: false,
@@ -230,7 +199,7 @@ export default {
           iconBg: 'linear-gradient(135deg, #ffe8d6 0%, #ffd6a5 100%)',
           accent: '#f59e0b',
           accentLight: 'rgba(245, 158, 11, 0.18)',
-          progress: 42,
+          progress: 0,
           actionLabel: '开始探索',
           buttonType: 'warning',
           isDeveloping: true,
@@ -254,10 +223,39 @@ export default {
         return
       }
       this.goToMode(mode)
+    },
+    loadLearningProgress() {
+      // 加载闯关模式进度
+      const challengeCompleted = Number(localStorage.getItem('challengeCompletedLevels') || 0)
+      const challengeTotal = 2 // 总关卡数
+      const challengeProgress = Math.round((challengeCompleted / challengeTotal) * 100)
+      
+      // 加载专题模式进度
+      const thematicCompleted = Number(localStorage.getItem('thematicCompletedTopics') || 0)
+      const thematicTotal = 3 // 总专题数（假设）
+      const thematicProgress = Math.round((thematicCompleted / thematicTotal) * 100)
+      
+      // 更新学习模式进度
+      this.learningModes.forEach(mode => {
+        if (mode.key === 'challenge') {
+          mode.progress = challengeProgress
+        } else if (mode.key === 'thematic') {
+          mode.progress = thematicProgress
+        }
+      })
     }
   },
   mounted() {
     document.title = '手语学习中心 - 手语教学平台'
+    this.loadLearningProgress()
+    // 监听进度变化事件
+    window.addEventListener('challenge-progress-changed', this.loadLearningProgress)
+    window.addEventListener('thematic-progress-changed', this.loadLearningProgress)
+  },
+  beforeUnmount() {
+    // 移除事件监听器
+    window.removeEventListener('challenge-progress-changed', this.loadLearningProgress)
+    window.removeEventListener('thematic-progress-changed', this.loadLearningProgress)
   }
 }
 </script>

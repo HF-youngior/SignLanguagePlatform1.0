@@ -4,9 +4,9 @@ import bcrypt from 'bcryptjs';
 // 数据库配置
 const dbConfig = {
   host: 'localhost',
-  user: 'root',
-  password: 'asdfgh0625YYH',
-  database: 'signlanguage_platform'
+  user: 'newuser',
+  password: '123qwe,./',
+  database: 'sign_language_learning'
 };
 
 // 创建数据库连接（不指定数据库，用于创建数据库）
@@ -202,6 +202,58 @@ const createAdminLogsTable = async (connection) => {
   console.log('✅ 管理员操作日志表创建成功');
 };
 
+// 创建群组表
+const createGroupsTable = async (connection) => {
+  const sql = `
+    CREATE TABLE IF NOT EXISTS groups_table (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR(100) NOT NULL,
+      description TEXT,
+      creator_id INT NOT NULL,
+      type ENUM('public', 'private', 'closed') DEFAULT 'public',
+      category VARCHAR(50),
+      avatar VARCHAR(255),
+      cover_image VARCHAR(255),
+      rules TEXT,
+      member_count INT DEFAULT 0,
+      post_count INT DEFAULT 0,
+      is_active BOOLEAN DEFAULT TRUE,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      FOREIGN KEY (creator_id) REFERENCES users(id) ON DELETE CASCADE,
+      INDEX idx_creator (creator_id),
+      INDEX idx_type (type),
+      INDEX idx_category (category),
+      INDEX idx_is_active (is_active)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `;
+  await connection.execute(sql);
+  console.log('✅ 群组表创建成功');
+};
+
+// 创建群组成员表
+const createGroupMembersTable = async (connection) => {
+  const sql = `
+    CREATE TABLE IF NOT EXISTS group_members (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      group_id INT NOT NULL,
+      user_id INT NOT NULL,
+      role ENUM('owner', 'admin', 'member') DEFAULT 'member',
+      is_active BOOLEAN DEFAULT TRUE,
+      joined_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      FOREIGN KEY (group_id) REFERENCES groups_table(id) ON DELETE CASCADE,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      UNIQUE KEY unique_group_user (group_id, user_id),
+      INDEX idx_group (group_id),
+      INDEX idx_user (user_id),
+      INDEX idx_role (role)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `;
+  await connection.execute(sql);
+  console.log('✅ 群组成员表创建成功');
+};
+
 // 创建测试账号
 const createTestUsers = async (connection) => {
   const salt = await bcrypt.genSalt(10);
@@ -260,6 +312,8 @@ const initDatabase = async () => {
     await createTranslationRecordsTable(connection);
     await createLikesTable(connection);
     await createAdminLogsTable(connection);
+    await createGroupsTable(connection);
+    await createGroupMembersTable(connection);
     
     // 创建测试账号
     await createTestUsers(connection);

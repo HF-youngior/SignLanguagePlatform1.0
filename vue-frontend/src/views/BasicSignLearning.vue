@@ -7,7 +7,7 @@
           <div class="flex items-center">
             <router-link to="/" class="flex items-center text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
               <!-- 使用已有的默认头像图片代替缺失的 logo 文件，避免 Vite 解析错误 -->
-              <img src="/images/default-avatar.png" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
+              <img src="/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
               <span>掌中语-手语学习平台</span>
             </router-link>
           </div>
@@ -105,42 +105,7 @@
           </div>
         </el-card>
 
-        <!-- 学习进度 -->
-        <el-card class="mb-8" shadow="hover">
-          <template #header>
-            <div class="flex justify-between items-center">
-              <span class="text-lg font-semibold">📊 学习进度</span>
-              <el-tag type="info">{{ getProgressLevel() }}</el-tag>
-            </div>
-          </template>
-          
-          <div class="text-center mb-6">
-            <div class="text-4xl font-bold text-blue-600 mb-2">{{ overallProgress }}%</div>
-            <el-progress 
-              :percentage="overallProgress" 
-              :color="getProgressColor(overallProgress)"
-              :stroke-width="20"
-            />
-          </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="text-center">
-              <div class="text-2xl font-bold text-green-600 mb-1">{{ fingerProgress }}%</div>
-              <div class="text-sm text-gray-600">手指语进度</div>
-              <el-progress :percentage="fingerProgress" color="#67C23A" />
-            </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-blue-600 mb-1">{{ letterProgress }}%</div>
-              <div class="text-sm text-gray-600">字母进度</div>
-              <el-progress :percentage="letterProgress" color="#409EFF" />
-            </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-purple-600 mb-1">{{ numberProgress }}%</div>
-              <div class="text-sm text-gray-600">数字进度</div>
-              <el-progress :percentage="numberProgress" color="#9C27B0" />
-            </div>
-          </div>
-        </el-card>
 
         <!-- 课程板块 -->
         <div class="grid md:grid-cols-3 gap-8">
