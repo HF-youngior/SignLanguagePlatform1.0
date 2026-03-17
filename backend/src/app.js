@@ -33,7 +33,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: true,
     methods: ["GET", "POST"]
   }
 });
@@ -56,8 +56,37 @@ app.use(helmet({
 }));
 
 // CORS配置
+const isDev = (process.env.NODE_ENV || 'development') === 'development';
+const allowedOrigins = new Set([
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173'
+]);
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:3000",
+  origin(origin, callback) {
+    // 允许无 Origin 的请求（如本机脚本/健康检查）
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.has(origin)) return callback(null, true);
+
+    // 开发环境允许 localhost / 127.0.0.1 任意端口（例如 http://localhost:4174）
+    if (isDev && /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) {
+      return callback(null, true);
+    }
+
+    // 开发环境允许局域网IP访问（例如 http://192.168.x.x:4174）
+    if (isDev && /^http:\/\/\d{1,3}(\.\d{1,3}){3}:\d+$/.test(origin)) {
+      return callback(null, true);
+    }
+
+    // 如果用户显式配置了 FRONTEND_URL，则以它为准
+    if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) {
+      return callback(null, true);
+    }
+
+    return callback(new Error(`Not allowed by CORS: ${origin}`));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -92,6 +121,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // 静态文件服务
 app.use('/uploads', express.static('uploads'));
+app.use('/public', express.static('public'));
 
 // 健康检查端点
 app.get('/health', (req, res) => {

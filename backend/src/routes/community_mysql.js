@@ -42,37 +42,37 @@ router.get('/posts', async (req, res) => {
        LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`
     );
     
-    // 为每个帖子获取前3条评论
+    // 为每个帖子获取所有评论
     const postsWithComments = await Promise.all(posts.map(async (post) => {
       const comments = await query(
         `SELECT c.*, u.username as user_username, u.first_name as user_first_name, u.avatar as user_avatar
          FROM comments c
          JOIN users u ON c.user_id = u.id
          WHERE c.post_id = ? AND c.is_deleted = false AND c.parent_id IS NULL
-         ORDER BY c.created_at ASC
-         LIMIT 3`,
+         ORDER BY c.created_at ASC`,
         [post.id]
       );
       
-      // 为每条评论获取回复
+      // 为每条评论获取所有回复
       const commentsWithReplies = await Promise.all(comments.map(async (comment) => {
         const replies = await query(
           `SELECT r.*, u.username as user_username, u.first_name as user_first_name, u.avatar as user_avatar
            FROM comments r
            JOIN users u ON r.user_id = u.id
            WHERE r.parent_id = ? AND r.is_deleted = false
-           ORDER BY r.created_at ASC
-           LIMIT 2`,
+           ORDER BY r.created_at ASC`,
           [comment.id]
         );
         
         return {
           ...comment,
+          user_id: comment.user_id,
           username: comment.user_first_name || comment.user_username,
           avatar: comment.user_avatar,
           time: comment.created_at,
           replies: replies.map(r => ({
             ...r,
+            user_id: r.user_id,
             username: r.user_first_name || r.user_username,
             avatar: r.user_avatar,
             time: r.created_at,

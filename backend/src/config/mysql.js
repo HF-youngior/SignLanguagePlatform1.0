@@ -3,11 +3,11 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// MySQL数据库配置
+// 阿里云RDS云端数据库配置
 const dbConfig = {
-  host: process.env.MYSQL_HOST || 'localhost',
-  user: process.env.MYSQL_USER || 'root',
-  password: process.env.MYSQL_PASSWORD || 'LXF521',
+  host: process.env.MYSQL_HOST || 'rm-2ze90ovu5a037y1ujxo.mysql.rds.aliyuncs.com',
+  user: process.env.MYSQL_USER || 'test1',
+  password: process.env.MYSQL_PASSWORD || 'asdfgh0625YYH',
   database: process.env.MYSQL_DATABASE || 'signlanguage_platform',
   waitForConnections: true,
   connectionLimit: 10,

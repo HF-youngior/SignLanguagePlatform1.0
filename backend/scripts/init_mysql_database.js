@@ -1,12 +1,11 @@
 import mysql from 'mysql2/promise';
 import bcrypt from 'bcryptjs';
 
-// 数据库配置
+// 阿里云RDS云端数据库配置
 const dbConfig = {
-  host: 'localhost',
-  user: 'root',
-  // 与项目默认配置保持一致，如需修改请同步更新 MYSQL_PASSWORD
-  password: 'LXF521',
+  host: 'rm-2ze90ovu5a037y1ujxo.mysql.rds.aliyuncs.com',
+  user: 'test1',
+  password: 'asdfgh0625YYH',
   database: 'signlanguage_platform'
 };
 
