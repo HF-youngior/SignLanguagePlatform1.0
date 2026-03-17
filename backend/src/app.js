@@ -33,7 +33,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: '*', // 允许所有来源，适合开发环境
     methods: ["GET", "POST"]
   }
 });
@@ -57,7 +57,7 @@ app.use(helmet({
 
 // CORS配置
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:3000",
+  origin: '*', // 允许所有来源，适合开发环境
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']

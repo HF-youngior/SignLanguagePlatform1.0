@@ -78,391 +78,309 @@
         </div>
 
         <!-- 主界面布局 -->
-        <div class="grid lg:grid-cols-3 gap-4 md:gap-8">
-          <!-- 移动端：检测结果框（在最上面） -->
-          <el-card v-if="detectionResults.length > 0 && isMobile" class="lg:hidden mb-4 w-full order-1">
+        <div class="space-y-4 md:space-y-6">
+          <!-- 模型选择（放在最前面） -->
+          <el-card shadow="hover" class="w-full">
             <template #header>
-              <div class="flex items-center justify-between">
-                <span class="text-lg font-semibold">检测结果与位置信息</span>
-                <el-tag type="success">{{ detectionResults.length }} 个目标</el-tag>
-              </div>
+              <span class="text-lg font-semibold">选择翻译模型</span>
             </template>
-            <el-table
-              :data="detectionResults"
-              stripe
-              style="width: 100%"
-              :max-height="200"
-              size="small"
-            >
-              <el-table-column prop="index" label="序号" width="60" align="center" />
-              <el-table-column prop="className" label="类别" width="100" align="center" />
-              <el-table-column prop="confidence" label="置信度" width="80" align="center">
-                <template #default="scope">
-                  <span class="font-semibold text-green-600 text-xs">{{ scope.row.confidence }}%</span>
-                </template>
-              </el-table-column>
-            </el-table>
+            <div class="space-y-4">
+              <el-radio-group v-model="selectedModel" class="w-full">
+                <el-radio value="yolo" border class="w-full mb-2">
+                  <div class="flex flex-col">
+                    <span class="font-semibold">YOLOv8 检测模型</span>
+                    <span class="text-xs text-gray-500">单帧手语检测识别</span>
+                  </div>
+                </el-radio>
+                <el-radio value="seq2seq" border class="w-full">
+                  <div class="flex flex-col">
+                    <span class="font-semibold">Seq2Seq_v4 连续识别模型</span>
+                    <span class="text-xs text-gray-500">连续手语序列识别（新模型）</span>
+                  </div>
+                </el-radio>
+              </el-radio-group>
+            </div>
           </el-card>
 
-          <!-- 左侧：图像显示区域（在检测结果下面） -->
-          <div class="lg:col-span-2 order-2 lg:order-1 w-full">
-            <el-card shadow="hover" class="h-full">
-              <template #header>
-                <div class="flex items-center justify-between">
-                  <span class="text-lg font-semibold">📹 图像显示区域</span>
-                  <el-tag :type="isProcessing ? 'success' : 'info'">
-                    {{ isProcessing ? '处理中' : '就绪' }}
-                  </el-tag>
-                </div>
-              </template>
-              <div class="relative">
-                <!-- 调试信息 -->
-                <div v-if="currentVideo || currentImage" class="mb-2 text-xs text-gray-500 p-2 bg-gray-100 rounded">
-                  <div>currentVideo: {{ currentVideo ? '已设置 ' + currentVideo.substring(0, 30) + '...' : '空' }}</div>
-                  <div>currentImage: {{ currentImage ? '已设置' : '空' }}</div>
-                  <div v-if="currentVideo">videoElement: {{ videoElement ? '存在' : '不存在' }}</div>
-                  <div v-if="currentVideo && videoElement">视频时长: {{ videoElement.duration || '未加载' }}</div>
-                  <div v-if="currentVideo && videoElement">视频尺寸: {{ videoElement.videoWidth || '?' }}x{{ videoElement.videoHeight || '?' }}</div>
-                  <div v-if="currentVideo && videoElement">readyState: {{ videoElement.readyState }}</div>
-                  <div v-if="currentVideo && videoElement">error: {{ videoElement.error ? videoElement.error.message : '无错误' }}</div>
-                  <button @click="checkVideoStatus" class="mt-2 px-2 py-1 bg-blue-500 text-white text-xs rounded">检查视频状态</button>
-                </div>
-                <!-- 图像/视频显示区域 -->
-                <div class="bg-gray-100 rounded-lg mb-4 relative" :style="{ minHeight: isMobile ? '300px' : '500px', display: 'flex', alignItems: 'center', justifyContent: 'center' }">
-                  <div v-if="!currentImage && !currentVideo" class="text-center py-8">
-                    <div class="text-6xl mb-4">📷</div>
-                    <p class="text-gray-600">请选择图片、视频或开启摄像头</p>
-                    <p class="text-sm text-gray-500">支持格式：JPG, PNG, MP4, WebM</p>
-                  </div>
-                  <img 
-                    v-else-if="currentImage && !currentVideo"
-                    :src="currentImage" 
-                    alt="检测结果" 
-                    class="max-w-full max-h-full object-contain w-full h-auto"
-                    :style="{ maxHeight: isMobile ? '300px' : '500px', width: '100%', height: 'auto' }"
-                    @load="handleImageLoad"
-                  />
-                  <div v-else-if="currentVideo" class="w-full" style="background: black; min-height: 400px; display: flex; align-items: center; justify-content: center; flex-direction: column; position: relative;">
-                    <!-- 显示的视频元素 -->
-                    <video 
-                      ref="videoElement"
-                      :src="currentVideo" 
-                      preload="auto"
-                      controls
-                      style="max-width: 100%; max-height: 500px; display: block;"
-                      @loadeddata="onVideoLoaded"
-                      @play="handleVideoPlay"
-                      @pause="handleVideoPause"
-                      @loadedmetadata="() => { console.log('Video metadata loaded'); }"
-                      @error="(e) => handleVideoError(e)"
-                    >
-                      您的浏览器不支持该视频格式
-                    </video>
-                    
-                    <!-- 检测框overlay canvas -->
-                    <canvas 
-                      v-if="isVideoDetecting && selectedModel.value === 'yolo'"
-                      ref="canvasOverlay"
-                      class="absolute"
-                      style="pointer-events: none; top: 0; left: 0; z-index: 10;"
-                    />
-                    
-                    <!-- 检测进度显示 -->
-                    <div v-if="isVideoDetecting" class="mt-2 w-full px-4">
-                      <div class="flex items-center gap-2 mb-2">
-                        <div class="text-white text-sm">检测进度:</div>
-                        <div class="flex-1">
-                          <input 
-                            type="range" 
-                            min="0" 
-                            max="100" 
-                            :value="videoProgress" 
-                            disabled
-                            class="w-full"
-                          />
-                        </div>
-                        <div class="text-white text-sm">{{ Math.round(videoProgress) }}%</div>
-                      </div>
-                      <div class="text-white text-xs text-center">
-                        {{ formatVideoTime(currentVideoTime) }} / {{ formatVideoTime(videoDuration) }}
-                      </div>
-                    </div>
-                    
-                    <!-- 视频错误提示 -->
-                    <div v-if="videoElement && videoElement.error" class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-                      <p class="font-bold">❌ 视频加载失败</p>
-                      <p class="text-sm mt-2">错误代码: {{ videoElement.error.code }}</p>
-                      <p class="text-sm">错误信息: {{ videoElement.error.message }}</p>
-                      <div class="mt-3 text-sm">
-                        <p class="font-semibold">可能的原因：</p>
-                        <ul class="list-disc list-inside mt-1">
-                          <li>视频编码格式不被浏览器支持（如H.265/HEVC）</li>
-                          <li>视频文件损坏</li>
-                          <li>视频容器格式问题</li>
-                        </ul>
-                        <p class="mt-2 font-semibold">建议解决方案：</p>
-                        <ul class="list-disc list-inside mt-1">
-                          <li>使用H.264编码的MP4视频</li>
-                          <li>使用视频转换工具转换格式</li>
-                          <li>使用手机摄像头直接录制</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                  <!-- 加载遮罩 - 只在首次加载时显示（修复：确保视频显示时不显示遮罩） -->
-                  <div v-if="!currentVideo && !currentImage && isProcessing" class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                    <div class="text-white text-center">
-                      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-                      <p>AI识别中...</p>
-                      <p v-if="videoProcessingProgress" class="mt-2 text-sm">{{ videoProcessingProgress }}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- 检测结果表格（桌面端显示，移动端已在上面显示） -->
-                <el-card v-if="detectionResults.length > 0" class="mt-4 hidden lg:block">
-                  <template #header>
-                    <div class="flex items-center justify-between">
-                      <span class="text-lg font-semibold">检测结果与位置信息</span>
-                      <el-tag type="success">{{ detectionResults.length }} 个目标</el-tag>
-                    </div>
-                  </template>
-                  <el-table 
-                    :data="detectionResults" 
-                    stripe 
-                    style="width: 100%"
-                    :max-height="250"
-                    size="small"
-                  >
-                    <el-table-column prop="index" label="序号" width="80" align="center" />
-                    <el-table-column prop="filePath" label="文件路径" min-width="200" show-overflow-tooltip />
-                    <el-table-column prop="className" label="类别" width="150" align="center" />
-                    <el-table-column prop="confidence" label="置信度" width="100" align="center">
-                      <template #default="scope">
-                        <span class="font-semibold text-green-600">{{ scope.row.confidence }}%</span>
-                      </template>
-                    </el-table-column>
-                    <el-table-column prop="coordinates" label="坐标位置" width="200" align="center">
-                      <template #default="scope">
-                        <div class="text-xs">
-                          <div>X: {{ scope.row.coordinates.xmin }}-{{ scope.row.coordinates.xmax }}</div>
-                          <div>Y: {{ scope.row.coordinates.ymin }}-{{ scope.row.coordinates.ymax }}</div>
-                        </div>
-                      </template>
-                    </el-table-column>
-                  </el-table>
-                </el-card>
+          <!-- 翻译结果（最上面，更加醒目） -->
+          <el-card v-if="detectionResults.length > 0" shadow="hover" class="w-full">
+            <template #header>
+              <div class="flex items-center justify-between">
+                <span class="text-lg font-semibold">📝 翻译结果</span>
+                <el-tag type="success" size="large">{{ detectionResults.length }} 个结果</el-tag>
               </div>
-            </el-card>
-          </div>
-
-          <!-- 右侧：控制面板 -->
-          <div class="space-y-4 md:space-y-6 order-1 lg:order-2">
-            <!-- 文件输入 -->
-            <el-card shadow="hover">
-              <template #header>
-                <span class="text-lg font-semibold">文件导入</span>
-              </template>
-              <div class="space-y-4">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <el-button 
-                    type="primary" 
-                    :icon="Picture" 
-                    @click="selectImage"
-                    :loading="isProcessing"
-                    style="width: 100%"
-                  >
-                    选择图片
-                  </el-button>
-                  <el-button 
-                    type="success" 
-                    :icon="VideoPlay" 
-                    @click="selectVideo"
-                    :loading="isProcessing"
-                    style="width: 100%"
-                  >
-                    选择视频
-                  </el-button>
-                  <el-button 
-                    type="warning" 
-                    :icon="Camera" 
-                    @click="toggleCamera"
-                    :loading="isProcessing"
-                    style="width: 100%"
-                  >
-                    {{ isCameraOpen ? '关闭摄像头' : '开启摄像头' }}
-                  </el-button>
-                  <el-button 
-                    type="info" 
-                    :icon="Folder" 
-                    @click="selectFolder"
-                    :loading="isProcessing"
-                    style="width: 100%"
-                  >
-                    批量处理
-                  </el-button>
-                </div>
-                
-                <!-- 隐藏的文件输入 -->
-                <input 
-                  ref="imageInput" 
-                  type="file" 
-                  accept="image/*" 
-                  @change="handleImageUpload" 
-                  style="display: none"
-                />
-                <input 
-                  ref="videoInput" 
-                  type="file" 
-                  accept="video/mp4,video/webm,video/ogg,.mp4,.webm,.ogg" 
-                  @change="handleVideoUpload" 
-                  style="display: none"
-                />
-                <input 
-                  ref="folderInput" 
-                  type="file" 
-                  webkitdirectory 
-                  @change="handleFolderUpload" 
-                  style="display: none"
-                />
-              </div>
-            </el-card>
-
-            <!-- 推理参数 -->
-            <el-card shadow="hover">
-              <template #header>
-                <span class="text-lg font-semibold">推理参数</span>
-              </template>
-              <div class="space-y-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">AI模型选择</label>
-                  <el-radio-group v-model="selectedModel" class="w-full">
-                    <el-radio value="yolo" border class="w-full mb-2">
-                      <div class="flex flex-col">
-                        <span class="font-semibold">YOLOv8 检测模型</span>
-                        <span class="text-xs text-gray-500">单帧手语检测识别</span>
-                      </div>
-                    </el-radio>
-                    <el-radio value="seq2seq" border class="w-full">
-                      <div class="flex flex-col">
-                        <span class="font-semibold">Seq2Seq_v4 连续识别模型</span>
-                        <span class="text-xs text-gray-500">连续手语序列识别（新模型）</span>
-                      </div>
-                    </el-radio>
-                  </el-radio-group>
-                </div>
-              </div>
-            </el-card>
-
-            <!-- 检测结果 -->
-            <el-card shadow="hover">
-              <template #header>
-                <span class="text-lg font-semibold">检测结果</span>
-              </template>
-              <div class="space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-sm text-gray-600 mb-1">目标数目</label>
-                    <div class="text-2xl font-bold text-blue-600">{{ detectionResults.length }}</div>
-                  </div>
-                  <div>
-                    <label class="block text-sm text-gray-600 mb-1">用时</label>
-                    <div class="text-lg font-semibold text-green-600">{{ inferenceTime }}s</div>
-                  </div>
-                </div>
-                
-                <div v-if="detectionResults.length > 0">
-                  <label class="block text-sm text-gray-600 mb-2">目标选择</label>
-                  <el-select v-model="selectedTarget" placeholder="选择目标" class="w-full">
-                    <el-option label="全部" value="all" />
-                    <el-option 
-                      v-for="(result, index) in detectionResults" 
-                      :key="index"
-                      :label="`${result.className}_${index}`"
-                      :value="index"
-                    />
-                  </el-select>
-                </div>
-
-                <div v-if="selectedDetection" class="space-y-2">
-                  <div>
-                    <label class="block text-sm text-gray-600 mb-1">置信度</label>
-                    <div class="text-lg font-semibold text-red-600">{{ selectedDetection.confidence }}%</div>
-                  </div>
-                  <div>
-                    <label class="block text-sm text-gray-600 mb-1">目标位置</label>
-                    <div class="text-sm space-y-1">
-                      <div>Xmin: <span class="font-semibold text-red-600">{{ selectedDetection.coordinates.xmin }}</span></div>
-                      <div>Ymin: <span class="font-semibold text-red-600">{{ selectedDetection.coordinates.ymin }}</span></div>
-                      <div>Xmax: <span class="font-semibold text-red-600">{{ selectedDetection.coordinates.xmax }}</span></div>
-                      <div>Ymax: <span class="font-semibold text-red-600">{{ selectedDetection.coordinates.ymax }}</span></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </el-card>
-
-            <!-- 视频操作 -->
-            <el-card v-if="currentVideo" shadow="hover">
-              <template #header>
-                <span class="text-lg font-semibold">视频操作</span>
-              </template>
+            </template>
+            <div class="space-y-4">
+              <!-- 翻译结果列表 -->
               <div class="space-y-3">
+                <div 
+                  v-for="(result, index) in detectionResults" 
+                  :key="index"
+                  class="p-4 bg-blue-50 rounded-lg border border-blue-200"
+                >
+                  <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                      <span class="text-xl font-bold text-blue-700 mr-3">{{ result.className }}</span>
+                      <el-tag type="success" size="small">{{ result.confidence }}%</el-tag>
+                    </div>
+                    <span class="text-sm text-gray-500">{{ result.filePath || '检测结果' }}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- 统计信息 -->
+              <div class="grid grid-cols-2 gap-4 mt-4">
+                <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
+                  <div class="text-sm text-gray-600 mb-1">目标总数</div>
+                  <div class="text-3xl font-bold text-blue-600">{{ detectionResults.length }}</div>
+                </div>
+                <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
+                  <div class="text-sm text-gray-600 mb-1">识别用时</div>
+                  <div class="text-2xl font-semibold text-green-600">{{ inferenceTime }}s</div>
+                </div>
+              </div>
+            </div>
+          </el-card>
+
+          <!-- 视频/图像显示区域 -->
+          <el-card shadow="hover" class="w-full">
+            <template #header>
+              <div class="flex items-center justify-between">
+                <span class="text-lg font-semibold">📹 视频/图像显示</span>
+                <el-tag :type="isProcessing ? 'success' : 'info'">
+                  {{ isProcessing ? '处理中' : '就绪' }}
+                </el-tag>
+              </div>
+            </template>
+            <div class="relative">
+              <!-- 图像/视频显示区域 -->
+              <div class="bg-gray-100 rounded-lg mb-4 relative" :style="{ minHeight: isMobile ? '300px' : '500px', display: 'flex', alignItems: 'center', justifyContent: 'center' }">
+                <div v-if="!currentImage && !currentVideo" class="text-center py-8">
+                  <div class="text-6xl mb-4">📷</div>
+                  <p class="text-gray-600">请选择图片、视频或开启摄像头</p>
+                  <p class="text-sm text-gray-500">支持格式：JPG, PNG, MP4, WebM</p>
+                </div>
+                <img 
+                  v-else-if="currentImage && !currentVideo"
+                  :src="currentImage" 
+                  alt="检测结果" 
+                  class="max-w-full max-h-full object-contain w-full h-auto"
+                  :style="{ maxHeight: isMobile ? '300px' : '500px', width: '100%', height: 'auto' }"
+                  @load="handleImageLoad"
+                />
+                <div v-else-if="currentVideo" class="w-full" style="background: black; min-height: 400px; display: flex; align-items: center; justify-content: center; flex-direction: column; position: relative;">
+                  <!-- 显示的视频元素 -->
+                  <video 
+                    ref="videoElement"
+                    :src="currentVideo" 
+                    preload="auto"
+                    controls
+                    style="max-width: 100%; max-height: 500px; display: block;"
+                    @loadeddata="onVideoLoaded"
+                    @play="handleVideoPlay"
+                    @pause="handleVideoPause"
+                    @loadedmetadata="() => { console.log('Video metadata loaded'); }"
+                    @error="(e) => handleVideoError(e)"
+                  >
+                    您的浏览器不支持该视频格式
+                  </video>
+                  
+                  <!-- 检测框overlay canvas -->
+                  <canvas 
+                    v-if="isVideoDetecting && selectedModel.value === 'yolo'"
+                    ref="canvasOverlay"
+                    class="absolute"
+                    style="pointer-events: none; top: 0; left: 0; z-index: 10;"
+                  />
+                  
+                  <!-- 检测进度显示 -->
+                  <div v-if="isVideoDetecting" class="mt-2 w-full px-4">
+                    <div class="flex items-center gap-2 mb-2">
+                      <div class="text-white text-sm">检测进度:</div>
+                      <div class="flex-1">
+                        <input 
+                          type="range" 
+                          min="0" 
+                          max="100" 
+                          :value="videoProgress" 
+                          disabled
+                          class="w-full"
+                        />
+                      </div>
+                      <div class="text-white text-sm">{{ Math.round(videoProgress) }}%</div>
+                    </div>
+                    <div class="text-white text-xs text-center">
+                      {{ formatVideoTime(currentVideoTime) }} / {{ formatVideoTime(videoDuration) }}
+                    </div>
+                  </div>
+                  
+                  <!-- 视频错误提示 -->
+                  <div v-if="videoElement && videoElement.error" class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                    <p class="font-bold">❌ 视频加载失败</p>
+                    <p class="text-sm mt-2">错误代码: {{ videoElement.error.code }}</p>
+                    <p class="text-sm">错误信息: {{ videoElement.error.message }}</p>
+                    <div class="mt-3 text-sm">
+                      <p class="font-semibold">可能的原因：</p>
+                      <ul class="list-disc list-inside mt-1">
+                        <li>视频编码格式不被浏览器支持（如H.265/HEVC）</li>
+                        <li>视频文件损坏</li>
+                        <li>视频容器格式问题</li>
+                      </ul>
+                      <p class="mt-2 font-semibold">建议解决方案：</p>
+                      <ul class="list-disc list-inside mt-1">
+                        <li>使用H.264编码的MP4视频</li>
+                        <li>使用视频转换工具转换格式</li>
+                        <li>使用手机摄像头直接录制</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <!-- 加载遮罩 -->
+                <div v-if="!currentVideo && !currentImage && isProcessing" class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                  <div class="text-white text-center">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+                    <p>AI识别中...</p>
+                    <p v-if="videoProcessingProgress" class="mt-2 text-sm">{{ videoProcessingProgress }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </el-card>
+
+          <!-- 输入流按钮（四个按钮左右对齐，一样大） -->
+          <el-card shadow="hover" class="w-full">
+            <template #header>
+              <span class="text-lg font-semibold">📁 输入选择</span>
+            </template>
+            <div class="space-y-4">
+              <div class="grid grid-cols-2 gap-4">
                 <el-button 
                   type="primary" 
-                  @click="startRealtimeDetection"
-                  :disabled="isVideoDetecting"
-                  class="w-full"
+                  :icon="Picture" 
+                  @click="selectImage"
+                  :loading="isProcessing"
+                  class="h-16 flex items-center justify-center"
+                  style="width: 100%"
                 >
-                  {{ isVideoDetecting ? '正在检测中...' : '开始实时检测' }}
+                  <span class="text-base">选择图片</span>
                 </el-button>
-                <el-button 
-                  v-if="isVideoDetecting"
-                  type="danger" 
-                  @click="stopVideoProcessing"
-                  class="w-full"
-                >
-                  停止检测
-                </el-button>
-                <p v-if="!isVideoDetecting" class="text-sm text-gray-500 text-center">
-                  提示：先播放视频，然后点击按钮开始检测
-                </p>
-              </div>
-            </el-card>
-
-            <!-- 操作按钮 -->
-            <el-card shadow="hover">
-              <template #header>
-                <span class="text-lg font-semibold">操作</span>
-              </template>
-              <div class="space-y-3 operation-buttons">
                 <el-button 
                   type="success" 
-                  :icon="Download" 
-                  @click="saveResults"
-                  :disabled="detectionResults.length === 0"
+                  :icon="VideoPlay" 
+                  @click="selectVideo"
+                  :loading="isProcessing"
+                  class="h-16 flex items-center justify-center"
                   style="width: 100%"
                 >
-                  💾 保存结果
-                </el-button>
-                <el-button 
-                  type="primary" 
-                  @click="viewHistory"
-                  style="width: 100%"
-                >
-                  📋 查看历史记录
+                  <span class="text-base">选择视频</span>
                 </el-button>
                 <el-button 
                   type="warning" 
-                  :icon="Refresh" 
-                  @click="clearResults"
+                  :icon="Camera" 
+                  @click="toggleCamera"
+                  :loading="isProcessing"
+                  class="h-16 flex items-center justify-center"
                   style="width: 100%"
                 >
-                  🔄 清空/刷新
+                  <span class="text-base">{{ isCameraOpen ? '关闭摄像头' : '开启摄像头' }}</span>
+                </el-button>
+                <el-button 
+                  type="info" 
+                  :icon="Folder" 
+                  @click="selectFolder"
+                  :loading="isProcessing"
+                  class="h-16 flex items-center justify-center"
+                  style="width: 100%"
+                >
+                  <span class="text-base">批量处理</span>
                 </el-button>
               </div>
-            </el-card>
-          </div>
+              
+              <!-- 隐藏的文件输入 -->
+              <input 
+                ref="imageInput" 
+                type="file" 
+                accept="image/*" 
+                @change="handleImageUpload" 
+                style="display: none"
+              />
+              <input 
+                ref="videoInput" 
+                type="file" 
+                accept="video/mp4,video/webm,video/ogg,.mp4,.webm,.ogg" 
+                @change="handleVideoUpload" 
+                style="display: none"
+              />
+              <input 
+                ref="folderInput" 
+                type="file" 
+                webkitdirectory 
+                @change="handleFolderUpload" 
+                style="display: none"
+              />
+            </div>
+          </el-card>
+
+          <!-- 视频操作 -->
+          <el-card v-if="currentVideo" shadow="hover" class="w-full">
+            <template #header>
+              <span class="text-lg font-semibold">🎬 视频操作</span>
+            </template>
+            <div class="space-y-3">
+              <el-button 
+                type="primary" 
+                @click="startRealtimeDetection"
+                :disabled="isVideoDetecting"
+                class="w-full h-12 text-base"
+              >
+                {{ isVideoDetecting ? '正在检测中...' : '开始实时检测' }}
+              </el-button>
+              <el-button 
+                v-if="isVideoDetecting"
+                type="danger" 
+                @click="stopVideoProcessing"
+                class="w-full h-12 text-base"
+              >
+                停止检测
+              </el-button>
+              <p v-if="!isVideoDetecting" class="text-sm text-gray-500 text-center">
+                提示：先播放视频，然后点击按钮开始检测
+              </p>
+            </div>
+          </el-card>
+
+          <!-- 操作按钮 -->
+          <el-card shadow="hover" class="w-full">
+            <template #header>
+              <span class="text-lg font-semibold">⚙️ 操作</span>
+            </template>
+            <div class="space-y-3 operation-buttons">
+              <el-button 
+                type="success" 
+                :icon="Download" 
+                @click="saveResults"
+                :disabled="detectionResults.length === 0"
+                class="w-full h-12 text-base"
+              >
+                💾 保存结果
+              </el-button>
+              <el-button 
+                type="primary" 
+                @click="viewHistory"
+                class="w-full h-12 text-base"
+              >
+                📋 查看历史记录
+              </el-button>
+              <el-button 
+                type="warning" 
+                :icon="Refresh" 
+                @click="clearResults"
+                class="w-full h-12 text-base"
+              >
+                🔄 清空/刷新
+              </el-button>
+            </div>
+          </el-card>
         </div>
       </div>
     </main>
