@@ -470,6 +470,8 @@ export default {
   transition: all 0.3s ease;
   transform-origin: center;
   transform-style: preserve-3d;
+  filter: grayscale(100%);
+  opacity: 0.7;
 }
 
 /* 沙发 */
@@ -766,10 +768,13 @@ export default {
   }
 }
 
+.furniture-outline.completed {
+  filter: grayscale(0%);
+  opacity: 1;
+}
+
 .furniture-outline.completed .furniture-shape {
-  background: rgba(144, 238, 144, 0.9);
-  border-color: #90ee90;
-  box-shadow: 0 8px 16px rgba(144, 238, 144, 0.4);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .learning-marker {
@@ -785,7 +790,7 @@ export default {
 }
 
 .learning-marker.completed {
-  background: radial-gradient(circle, rgba(144,238,144,1) 0%, rgba(144,238,144,0) 70%);
+  background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 70%);
   animation: none;
 }
 

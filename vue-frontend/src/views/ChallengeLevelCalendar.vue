@@ -61,6 +61,16 @@
               <li><span>✨ 小提示：</span>点击日历上<strong class="text-indigo-600">白色光点</strong>的日期答题，正确完成即可点亮该日期。</li>
               <li><span>🏆 成就：</span>完成所有题目将获得特别鼓励提示</li>
             </ul>
+            <div v-if="isAllCompleted" class="review-lesson-button-container">
+              <el-button 
+                type="primary" 
+                round 
+                @click="showLessonDialog"
+                class="review-lesson-button"
+              >
+                📚 复习锦囊
+              </el-button>
+            </div>
           </div>
         </section>
 
@@ -662,8 +672,22 @@ export default {
       // 检查是否所有题目都已完成
       this.$nextTick(() => {
         if (this.isAllCompleted && !this.milestoneFlags[100]) {
-          // 如果全部完成但还没有显示100%提示，触发检查
-          this.checkMilestones()
+          // 如果全部完成但还没有显示100%提示，先提示用户完成情况，然后再显示锦囊
+          ElMessageBox.alert(
+            '恭喜你完成了所有题目！现在可以查看锦囊总结了。',
+            '🎉 闯关完成',
+            {
+              confirmButtonText: '查看锦囊',
+              type: 'success',
+              customClass: 'milestone-dialog',
+              center: true,
+              callback: (action) => {
+                if (action === 'confirm') {
+                  this.checkMilestones()
+                }
+              }
+            }
+          )
         }
       })
     }
@@ -763,6 +787,20 @@ export default {
   font-weight: 600;
   color: #4338ca;
   margin-right: 6px;
+}
+.review-lesson-button-container {
+  margin-top: 20px;
+}
+.review-lesson-button {
+  width: 100%;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 20px;
+  transition: all 0.3s ease;
+}
+.review-lesson-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 .milestone-progress {
   margin-top: 24px;
@@ -1197,6 +1235,24 @@ export default {
 
 .teaching-dialog__body {
   padding: 30px 24px;
+  background: #f9fafb;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.teaching-dialog__body img {
+  max-width: 300px;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .teaching-dialog__body img {
+    max-width: 70vw;
+    max-width: min(70vw, 200px);
+  }
 }
 
 .teaching-image-container {
@@ -1241,6 +1297,19 @@ export default {
 .lesson-dialog {
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  max-height: 80vh;
+  margin: 20px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.lesson-dialog__body {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 32px 28px;
+  background: #f9fafb;
+  flex: 1;
 }
 
 .lesson-dialog__header {

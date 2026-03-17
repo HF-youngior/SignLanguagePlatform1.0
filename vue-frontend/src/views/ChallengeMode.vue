@@ -203,7 +203,7 @@ export default {
           id: 2,
           title: '篇章二',
           subtitle: '我的新家',
-          status: 'locked',
+          status: 'available',
           routeName: 'HomeMap'
         }
       ]
