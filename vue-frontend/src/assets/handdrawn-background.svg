@@ -1,0 +1,267 @@
+<svg width="1200" height="1600" viewBox="0 0 1200 1600" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="1200" height="1600" fill="#f9f7f4"/>
+  
+  <!-- 天空 -->
+  <rect x="0" y="0" width="1200" height="600" fill="#f0f8ff"/>
+  
+  <!-- 太阳 -->
+  <circle cx="1000" cy="150" r="80" fill="#fff3cd" stroke="#fff9c4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- 云朵 -->
+  <path d="M200,120 Q250,80 300,120 Q350,160 400,120 Q450,80 500,120" fill="#ffffff" stroke="#f0f0f0" stroke-width="2"/>
+  <path d="M600,180 Q650,140 700,180 Q750,220 800,180 Q850,140 900,180" fill="#ffffff" stroke="#f0f0f0" stroke-width="2"/>
+  
+  <!-- 道路 -->
+  <path d="M200,800 Q600,700 1000,800 Q1050,900 1000,1000 Q600,900 200,1000 Q150,900 200,800" fill="#e8ddd0" stroke="#d9c9b8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M400,600 Q600,550 800,600" fill="none" stroke="#e8ddd0" stroke-width="30" stroke-linecap="round"/>
+  <path d="M400,1200 Q600,1150 800,1200" fill="none" stroke="#e8ddd0" stroke-width="30" stroke-linecap="round"/>
+  
+  <!-- 中心公园区（地图中下部） -->
+  <rect x="400" y="800" width="400" height="400" fill="#f3f8f3" stroke="#eaf4ea" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- 手语交流长椅 -->
+  <rect x="500" y="900" width="150" height="10" fill="#c4b3a8" stroke="#b8a79e" stroke-width="2"/>
+  <rect x="510" y="880" width="10" height="30" fill="#c4b3a8" stroke="#b8a79e" stroke-width="2"/>
+  <rect x="640" y="880" width="10" height="30" fill="#c4b3a8" stroke="#b8a79e" stroke-width="2"/>
+  
+  <!-- 两个手绘小人用手语对话 -->
+  <g transform="translate(530, 920)">
+    <circle r="15" fill="#f0e6d8" stroke="#e6d8c8" stroke-width="1"/>
+    <line x1="0" y1="15" x2="0" y2="30" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-10" y1="20" x2="-20" y2="25" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="10" y1="20" x2="20" y2="15" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-10" y1="30" x2="-15" y2="45" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="10" y1="30" x2="15" y2="45" stroke="#e6d8c8" stroke-width="2"/>
+  </g>
+  
+  <g transform="translate(620, 920)">
+    <circle r="15" fill="#f0e6d8" stroke="#e6d8c8" stroke-width="1"/>
+    <line x1="0" y1="15" x2="0" y2="30" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-10" y1="20" x2="-20" y2="15" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="10" y1="20" x2="20" y2="25" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-10" y1="30" x2="-15" y2="45" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="10" y1="30" x2="15" y2="45" stroke="#e6d8c8" stroke-width="2"/>
+  </g>
+  
+  <!-- 游戏沙坑 -->
+  <ellipse cx="500" cy="1100" rx="60" ry="40" fill="#f9f0e6" stroke="#f5e6d9" stroke-width="2"/>
+  
+  <!-- 沙坑边的小孩 -->
+  <g transform="translate(460, 1100)">
+    <circle r="12" fill="#f0e6d8" stroke="#e6d8c8" stroke-width="1"/>
+    <line x1="0" y1="12" x2="0" y2="25" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-8" y1="18" x2="-15" y2="22" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="8" y1="18" x2="15" y2="22" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-8" y1="25" x2="-12" y2="35" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="8" y1="25" x2="12" y2="35" stroke="#e6d8c8" stroke-width="2"/>
+  </g>
+  
+  <g transform="translate(540, 1100)">
+    <circle r="12" fill="#f0e6d8" stroke="#e6d8c8" stroke-width="1"/>
+    <line x1="0" y1="12" x2="0" y2="25" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-8" y1="18" x2="-15" y2="22" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="8" y1="18" x2="15" y2="22" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-8" y1="25" x2="-12" y2="35" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="8" y1="25" x2="12" y2="35" stroke="#e6d8c8" stroke-width="2"/>
+  </g>
+  
+  <!-- 指示牌 -->
+  <rect x="650" y="950" width="80" height="10" fill="#c4b3a8" stroke="#b8a79e" stroke-width="2"/>
+  <rect x="680" y="900" width="20" height="50" fill="#c4b3a8" stroke="#b8a79e" stroke-width="2"/>
+  <rect x="660" y="850" width="60" height="40" fill="#ffffff" stroke="#e0e0e0" stroke-width="2"/>
+  
+  <!-- 临街商业区（地图左侧） -->
+  
+  <!-- 温馨咖啡馆 -->
+  <rect x="100" y="600" width="200" height="150" fill="#f9f0e6" stroke="#f5e6d9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="120" y="620" width="80" height="80" fill="#f0f6f9" stroke="#e6f1f6" stroke-width="2"/>
+  <!-- 户外座位 -->
+  <rect x="150" y="700" width="60" height="10" fill="#c4b3a8" stroke="#b8a79e" stroke-width="2"/>
+  <rect x="160" y="680" width="10" height="30" fill="#c4b3a8" stroke="#b8a79e" stroke-width="2"/>
+  <rect x="200" y="680" width="10" height="30" fill="#c4b3a8" stroke="#b8a79e" stroke-width="2"/>
+  <!-- 户外座位上的人 -->
+  <g transform="translate(180, 710)">
+    <circle r="10" fill="#f0e6d8" stroke="#e6d8c8" stroke-width="1"/>
+    <line x1="0" y1="10" x2="0" y2="20" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-8" y1="15" x2="-12" y2="18" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="8" y1="15" x2="12" y2="18" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-5" y1="20" x2="-8" y2="28" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="5" y1="20" x2="8" y2="28" stroke="#e6d8c8" stroke-width="2"/>
+  </g>
+  
+  <!-- 社区便利店 -->
+  <rect x="100" y="750" width="200" height="150" fill="#fffff0" stroke="#f5f5dc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="120" y="770" width="80" height="80" fill="#f0f6f9" stroke="#e6f1f6" stroke-width="2"/>
+  <!-- 收银台 -->
+  <rect x="200" y="800" width="80" height="60" fill="#e8ddd0" stroke="#d9c9b8" stroke-width="2"/>
+  <!-- 店员与顾客 -->
+  <g transform="translate(230, 830)">
+    <circle r="10" fill="#f0e6d8" stroke="#e6d8c8" stroke-width="1"/>
+    <line x1="0" y1="10" x2="0" y2="20" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-8" y1="15" x2="-12" y2="18" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="8" y1="15" x2="12" y2="18" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-5" y1="20" x2="-8" y2="28" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="5" y1="20" x2="8" y2="28" stroke="#e6d8c8" stroke-width="2"/>
+  </g>
+  
+  <g transform="translate(260, 830)">
+    <circle r="10" fill="#f0e6d8" stroke="#e6d8c8" stroke-width="1"/>
+    <line x1="0" y1="10" x2="0" y2="20" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-8" y1="15" x2="-12" y2="18" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="8" y1="15" x2="12" y2="18" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-5" y1="20" x2="-8" y2="28" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="5" y1="20" x2="8" y2="28" stroke="#e6d8c8" stroke-width="2"/>
+  </g>
+  
+  <!-- 书店 -->
+  <rect x="100" y="900" width="200" height="150" fill="#f9f5f0" stroke="#f5f0e6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="120" y="920" width="80" height="80" fill="#ffffff" stroke="#f0f0f0" stroke-width="2"/>
+  
+  <!-- 宁静住宅区（地图右侧） -->
+  
+  <!-- 敞开窗户的家庭 -->
+  <rect x="800" y="600" width="200" height="150" fill="#f5f0f5" stroke="#ede6ed" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="850" y="620" width="100" height="80" fill="#f0f6f9" stroke="#e6f1f6" stroke-width="2"/>
+  <!-- 一家人围坐餐桌 -->
+  <ellipse cx="900" cy="670" rx="40" ry="20" fill="#c4b3a8" stroke="#b8a79e" stroke-width="2"/>
+  <!-- 家庭成员 -->
+  <g transform="translate(880, 660)">
+    <circle r="10" fill="#f0e6d8" stroke="#e6d8c8" stroke-width="1"/>
+    <line x1="0" y1="10" x2="0" y2="20" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-8" y1="15" x2="-12" y2="18" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="8" y1="15" x2="12" y2="18" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-5" y1="20" x2="-8" y2="28" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="5" y1="20" x2="8" y2="28" stroke="#e6d8c8" stroke-width="2"/>
+  </g>
+  
+  <g transform="translate(920, 660)">
+    <circle r="10" fill="#f0e6d8" stroke="#e6d8c8" stroke-width="1"/>
+    <line x1="0" y1="10" x2="0" y2="20" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-8" y1="15" x2="-12" y2="18" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="8" y1="15" x2="12" y2="18" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-5" y1="20" x2="-8" y2="28" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="5" y1="20" x2="8" y2="28" stroke="#e6d8c8" stroke-width="2"/>
+  </g>
+  
+  <g transform="translate(900, 690)">
+    <circle r="10" fill="#f0e6d8" stroke="#e6d8c8" stroke-width="1"/>
+    <line x1="0" y1="10" x2="0" y2="20" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-8" y1="15" x2="-12" y2="18" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="8" y1="15" x2="12" y2="18" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-5" y1="20" x2="-8" y2="28" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="5" y1="20" x2="8" y2="28" stroke="#e6d8c8" stroke-width="2"/>
+  </g>
+  
+  <!-- 家庭花园 -->
+  <rect x="800" y="750" width="200" height="150" fill="#f3f8f3" stroke="#eaf4ea" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- 植物 -->
+  <circle cx="850" cy="825" r="20" fill="#f3f8f3" stroke="#eaf4ea" stroke-width="2"/>
+  <line x1="850" y1="825" x2="850" y2="870" stroke="#c4b3a8" stroke-width="2"/>
+  
+  <circle cx="900" cy="825" r="20" fill="#f5f0f5" stroke="#ede6ed" stroke-width="2"/>
+  <line x1="900" y1="825" x2="900" y2="870" stroke="#c4b3a8" stroke-width="2"/>
+  
+  <circle cx="950" cy="825" r="20" fill="#fffff0" stroke="#f5f5dc" stroke-width="2"/>
+  <line x1="950" y1="825" x2="950" y2="870" stroke="#c4b3a8" stroke-width="2"/>
+  
+  <!-- 大人和孩子 -->
+  <g transform="translate(880, 800)">
+    <circle r="12" fill="#f0e6d8" stroke="#e6d8c8" stroke-width="1"/>
+    <line x1="0" y1="12" x2="0" y2="25" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-10" y1="18" x2="-15" y2="22" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="10" y1="18" x2="15" y2="22" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-8" y1="25" x2="-12" y2="35" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="8" y1="25" x2="12" y2="35" stroke="#e6d8c8" stroke-width="2"/>
+  </g>
+  
+  <g transform="translate(920, 820)">
+    <circle r="10" fill="#f0e6d8" stroke="#e6d8c8" stroke-width="1"/>
+    <line x1="0" y1="10" x2="0" y2="20" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-8" y1="15" x2="-12" y2="18" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="8" y1="15" x2="12" y2="18" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-5" y1="20" x2="-8" y2="28" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="5" y1="20" x2="8" y2="28" stroke="#e6d8c8" stroke-width="2"/>
+  </g>
+  
+  <!-- 学习与公共区（地图中上部远景） -->
+  
+  <!-- 社区中心建筑 -->
+  <rect x="450" y="400" width="300" height="150" fill="#f5f0f5" stroke="#ede6ed" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="500" y="420" width="200" height="80" fill="#f0f6f9" stroke="#e6f1f6" stroke-width="2"/>
+  <!-- 公告栏 -->
+  <rect x="550" y="380" width="100" height="40" fill="#ffffff" stroke="#f0f0f0" stroke-width="2"/>
+  
+  <!-- 校园操场一角 -->
+  <rect x="300" y="450" width="150" height="100" fill="#f3f8f3" stroke="#eaf4ea" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- 学生 -->
+  <g transform="translate(350, 480)">
+    <circle r="10" fill="#f0e6d8" stroke="#e6d8c8" stroke-width="1"/>
+    <line x1="0" y1="10" x2="0" y2="20" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-8" y1="15" x2="-12" y2="18" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="8" y1="15" x2="12" y2="18" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-5" y1="20" x2="-8" y2="28" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="5" y1="20" x2="8" y2="28" stroke="#e6d8c8" stroke-width="2"/>
+  </g>
+  
+  <g transform="translate(390, 480)">
+    <circle r="10" fill="#f0e6d8" stroke="#e6d8c8" stroke-width="1"/>
+    <line x1="0" y1="10" x2="0" y2="20" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-8" y1="15" x2="-12" y2="18" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="8" y1="15" x2="12" y2="18" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-5" y1="20" x2="-8" y2="28" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="5" y1="20" x2="8" y2="28" stroke="#e6d8c8" stroke-width="2"/>
+  </g>
+  
+  <!-- 贯穿全图的生活细节 -->
+  
+  <!-- 骑着自行车用手语打招呼的邮差 -->
+  <g transform="translate(700, 850)">
+    <circle r="12" fill="#f0e6d8" stroke="#e6d8c8" stroke-width="1"/>
+    <line x1="0" y1="12" x2="0" y2="25" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-10" y1="18" x2="-15" y2="22" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="10" y1="18" x2="15" y2="22" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-8" y1="25" x2="-12" y2="35" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="8" y1="25" x2="12" y2="35" stroke="#e6d8c8" stroke-width="2"/>
+    <!-- 自行车 -->
+    <circle cx="-10" cy="35" r="8" fill="none" stroke="#e0e0e0" stroke-width="2"/>
+    <circle cx="10" cy="35" r="8" fill="none" stroke="#e0e0e0" stroke-width="2"/>
+    <line x1="-10" y1="35" x2="10" y2="35" stroke="#e0e0e0" stroke-width="2"/>
+    <line x1="0" y1="25" x2="0" y2="35" stroke="#e0e0e0" stroke-width="2"/>
+  </g>
+  
+  <!-- 牵着狗并用手语对狗发出指令的行人 -->
+  <g transform="translate(300, 950)">
+    <circle r="12" fill="#f0e6d8" stroke="#e6d8c8" stroke-width="1"/>
+    <line x1="0" y1="12" x2="0" y2="25" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-10" y1="18" x2="-15" y2="22" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="10" y1="18" x2="15" y2="22" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="-8" y1="25" x2="-12" y2="35" stroke="#e6d8c8" stroke-width="2"/>
+    <line x1="8" y1="25" x2="12" y2="35" stroke="#e6d8c8" stroke-width="2"/>
+    <!-- 狗 -->
+    <circle cx="30" cy="35" r="8" fill="#c4b3a8" stroke="#b8a79e" stroke-width="1"/>
+    <line x1="38" y1="35" x2="45" y2="32" stroke="#b8a79e" stroke-width="1"/>
+    <line x1="30" y1="27" x2="35" y2="25" stroke="#b8a79e" stroke-width="1"/>
+    <line x1="30" y1="43" x2="35" y2="45" stroke="#b8a79e" stroke-width="1"/>
+    <line x1="30" y1="35" x2="38" y2="35" stroke="#b8a79e" stroke-width="1"/>
+    <!-- 狗绳 -->
+    <line x1="12" y1="30" x2="30" y2="35" stroke="#e0e0e0" stroke-width="1"/>
+  </g>
+  
+  <!-- 路边标注着手语手势的趣味路标 -->
+  <rect x="500" y="700" width="40" height="80" fill="#c4b3a8" stroke="#b8a79e" stroke-width="2"/>
+  <rect x="510" y="680" width="20" height="20" fill="#ffffff" stroke="#f0f0f0" stroke-width="1"/>
+  
+  <!-- 树木 -->
+  <circle cx="300" cy="550" r="30" fill="#f3f8f3" stroke="#eaf4ea" stroke-width="2"/>
+  <line x1="300" y1="550" x2="300" y2="600" stroke="#c4b3a8" stroke-width="3"/>
+  
+  <circle cx="900" cy="550" r="30" fill="#f3f8f3" stroke="#eaf4ea" stroke-width="2"/>
+  <line x1="900" y1="550" x2="900" y2="600" stroke="#c4b3a8" stroke-width="3"/>
+  
+  <circle cx="300" cy="1050" r="30" fill="#f3f8f3" stroke="#eaf4ea" stroke-width="2"/>
+  <line x1="300" y1="1050" x2="300" y2="1100" stroke="#c4b3a8" stroke-width="3"/>
+  
+  <circle cx="900" cy="1050" r="30" fill="#f3f8f3" stroke="#eaf4ea" stroke-width="2"/>
+  <line x1="900" y1="1050" x2="900" y2="1100" stroke="#c4b3a8" stroke-width="3"/>
+</svg>

@@ -76,13 +76,7 @@
               <div class="construction-text">点击施工牌，开始装修你的家！</div>
             </div>
 
-            <!-- 路径连接线 -->
-            <div class="room-paths">
-              <div :class="['path', 'path-living-bedroom', { 'path-lit': !livingRoomLocked && !bedroomLocked }]"></div>
-              <div :class="['path', 'path-living-kitchen', { 'path-lit': !livingRoomLocked && !kitchenLocked }]"></div>
-              <div :class="['path', 'path-bedroom-bathroom', { 'path-lit': !bedroomLocked && !bathroomLocked }]"></div>
-              <div :class="['path', 'path-kitchen-bathroom', { 'path-lit': !kitchenLocked && !bathroomLocked }]"></div>
-            </div>
+
 
             <!-- 房屋平面图布局 -->
             <div class="house-floorplan" ref="floorplan">
@@ -360,39 +354,27 @@ const closeBanner = () => {
 };
 
 const loadProgress = () => {
-  const savedRooms = localStorage.getItem('completedRooms');
-  if (savedRooms) {
-    completedRooms.value = JSON.parse(savedRooms);
-  }
+  // 清除本地存储以测试初始状态
+  localStorage.clear();
   
-  const savedCoins = localStorage.getItem('coins');
-  if (savedCoins) {
-    coins.value = parseInt(savedCoins);
-  }
+  // 初始化已完成房间为空数组
+  completedRooms.value = [];
   
-  const savedConstructionSign = localStorage.getItem('showConstructionSign');
-  if (savedConstructionSign) {
-    showConstructionSign.value = savedConstructionSign === 'true';
-  }
-  
-  const savedBanner = localStorage.getItem('showBanner');
-  if (savedBanner) {
-    showBanner.value = savedBanner === 'true';
-  }
-  
-  const savedAchievements = localStorage.getItem('achievements');
-  if (savedAchievements) {
-    achievements.value = JSON.parse(savedAchievements);
-  }
+  // 初始化其他状态
+  coins.value = 0;
+  showConstructionSign.value = true;
+  showBanner.value = true;
+  achievements.value = [
+    { icon: '🌟', label: '初学者', unlocked: false, position: { top: '20%', left: '10%' } },
+    { icon: '🏆', label: '进阶者', unlocked: false, position: { top: '60%', left: '80%' } },
+    { icon: '💎', label: '专家', unlocked: false, position: { top: '40%', left: '50%' } }
+  ];
   
   // 根据已完成房间解锁新房间
   updateRoomLockStatus();
   
   // 设置当前房间
   setCurrentRoom();
-  
-  // 自动对焦到当前房间
-  focusOnCurrentRoom();
   
   // 触发路径点亮动画
   setTimeout(() => {
@@ -751,7 +733,7 @@ onMounted(() => {
   setTimeout(() => {
     // 居中显示平面图
     centerFloorplan();
-  }, 100);
+  }, 200);
   // 模拟数据：假设用户已经完成了客厅的学习
   // completeRoom('living-room');
 });
@@ -1530,12 +1512,16 @@ const centerFloorplan = () => {
 .home-map-container {
   position: relative;
   width: 100%;
-  height: 600px;
+  height: 80vh;
+  min-height: 600px;
   overflow: hidden;
   border-radius: 12px;
   background: #f8fafc;
   border: 2px solid #e2e8f0;
   cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .home-map-container:active {
@@ -1544,91 +1530,18 @@ const centerFloorplan = () => {
 
 .house-floorplan {
   position: relative;
-  width: 1000px;
-  height: 800px;
-  margin: 0 auto;
+  width: 90%;
+  max-width: 1000px;
+  height: 80%;
+  max-height: 800px;
   background: #f1f5f9;
   border-radius: 8px;
   overflow: hidden;
   transition: transform 0.1s ease-out;
+  margin: auto;
 }
 
-/* 路径连接线和点亮动画 */
-.room-paths {
-  position: absolute;
-  top: 50px;
-  left: 50px;
-  width: 900px;
-  height: 700px;
-  z-index: 2;
-  pointer-events: none;
-}
 
-.path {
-  position: absolute;
-  background: rgba(107, 114, 128, 0.3);
-  border-radius: 10px;
-  transition: all 0.5s ease;
-}
-
-.path-lit {
-  background: linear-gradient(90deg, #60a5fa, #3b82f6);
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
-  animation: pathGlow 2s ease-in-out infinite;
-}
-
-@keyframes pathGlow {
-  0%, 100% { opacity: 0.8; }
-  50% { opacity: 1; box-shadow: 0 0 15px rgba(59, 130, 246, 0.8); }
-}
-
-.path-living-bedroom {
-  top: 200px;
-  left: 450px;
-  width: 4px;
-  height: 0;
-  transition: height 0.5s ease;
-}
-
-.path-living-bedroom.path-lit {
-  height: 200px;
-}
-
-.path-living-kitchen {
-  top: 400px;
-  left: 675px;
-  width: 0;
-  height: 4px;
-  transition: width 0.5s ease;
-}
-
-.path-living-kitchen.path-lit {
-  width: 225px;
-}
-
-.path-bedroom-bathroom {
-  top: 400px;
-  left: 225px;
-  width: 0;
-  height: 4px;
-  transition: width 0.5s ease;
-}
-
-.path-bedroom-bathroom.path-lit {
-  width: 225px;
-}
-
-.path-kitchen-bathroom {
-  top: 550px;
-  left: 450px;
-  width: 4px;
-  height: 0;
-  transition: height 0.5s ease;
-}
-
-.path-kitchen-bathroom.path-lit {
-  height: 150px;
-}
 
 /* 房间状态样式 */
 .room.current-room {

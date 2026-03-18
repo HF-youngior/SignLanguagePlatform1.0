@@ -65,26 +65,7 @@
               @click="selectFurniture(index)"
             >
               <!-- 家具轮廓 -->
-              <div class="furniture-shape">
-                <!-- 书架的书籍 -->
-                <template v-if="item.id === 'bookshelf'">
-                  <div class="book book-1"></div>
-                  <div class="book book-2"></div>
-                  <div class="book book-3"></div>
-                  <div class="book book-4"></div>
-                  <div class="book book-5"></div>
-                </template>
-                <!-- 沙发的结构 -->
-                <template v-else-if="item.id === 'sofa'">
-                  <div class="sofa-seat"></div>
-                  <div class="sofa-back"></div>
-                </template>
-                <!-- 茶几的结构 -->
-                <template v-else-if="item.id === 'coffee-table'">
-                  <div class="coffee-table-top"></div>
-                  <div class="coffee-table-legs"></div>
-                </template>
-              </div>
+              <div class="furniture-shape"></div>
               <!-- 可学习标记 -->
               <div :class="['learning-marker', { 'completed': item.completed }]"></div>
               <!-- 家具名称 -->
@@ -503,27 +484,36 @@ export default {
 }
 
 .furniture-outline.sofa .furniture-shape {
-    position: relative;
-    width: 120px;
-    height: 80px;
-  }
+  background: linear-gradient(to bottom, #8b4513, #a0522d);
+  border: 2px solid #6e370f;
+  border-radius: 10px 10px 0 0;
+  position: relative;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
 
-  .furniture-outline.sofa .sofa-seat {
-    position: absolute;
-    background-color: #D2B48C;
-    width: 100px;
-    height: 50px;
-    border-radius: 4px;
-  }
+.furniture-outline.sofa .furniture-shape::before {
+  content: '';
+  position: absolute;
+  top: -15px;
+  left: 10px;
+  right: 10px;
+  height: 15px;
+  background: linear-gradient(to bottom, #6e370f, #8b4513);
+  border: 2px solid #6e370f;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+}
 
-  .furniture-outline.sofa .sofa-back {
-    position: absolute;
-    background-color: #D2B48C;
-    width: 100px;
-    height: 15px;
-    border-radius: 4px 4px 0 0;
-    top: 0;
-  }
+.furniture-outline.sofa .furniture-shape::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: #6e370f;
+  border-radius: 0 0 4px 4px;
+}
 
 /* 电视 */
 .furniture-outline.tv {
@@ -578,29 +568,38 @@ export default {
 }
 
 .furniture-outline.coffee-table .furniture-shape {
-    position: relative;
-    width: 60px;
-    height: 40px;
-  }
+  background: linear-gradient(to bottom, #8b4513, #a0522d);
+  border: 2px solid #6e370f;
+  border-radius: 8px;
+  position: relative;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
 
-  .furniture-outline.coffee-table .coffee-table-top {
-    background-color: #333333;
-    width: 60px;
-    height: 5px;
-    border-radius: 2px;
-  }
+.furniture-outline.coffee-table .furniture-shape::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 20px;
+  width: 15px;
+  height: 10px;
+  background: #6e370f;
+  border: 2px solid #5a2c0a;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
 
-  .furniture-outline.coffee-table .coffee-table-legs {
-    position: absolute;
-    top: 5px;
-    left: 10px;
-    width: 40px;
-    height: 35px;
-    border-left: 2px solid #333333;
-    border-right: 2px solid #333333;
-    border-bottom: 2px solid #333333;
-    border-radius: 0 0 4px 4px;
-  }
+.furniture-outline.coffee-table .furniture-shape::before {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  right: 20px;
+  width: 15px;
+  height: 10px;
+  background: #6e370f;
+  border: 2px solid #5a2c0a;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
 
 /* 吊灯 */
 .furniture-outline.chandelier {
@@ -655,55 +654,12 @@ export default {
 }
 
 .furniture-outline.bookshelf .furniture-shape {
-    background-color: #8B4513;
-    width: 80px;
-    height: 120px;
-    border-radius: 4px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .furniture-outline.bookshelf .book {
-    position: absolute;
-    background-color: #FFD700;
-    height: 16px;
-    border-radius: 2px;
-  }
-
-  .furniture-outline.bookshelf .book-1 {
-    width: 16px;
-    left: 10px;
-    top: 20px;
-    background-color: #FF6347;
-  }
-
-  .furniture-outline.bookshelf .book-2 {
-    width: 14px;
-    left: 30px;
-    top: 22px;
-    background-color: #4682B4;
-  }
-
-  .furniture-outline.bookshelf .book-3 {
-    width: 18px;
-    left: 50px;
-    top: 18px;
-    background-color: #32CD32;
-  }
-
-  .furniture-outline.bookshelf .book-4 {
-    width: 15px;
-    left: 15px;
-    top: 45px;
-    background-color: #9370DB;
-  }
-
-  .furniture-outline.bookshelf .book-5 {
-    width: 17px;
-    left: 35px;
-    top: 43px;
-    background-color: #FFA500;
-  }
+  background: linear-gradient(to right, #8b4513, #a0522d);
+  border: 2px solid #6e370f;
+  border-radius: 5px;
+  position: relative;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
 
 .furniture-outline.bookshelf .furniture-shape::before {
   content: '';
