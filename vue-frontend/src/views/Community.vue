@@ -721,32 +721,28 @@ export default {
     }
 
     // 添加回复
-    const addReply = (postId, commentId) => {
+    const addReply = async (postId, commentId) => {
       const key = `${postId}-${commentId}`
       const replyContent = replyToComment.value[key] || ''
       
-      if (replyContent.trim()) {
-        const post = posts.value.find(p => p.id === postId)
-        if (post) {
-          const comment = post.commentList.find(c => c.id === commentId)
-          if (comment) {
-            const newReplyObj = {
-              id: Date.now(),
-              username: '我',
-              content: replyContent.trim(),
-              time: '刚刚',
-              replyTo: comment.username
-            }
-            
-            comment.replies.push(newReplyObj)
-            post.comments += 1
-            replyToComment.value[key] = ''
-            showReplyInput.value[key] = false
-            ElMessage.success('回复成功！')
-          }
-        }
-      } else {
+      if (!replyContent.trim()) {
         ElMessage.warning('请输入回复内容')
+        return
+      }
+      
+      try {
+        const response = await apiService.commentPost(postId, replyContent.trim(), commentId)
+        
+        if (response.success) {
+          // 重新加载帖子列表以获取最新回复
+          await loadPosts()
+          replyToComment.value[key] = ''
+          showReplyInput.value[key] = false
+          ElMessage.success('回复成功！')
+        }
+      } catch (error) {
+        console.error('回复失败:', error)
+        ElMessage.error('回复失败，请稍后重试')
       }
     }
 

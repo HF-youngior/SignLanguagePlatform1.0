@@ -1,9 +1,9 @@
 import mysql from 'mysql2/promise';
 
-// 数据库配置
+// 阿里云RDS云端数据库配置
 const dbConfig = {
-  host: 'localhost',
-  user: 'root',
+  host: 'rm-2ze90ovu5a037y1ujxo.mysql.rds.aliyuncs.com',
+  user: 'test1',
   password: 'asdfgh0625YYH',
   database: 'signlanguage_platform'
 };

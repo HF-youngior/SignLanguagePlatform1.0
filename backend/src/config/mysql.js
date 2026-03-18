@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// MySQL数据库配置
+// 阿里云RDS云端数据库配置
 const dbConfig = {
   host: process.env.MYSQL_HOST || 'rm-2ze90ovu5a037y1ujxo.mysql.rds.aliyuncs.com',
   user: process.env.MYSQL_USER || 'test1',

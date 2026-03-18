@@ -1,12 +1,12 @@
 import mysql from 'mysql2/promise';
 import bcrypt from 'bcryptjs';
 
-// 数据库配置
+// 阿里云RDS云端数据库配置
 const dbConfig = {
-  host: 'localhost',
-  user: 'newuser',
-  password: '123qwe,./',
-  database: 'sign_language_learning'
+  host: 'rm-2ze90ovu5a037y1ujxo.mysql.rds.aliyuncs.com',
+  user: 'test1',
+  password: 'asdfgh0625YYH',
+  database: 'signlanguage_platform'
 };
 
 // 创建数据库连接（不指定数据库，用于创建数据库）
@@ -314,7 +314,7 @@ const initDatabase = async () => {
     await createAdminLogsTable(connection);
     await createGroupsTable(connection);
     await createGroupMembersTable(connection);
-    
+
     // 创建测试账号
     await createTestUsers(connection);
     
