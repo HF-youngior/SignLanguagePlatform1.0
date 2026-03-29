@@ -11,10 +11,9 @@
           </div>
           <!-- 桌面端导航 -->
           <div class="hidden md:flex items-center space-x-4">
-            <router-link to="/home" class="nav-link text-blue-700 font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full">首页</router-link>
-            <router-link to="/learn" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">学习</router-link>
-            <router-link to="/translate" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">翻译</router-link>
-            <router-link to="/community" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">社区</router-link>
+            <router-link to="/learn" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">学堂</router-link>
+            <router-link to="/translate" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">译站</router-link>
+            <router-link to="/community" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">手语圈</router-link>
           </div>
           <!-- 移动端菜单按钮 -->
           <button 
@@ -31,32 +30,25 @@
         <!-- 移动端菜单 -->
         <div v-if="mobileMenuOpen" class="md:hidden py-4 border-t border-gray-200 mt-2">
           <router-link 
-            to="/" 
-            @click="mobileMenuOpen = false"
-            class="block py-3 px-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
-          >
-            首页
-          </router-link>
-          <router-link 
             to="/learn" 
             @click="mobileMenuOpen = false"
             class="block py-3 px-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
           >
-            学习
+            学堂
           </router-link>
           <router-link 
             to="/translate" 
             @click="mobileMenuOpen = false"
             class="block py-3 px-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
           >
-            翻译
+            译站
           </router-link>
           <router-link 
             to="/community" 
             @click="mobileMenuOpen = false"
             class="block py-3 px-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
           >
-            社区
+            手语圈
           </router-link>
         </div>
       </div>
@@ -97,11 +89,11 @@
       <!-- 三个分区入口 -->
       <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
-          <!-- 学习模块 -->
+          <!-- 学堂模块 -->
           <router-link to="/learn">
             <el-card class="text-center hover:shadow-xl transition-shadow duration-300 cursor-pointer" shadow="hover">
               <div class="text-6xl mb-4">📚</div>
-              <h3 class="text-2xl font-bold text-gray-900 mb-4">学习</h3>
+              <h3 class="text-2xl font-bold text-gray-900 mb-4">学堂</h3>
               <p class="text-gray-600 mb-6">系统化学习手语基础知识，从字母到词汇</p>
               <div class="inline-flex items-center text-blue-600 font-medium">
                 开始学习
@@ -110,11 +102,11 @@
             </el-card>
           </router-link>
 
-          <!-- 翻译模块 -->
+          <!-- 译站模块 -->
           <router-link to="/translate">
             <el-card class="text-center hover:shadow-xl transition-shadow duration-300 cursor-pointer" shadow="hover">
               <div class="text-6xl mb-4">🤖</div>
-              <h3 class="text-2xl font-bold text-gray-900 mb-4">翻译</h3>
+              <h3 class="text-2xl font-bold text-gray-900 mb-4">译站</h3>
               <p class="text-gray-600 mb-6">AI智能翻译，实时手语识别和转换</p>
               <div class="inline-flex items-center text-blue-600 font-medium">
                 开始翻译
@@ -123,14 +115,14 @@
             </el-card>
           </router-link>
 
-          <!-- 社区模块 -->
+          <!-- 手语圈模块 -->
           <router-link to="/community">
             <el-card class="text-center hover:shadow-xl transition-shadow duration-300 cursor-pointer" shadow="hover">
               <div class="text-6xl mb-4">👥</div>
-              <h3 class="text-2xl font-bold text-gray-900 mb-4">社区</h3>
+              <h3 class="text-2xl font-bold text-gray-900 mb-4">手语圈</h3>
               <p class="text-gray-600 mb-6">与其他学习者交流，分享学习心得</p>
               <div class="inline-flex items-center text-blue-600 font-medium">
-                进入社区
+                进入手语圈
                 <el-icon class="ml-2"><ArrowRight /></el-icon>
               </div>
             </el-card>

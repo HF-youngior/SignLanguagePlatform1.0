@@ -8,15 +8,13 @@
             <router-link to="/" class="flex items-center text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">
               <!-- 使用已有的默认头像图片代替缺失的 logo 文件，避免 Vite 解析错误 -->
               <img src="/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
-              <span>掌中语-手语学习平台</span>
+              <span>掌中语-手语小镇</span>
             </router-link>
           </div>
           <div class="flex items-center space-x-4">
-            <router-link to="/home" class="text-gray-600 hover:text-blue-600">首页</router-link>
-            <router-link to="/learn" class="text-gray-600 hover:text-blue-600">学习</router-link>
-            <router-link to="/translate" class="text-gray-600 hover:text-blue-600">翻译</router-link>
-            <router-link to="/community" class="text-gray-600 hover:text-blue-600">社区</router-link>
-            <router-link to="/profile" class="text-gray-600 hover:text-blue-600">我的</router-link>
+            <router-link to="/learn" class="text-gray-600 hover:text-blue-600">学堂</router-link>
+            <router-link to="/translate" class="text-gray-600 hover:text-blue-600">译站</router-link>
+            <router-link to="/community" class="text-gray-600 hover:text-blue-600">手语圈</router-link>
           </div>
         </div>
       </div>
@@ -221,7 +219,7 @@
     <!-- 页脚 -->
     <footer class="bg-gray-800 text-white py-8 mt-12">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <p>&copy; 2024 掌中语-手语学习平台. All rights reserved.</p>
+        <p>&copy; 2024 掌中语-手语小镇. All rights reserved.</p>
       </div>
     </footer>
   </div>

@@ -8,15 +8,14 @@
             <router-link to="/" class="flex items-center text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
               <!-- 使用已有的默认头像图片代替缺失的 logo 文件，避免 Vite 解析错误 -->
               <img src="/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
-              <span>掌中语-手语学习平台</span>
+              <span>掌中语-手语小镇</span>
             </router-link>
           </div>
           <!-- 桌面端导航 -->
           <div class="hidden md:flex items-center space-x-4">
-            <router-link to="/home" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">首页</router-link>
-            <router-link to="/learn" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">学习</router-link>
-            <router-link to="/community" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">社区</router-link>
-            <router-link to="/translate" class="nav-link text-blue-700 font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full">翻译</router-link>
+            <router-link to="/learn" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">学堂</router-link>
+            <router-link to="/community" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">手语圈</router-link>
+            <router-link to="/translate" class="nav-link text-blue-700 font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full">译站</router-link>
           </div>
           <!-- 移动端菜单按钮 -->
           <button
@@ -33,32 +32,25 @@
         <!-- 移动端菜单 -->
         <div v-if="mobileMenuOpen" class="md:hidden py-4 border-t border-gray-200 mt-2">
           <router-link
-            to="/"
-            @click="mobileMenuOpen = false"
-            class="block py-3 px-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
-          >
-            首页
-          </router-link>
-          <router-link
             to="/learn"
             @click="mobileMenuOpen = false"
             class="block py-3 px-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
           >
-            学习
+            学堂
           </router-link>
           <router-link
             to="/translate"
             @click="mobileMenuOpen = false"
             class="block py-3 px-4 text-blue-700 bg-blue-50 font-semibold rounded-lg"
           >
-            翻译
+            译站
           </router-link>
           <router-link
             to="/community"
             @click="mobileMenuOpen = false"
             class="block py-3 px-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
           >
-            社区
+            手语圈
           </router-link>
         </div>
       </div>

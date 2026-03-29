@@ -10,14 +10,13 @@
             >
               <!-- 使用已有的默认头像图片代替缺失的 logo 文件，避免 Vite 解析错误 -->
               <img src="/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
-              <span>掌中语-手语学习平台</span>
+              <span>掌中语-手语小镇</span>
             </router-link>
           </div>
           <div class="flex items-center space-x-4">
-            <router-link to="/home" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">首页</router-link>
-            <router-link to="/learn" class="nav-link text-blue-700 font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full">学习</router-link>
-            <router-link to="/translate" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">翻译</router-link>
-            <router-link to="/community" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">社区</router-link>
+            <router-link to="/learn" class="nav-link text-blue-700 font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full">学堂</router-link>
+            <router-link to="/translate" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">译站</router-link>
+            <router-link to="/community" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">手语圈</router-link>
           </div>
         </div>
       </div>
@@ -65,10 +64,18 @@
               <el-button 
                 type="primary" 
                 round 
-                @click="showLessonDialog"
+                @click="openGrammarBagDialog"
                 class="review-lesson-button"
               >
                 📚 复习锦囊
+              </el-button>
+              <el-button 
+                type="success" 
+                round 
+                @click="startSentenceSortExercise"
+                class="review-lesson-button"
+              >
+                🔤 语序练习
               </el-button>
             </div>
           </div>
@@ -137,6 +144,8 @@
           class="quiz-dialog"
           :show-close="false"
           :before-close="handleQuizClose"
+          :close-on-click-modal="false"
+          :close-on-press-escape="false"
         >
           <template #header>
             <div class="quiz-dialog__header" v-if="quizQuestion">
@@ -170,32 +179,275 @@
         </el-dialog>
 
         <el-dialog
-          v-model="teachingDialogVisible"
-          width="480px"
-          align-center
-          class="teaching-dialog"
-          :show-close="false"
-        >
-          <template #header>
-            <div class="teaching-dialog__header">
-              <div>
-                <div class="teaching-dialog__title">正确打法</div>
-                <div class="teaching-dialog__subtitle" v-if="lastQuestion">
-                  {{ lastQuestion.displayTitle }} · {{ lastQuestion.prompt }}
+        v-model="teachingDialogVisible"
+        width="480px"
+        align-center
+        class="teaching-dialog"
+        :show-close="false"
+      >
+        <template #header>
+          <div class="teaching-dialog__header">
+            <div>
+              <div class="teaching-dialog__title">正确打法</div>
+              <div class="teaching-dialog__subtitle" v-if="lastQuestion">
+                {{ lastQuestion.displayTitle }} · {{ lastQuestion.prompt }}
+              </div>
+            </div>
+            <button class="teaching-dialog__close" @click="closeTeachingDialog">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+        </template>
+        <div class="teaching-dialog__body" v-if="teachingImageSrc">
+          <img :src="teachingImageSrc" alt="正确打法教学图" />
+        </div>
+        <div class="teaching-dialog__footer">
+          <el-button type="primary" round @click="closeTeachingDialog">下一题</el-button>
+        </div>
+      </el-dialog>
+
+      <!-- 语法锦囊对话框 -->
+      <el-dialog
+        v-model="grammarBagDialogVisible"
+        width="600px"
+        align-center
+        class="grammar-bag-dialog"
+        :show-close="false"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+      >
+        <template #header>
+          <div class="grammar-bag-dialog__header">
+            <div>
+              <div class="grammar-bag-dialog__title">🎒 手语语法学习锦囊1</div>
+              <div class="grammar-bag-dialog__subtitle">数字与日历篇</div>
+            </div>
+            <button class="grammar-bag-dialog__close" @click="closeGrammarBagDialog">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+        </template>
+        <div class="grammar-bag-dialog__body">
+          <div class="grammar-bag__content">
+            <h3 class="grammar-bag__title">⭐ 核心规则：时间词句首</h3>
+            <div class="grammar-bag__section">
+              <h4 class="grammar-bag__subtitle">📍 规则说明</h4>
+              <p class="grammar-bag__text">手语中，先表述时间，再表述主体。</p>
+              <p class="grammar-bag__text">否定句中否定词放置在最后。</p>
+            </div>
+            <div class="grammar-bag__section">
+              <h4 class="grammar-bag__subtitle">💡 为什么这样？</h4>
+              <p class="grammar-bag__text">手语是视觉语言，先建立时间背景，再传达核心信息，让对方第一时间知道 "什么时候"。</p>
+            </div>
+            <div class="grammar-bag__section">
+              <h4 class="grammar-bag__subtitle">📝 规则对比</h4>
+              <table class="grammar-bag__table">
+                <thead>
+                  <tr>
+                    <th>场景</th>
+                    <th>口语表达</th>
+                    <th>手语表达</th>
+                    <th>差异</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>今天</td>
+                    <td>我今天去学校</td>
+                    <td>今天我去学校</td>
+                    <td>时间词移到句首</td>
+                  </tr>
+                  <tr>
+                    <td>明天</td>
+                    <td>我明天买苹果</td>
+                    <td>明天我买苹果</td>
+                    <td>时间词移到句首</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="grammar-bag__section">
+              <h4 class="grammar-bag__subtitle">🔍 练习要点</h4>
+              <ul class="grammar-bag__list">
+                <li>看到句子先找时间词和否定词</li>
+                <li>把时间词提到最前面，否定词置最后</li>
+              </ul>
+            </div>
+            <div class="grammar-bag__section">
+              <h4 class="grammar-bag__subtitle">💭 记忆口诀</h4>
+              <p class="grammar-bag__text">时间词，放句首，<br>先说时间后说事。<br>记得最后才说不。</p>
+            </div>
+          </div>
+        </div>
+        <div class="grammar-bag-dialog__footer">
+          <el-button @click="saveGrammarToBag">保存到锦囊</el-button>
+          <el-button type="primary" round @click="closeGrammarBagDialog">开始练习</el-button>
+        </div>
+      </el-dialog>
+
+      <!-- 句子排序练习对话框 -->
+      <el-dialog
+        v-model="sentenceSortDialogVisible"
+        width="600px"
+        align-center
+        class="sentence-sort-dialog"
+        :show-close="false"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+      >
+        <template #header>
+          <div class="sentence-sort-dialog__header">
+            <div>
+              <div class="sentence-sort-dialog__title">句子排序练习</div>
+              <div class="sentence-sort-dialog__subtitle" v-if="currentSentenceSortQuestion">
+                {{ currentSentenceSortQuestion.level }} · {{ currentSentenceSortQuestion.prompt }}
+              </div>
+            </div>
+            <button class="sentence-sort-dialog__close" @click="closeSentenceSortDialog">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+        </template>
+        <div class="sentence-sort-dialog__body" v-if="currentSentenceSortQuestion">
+          <div class="sentence-sort__prompt">
+            <p class="sentence-sort__prompt-text">口语：{{ currentSentenceSortQuestion.oral }}</p>
+            <p class="sentence-sort__prompt-text">请按手语语序排列：</p>
+          </div>
+          <div class="sentence-sort__drag-area">
+            <div 
+              v-for="(word, index) in shuffledWords" 
+              :key="index"
+              class="sentence-sort__word"
+              draggable="true"
+              @dragstart="onDragStart($event, word)"
+              @dragover.prevent
+              @drop="onDrop($event, index)"
+            >
+              {{ word }}
+            </div>
+          </div>
+          <div class="sentence-sort__drop-area">
+            <p class="sentence-sort__drop-label">你的答案：</p>
+            <div class="sentence-sort__drop-line"
+               @dragover.prevent
+               @drop="onDrop($event, 0, false, -1)">
+              <div 
+                v-for="(word, index) in userAnswer" 
+                :key="index"
+                class="sentence-sort__drop-item"
+                draggable="true"
+                @dragstart="onDragStart($event, word, true, index)"
+                @dragover.prevent
+                @drop="onDrop($event, 0, true, index)"
+              >
+                {{ word }}
+                <button class="sentence-sort__remove-item" @click="removeItem(index)">
+                  ×
+                </button>
+              </div>
+              <div 
+                class="sentence-sort__drop-placeholder"
+                v-if="userAnswer.length === 0"
+              >
+                请从上方拖动词语到这里
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="sentence-sort-dialog__footer">
+          <el-button @click="resetSentenceSort">重置</el-button>
+          <el-button type="primary" round @click="checkSentenceSortAnswer" :disabled="userAnswer.length !== currentSentenceSortQuestion?.correct.length">
+            提交答案
+          </el-button>
+        </div>
+      </el-dialog>
+
+      <!-- 对话练习对话框 -->
+      <el-dialog
+        v-model="dialogueDialogVisible"
+        width="800px"
+        align-center
+        class="dialogue-dialog"
+        :show-close="false"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+      >
+        <template #header>
+          <div class="dialogue-dialog__header">
+            <div>
+              <div class="dialogue-dialog__title">对话练习</div>
+              <div class="dialogue-dialog__subtitle" v-if="currentDialogueQuestion">
+                {{ currentDialogueQuestion.level }} · {{ currentDialogueQuestion.scenario }}
+              </div>
+            </div>
+            <button class="dialogue-dialog__close" @click="closeDialogueDialog">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+        </template>
+        <div class="dialogue-dialog__body" v-if="currentDialogueQuestion">
+          <div class="dialogue__scenario">
+            <p class="dialogue__scenario-text">{{ currentDialogueQuestion.scenario }}</p>
+          </div>
+          <div class="dialogue__content">
+            <div class="dialogue__item" v-for="(dialogue, index) in currentDialogueQuestion.dialogues" :key="index">
+              <div class="dialogue__item-header">
+                <h3 class="dialogue__item-title">第 {{ index + 1 }} 句</h3>
+                <p class="dialogue__item-oral">口语：{{ dialogue.oral }}</p>
+              </div>
+              <div class="dialogue__item-drag-area">
+                <div 
+                  v-for="(word, wordIndex) in getShuffledDialogueWords(index)" 
+                  :key="wordIndex"
+                  class="dialogue__word"
+                  draggable="true"
+                  @dragstart="onDialogueDragStart($event, word, index)"
+                  @dragover.prevent
+                >
+                  {{ word }}
                 </div>
               </div>
-              <button class="teaching-dialog__close" @click="closeTeachingDialog">
-                <span aria-hidden="true">×</span>
-              </button>
+              <div class="dialogue__item-drop-area">
+                <h4 class="dialogue__item-drop-label">手语语序：</h4>
+                <div 
+                  class="dialogue__item-drop-line" 
+                  @dragover.prevent 
+                  @drop="onDialogueDrop($event, -1, index)"
+                >
+                  <template v-if="!dialogueUserAnswers[index] || dialogueUserAnswers[index].length === 0">
+                    <span class="dialogue__item-drop-placeholder">请将上方词语拖放到此处</span>
+                  </template>
+                  <template v-else>
+                    <div
+                      v-for="(answerWord, answerIndex) in dialogueUserAnswers[index]"
+                      :key="answerIndex"
+                      class="dialogue__item-drop-item"
+                      draggable="true"
+                      @dragstart="onDialogueDragStart($event, answerWord, index)"
+                      @dragover.prevent
+                      @drop="onDialogueDrop($event, answerIndex, index)"
+                    >
+                      {{ answerWord }}
+                      <button 
+                        class="dialogue__item-remove-item"
+                        @click="removeDialogueItem(index, answerIndex)"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </template>
+                </div>
+              </div>
             </div>
-          </template>
-          <div class="teaching-dialog__body" v-if="teachingImageSrc">
-            <img :src="teachingImageSrc" alt="正确打法教学图" />
           </div>
-          <div class="teaching-dialog__footer">
-            <el-button type="primary" round @click="closeTeachingDialog">下一题</el-button>
-          </div>
-        </el-dialog>
+        </div>
+        <div class="dialogue-dialog__footer">
+          <el-button @click="resetDialogue" class="reset-button">重置</el-button>
+          <el-button type="primary" round @click="checkDialogueAnswer" :disabled="!isDialogueAnswerComplete" class="submit-button">
+            提交答案
+          </el-button>
+        </div>
+      </el-dialog>
 
         <el-dialog
           v-model="lessonDialogVisible"
@@ -262,6 +514,8 @@
 <script>
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { level1QuestionBank } from '@/data/challengeLevel1'
+import { sentenceSortQuestions } from '@/data/sentenceSortQuestions'
+import { dialogueQuestions } from '@/data/dialogueQuestions'
 
 const STORAGE_KEYS = {
   completedDates: 'challengeLevel1Dates',
@@ -326,7 +580,24 @@ export default {
       teachingImageSrc: null,
       lastQuestion: null,
       lessonDialogVisible: false,
-      lessonSavedToBag: false
+      lessonSavedToBag: false,
+      // 语法锦囊对话框
+      grammarBagDialogVisible: false,
+      // 句子排序练习
+      sentenceSortDialogVisible: false,
+      currentSentenceSortQuestion: null,
+      shuffledWords: [],
+      userAnswer: [],
+      draggedWord: null,
+      isFromAnswer: false,
+      answerIndex: -1,
+      // 对话练习
+      dialogueDialogVisible: false,
+      currentDialogueQuestion: null,
+      currentDialogueIndex: 0,
+      dialogueUserAnswers: [],
+      dialogueDraggedWord: null,
+      dialogueDraggedIndex: null
     }
   },
   computed: {
@@ -557,6 +828,14 @@ export default {
         this.completedDates = updated
         this.persistProgress()
         this.checkMilestones()
+        
+        // 检查是否所有日期题目都已完成
+        if (this.validCompletedDates.length >= this.totalDates) {
+          // 所有题目完成后显示语法锦囊
+          setTimeout(() => {
+            this.openGrammarBagDialog()
+          }, 1000)
+        }
       }
     },
     isToday(day) {
@@ -625,18 +904,39 @@ export default {
         duration: 2000
       })
     },
+    saveGrammarToBag() {
+      localStorage.setItem('grammarBagSaved', 'true')
+      ElMessage({
+        message: '语法锦囊已保存到我的锦囊',
+        type: 'success',
+        duration: 2000
+      })
+      // 关闭语法锦囊对话框
+      this.grammarBagDialogVisible = false
+      // 继续执行句子排序练习
+      const randomIndex = Math.floor(Math.random() * sentenceSortQuestions.length)
+      this.currentSentenceSortQuestion = sentenceSortQuestions[randomIndex]
+      // 打乱单词顺序
+      this.shuffledWords = this.shuffleArray([...this.currentSentenceSortQuestion.correct])
+      // 重置用户答案
+      this.userAnswer = []
+      this.sentenceSortDialogVisible = true
+    },
     markLevelCompleted() {
       const storedCompleted = Number(localStorage.getItem(STORAGE_KEYS.completedLevels) || 0)
       if (storedCompleted < 1) {
         localStorage.setItem(STORAGE_KEYS.completedLevels, '1')
-        this.$nextTick(() => {
-          window.dispatchEvent(new CustomEvent('challenge-progress-changed'))
-          ElMessage({
-            message: '篇章一完成！闯关地图已为你点亮新的篇章入口。',
-            type: 'success',
-            duration: 5000
+        // 延迟2秒后再显示完成提示，确保在小课堂对话框显示后再显示
+        setTimeout(() => {
+          this.$nextTick(() => {
+            window.dispatchEvent(new CustomEvent('challenge-progress-changed'))
+            ElMessage({
+              message: '篇章一完成！闯关地图已为你点亮新的篇章入口。',
+              type: 'success',
+              duration: 5000
+            })
           })
-        })
+        }, 2000)
       }
     },
     showTeachingDiagram(question) {
@@ -685,7 +985,10 @@ export default {
                 center: true,
                 callback: (action) => {
                   if (action === 'confirm') {
-                    this.checkMilestones()
+                    // 延迟1秒后再显示小课堂对话框，避免与当前对话框重叠
+                    setTimeout(() => {
+                      this.checkMilestones()
+                    }, 1000)
                   }
                 }
               }
@@ -693,6 +996,274 @@ export default {
           }, 2000)
         }
       })
+    },
+    // 语法锦囊相关方法
+    openGrammarBagDialog() {
+      this.grammarBagDialogVisible = true
+    },
+    closeGrammarBagDialog() {
+      this.grammarBagDialogVisible = false
+    },
+    // 句子排序练习相关方法
+    startSentenceSortExercise() {
+      // 检查用户是否已保存语法锦囊
+      const isGrammarBagSaved = localStorage.getItem('grammarBagSaved') === 'true'
+      if (!isGrammarBagSaved) {
+        // 如果没有保存，先显示语法锦囊
+        this.grammarBagDialogVisible = true
+        // 保存后会在closeGrammarBagDialog方法中继续执行练习
+      } else {
+        // 随机选择一个句子排序题目
+        const randomIndex = Math.floor(Math.random() * sentenceSortQuestions.length)
+        this.currentSentenceSortQuestion = sentenceSortQuestions[randomIndex]
+        // 打乱单词顺序
+        this.shuffledWords = this.shuffleArray([...this.currentSentenceSortQuestion.correct])
+        // 重置用户答案
+        this.userAnswer = []
+        this.sentenceSortDialogVisible = true
+      }
+    },
+    onDragStart(event, word, isFromAnswer = false, answerIndex = -1) {
+      this.draggedWord = word
+      this.isFromAnswer = isFromAnswer
+      this.answerIndex = answerIndex
+      event.dataTransfer.effectAllowed = 'move'
+    },
+    onDrop(event, index, isAnswerDrop = false, answerDropIndex = -1) {
+      event.preventDefault()
+      if (this.draggedWord) {
+        if (this.isFromAnswer) {
+          // 从答案中移除单词
+          if (this.answerIndex > -1) {
+            this.userAnswer.splice(this.answerIndex, 1)
+          }
+          // 将单词添加到答案的指定位置
+          if (isAnswerDrop && answerDropIndex > -1) {
+            this.userAnswer.splice(answerDropIndex, 0, this.draggedWord)
+          } else {
+            // 如果不是答案区域，将单词添加回打乱的单词中
+            this.shuffledWords.push(this.draggedWord)
+          }
+        } else {
+          // 从打乱的单词中移除被拖动的单词
+          const draggedIndex = this.shuffledWords.indexOf(this.draggedWord)
+          if (draggedIndex > -1) {
+            this.shuffledWords.splice(draggedIndex, 1)
+            // 将单词添加到答案的指定位置
+            if (isAnswerDrop && answerDropIndex > -1) {
+              this.userAnswer.splice(answerDropIndex, 0, this.draggedWord)
+            } else {
+              this.userAnswer.push(this.draggedWord)
+            }
+          }
+        }
+        this.draggedWord = null
+        this.isFromAnswer = false
+        this.answerIndex = -1
+      }
+    },
+    removeItem(index) {
+      if (index > -1 && index < this.userAnswer.length) {
+        const word = this.userAnswer[index]
+        this.userAnswer.splice(index, 1)
+        this.shuffledWords.push(word)
+      }
+    },
+    resetSentenceSort() {
+      if (this.currentSentenceSortQuestion) {
+        this.shuffledWords = this.shuffleArray([...this.currentSentenceSortQuestion.correct])
+        this.userAnswer = []
+      }
+    },
+    checkSentenceSortAnswer() {
+      if (!this.currentSentenceSortQuestion) return
+      
+      const isCorrect = JSON.stringify(this.userAnswer) === JSON.stringify(this.currentSentenceSortQuestion.correct)
+      
+      if (isCorrect) {
+        ElMessage({
+          message: '回答正确！',
+          type: 'success',
+          duration: 2000
+        })
+        // 延迟关闭对话框并打开下一个练习
+        setTimeout(() => {
+          this.closeSentenceSortDialog()
+          this.startDialogueExercise()
+        }, 1000)
+      } else {
+        ElMessage({
+          message: '回答错误，请再试一次！',
+          type: 'error',
+          duration: 2000
+        })
+      }
+    },
+    closeSentenceSortDialog() {
+      this.sentenceSortDialogVisible = false
+      this.currentSentenceSortQuestion = null
+      this.shuffledWords = []
+      this.userAnswer = []
+      this.draggedWord = null
+    },
+    // 对话练习相关方法
+    startDialogueExercise() {
+      // 按顺序选择题目，从第一个开始
+      this.currentDialogueIndex = 0
+      this.currentDialogueQuestion = dialogueQuestions[this.currentDialogueIndex]
+      // 重置用户答案
+      this.dialogueUserAnswers = this.currentDialogueQuestion.dialogues.map(() => [])
+      this.dialogueDialogVisible = true
+    },
+    getShuffledDialogueWords(dialogueIndex) {
+      if (!this.currentDialogueQuestion) return []
+      const dialogue = this.currentDialogueQuestion.dialogues[dialogueIndex]
+      // 获取当前答案中已有的单词
+      const answeredWords = this.dialogueUserAnswers[dialogueIndex] || []
+      // 过滤掉已在答案中的单词
+      const remainingWords = dialogue.shuffled.filter(word => !answeredWords.includes(word))
+      return this.shuffleArray([...remainingWords])
+    },
+    onDialogueDragStart(event, word, dialogueIndex) {
+      this.dialogueDraggedWord = word
+      this.dialogueDraggedIndex = dialogueIndex
+      event.dataTransfer.effectAllowed = 'move'
+    },
+    onDialogueDrop(event, answerDropIndex, dialogueIndex) {
+      event.preventDefault()
+      if (this.dialogueDraggedWord && this.dialogueDraggedIndex === dialogueIndex) {
+        // 确保 dialogueUserAnswers 数组已初始化
+        if (!this.dialogueUserAnswers[dialogueIndex]) {
+          this.dialogueUserAnswers[dialogueIndex] = []
+        }
+        
+        // 检查单词是否已经在答案中
+        const answerIndex = this.dialogueUserAnswers[dialogueIndex].indexOf(this.dialogueDraggedWord)
+        
+        if (answerIndex > -1) {
+          // 如果单词已经在答案中，且是在答案区域内拖动
+          if (answerDropIndex > -1 && answerDropIndex !== answerIndex) {
+            // 从原位置移除
+            this.dialogueUserAnswers[dialogueIndex].splice(answerIndex, 1)
+            // 插入到新位置
+            this.dialogueUserAnswers[dialogueIndex].splice(answerDropIndex, 0, this.dialogueDraggedWord)
+          }
+        } else {
+          // 如果单词不在答案中，添加到答案
+          if (answerDropIndex > -1) {
+            // 插入到指定位置
+            this.dialogueUserAnswers[dialogueIndex].splice(answerDropIndex, 0, this.dialogueDraggedWord)
+          } else {
+            // 添加到末尾
+            this.dialogueUserAnswers[dialogueIndex].push(this.dialogueDraggedWord)
+          }
+        }
+        
+        this.dialogueDraggedWord = null
+        this.dialogueDraggedIndex = null
+      }
+    },
+    removeDialogueItem(dialogueIndex, answerIndex) {
+      if (dialogueIndex > -1 && answerIndex > -1 && this.dialogueUserAnswers[dialogueIndex]) {
+        const word = this.dialogueUserAnswers[dialogueIndex][answerIndex]
+        this.dialogueUserAnswers[dialogueIndex].splice(answerIndex, 1)
+        // 不需要将单词放回分词栏，因为getShuffledDialogueWords会自动过滤已有的单词
+      }
+    },
+    resetDialogue() {
+      if (this.currentDialogueQuestion) {
+        this.dialogueUserAnswers = this.currentDialogueQuestion.dialogues.map(() => [])
+      }
+    },
+    get isDialogueAnswerComplete() {
+      if (!this.currentDialogueQuestion) return false
+      // 确保dialogueUserAnswers数组长度与对话数量一致
+      if (this.dialogueUserAnswers.length !== this.currentDialogueQuestion.dialogues.length) {
+        return false
+      }
+      return this.currentDialogueQuestion.dialogues.every((dialogue, index) => {
+        return this.dialogueUserAnswers[index] && this.dialogueUserAnswers[index].length === dialogue.correct.length
+      })
+    },
+    checkDialogueAnswer() {
+      if (!this.currentDialogueQuestion) return
+      
+      let allCorrect = true
+      const incorrectDialogues = []
+      
+      this.currentDialogueQuestion.dialogues.forEach((dialogue, index) => {
+        const userAnswer = this.dialogueUserAnswers[index] || []
+        if (JSON.stringify(userAnswer) !== JSON.stringify(dialogue.correct)) {
+          allCorrect = false
+          incorrectDialogues.push({ index, dialogue })
+        }
+      })
+      
+      if (allCorrect) {
+        ElMessage({
+          message: '回答正确！',
+          type: 'success',
+          duration: 2000
+        })
+        
+        // 显示语法说明
+        setTimeout(() => {
+          this.showDialogueExplanations()
+        }, 2000)
+      } else {
+        // 显示错误的题目和正确答案
+        incorrectDialogues.forEach(({ index, dialogue }) => {
+          ElMessage({
+            message: `第${index + 1}句回答错误，正确答案：${dialogue.correct.join(' → ')}`,
+            type: 'error',
+            duration: 3000
+          })
+        })
+      }
+    },
+    showDialogueExplanations() {
+      // 显示语法说明
+      let explanationMessage = '语法说明：\n'
+      this.currentDialogueQuestion.dialogues.forEach((dialogue, index) => {
+        explanationMessage += `第${index + 1}句：${dialogue.explanation}\n`
+      })
+      
+      ElMessage({
+        message: explanationMessage,
+        type: 'info',
+        duration: 5000
+      })
+      
+      // 检查是否还有下一个题目
+      if (this.currentDialogueIndex < dialogueQuestions.length - 1) {
+        // 进入下一个题目
+        setTimeout(() => {
+          this.currentDialogueIndex++
+          this.currentDialogueQuestion = dialogueQuestions[this.currentDialogueIndex]
+          this.dialogueUserAnswers = this.currentDialogueQuestion.dialogues.map(() => [])
+        }, 5000)
+      } else {
+        // 所有题目完成，关闭对话框
+        setTimeout(() => {
+          this.closeDialogueDialog()
+        }, 5000)
+      }
+    },
+    closeDialogueDialog() {
+      this.dialogueDialogVisible = false
+      this.currentDialogueQuestion = null
+      this.dialogueUserAnswers = []
+      this.dialogueDraggedWord = null
+      this.dialogueDraggedIndex = null
+    },
+    // 工具方法
+    shuffleArray(array) {
+      const arr = [...array]
+      for (let i = arr.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[arr[i], arr[j]] = [arr[j], arr[i]]
+      }
+      return arr
     }
   },
   mounted() {
@@ -793,9 +1364,11 @@ export default {
 }
 .review-lesson-button-container {
   margin-top: 20px;
+  display: flex;
+  gap: 12px;
 }
 .review-lesson-button {
-  width: 100%;
+  flex: 1;
   font-size: 14px;
   font-weight: 600;
   padding: 10px 20px;
@@ -1453,12 +2026,523 @@ export default {
   }
 }
 
+/* 句子排序样式 */
+.sentence-sort-dialog__body {
+  padding: 30px;
+  background: #f9fafb;
+}
+
+.sentence-sort__prompt {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.sentence-sort__prompt-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 10px;
+}
+
+.sentence-sort__drag-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+  margin-bottom: 40px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.sentence-sort__word {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: grab;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.sentence-sort__word:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+}
+
+.sentence-sort__word:active {
+  cursor: grabbing;
+}
+
+.sentence-sort__drop-area {
+  margin-top: 30px;
+}
+
+.sentence-sort__drop-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.sentence-sort__drop-line {
+  position: relative;
+  min-height: 60px;
+  border-bottom: 3px solid #6366f1;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.sentence-sort__drop-placeholder {
+  color: #9ca3af;
+  font-style: italic;
+  align-self: center;
+  flex: 1;
+  text-align: center;
+}
+
+.sentence-sort__drop-item {
+  position: relative;
+  background: #f3f4f6;
+  border: 2px solid #6366f1;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  cursor: grab;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sentence-sort__drop-item:hover {
+  background: #e0e7ff;
+  transform: translateY(-2px);
+}
+
+.sentence-sort__drop-item:active {
+  cursor: grabbing;
+}
+
+.sentence-sort__remove-item {
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sentence-sort__remove-item:hover {
+  background: #dc2626;
+  transform: scale(1.1);
+}
+
+.sentence-sort-dialog__footer {
+  padding: 20px 30px;
+  background: white;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* 对话练习样式 */
+.dialogue-dialog {
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.dialogue-dialog__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 30px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  border-radius: 16px 16px 0 0;
+}
+
+.dialogue-dialog__title {
+  font-size: 20px;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.dialogue-dialog__subtitle {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  margin-top: 6px;
+}
+
+.dialogue-dialog__close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: white;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.dialogue-dialog__close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.dialogue-dialog__body {
+  padding: 15px;
+  background: #f9fafb;
+}
+
+.dialogue__scenario {
+  margin-bottom: 15px;
+  padding: 12px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.dialogue__scenario-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+  text-align: center;
+}
+
+.dialogue__content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dialogue__item {
+  padding: 15px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.dialogue__item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.dialogue__item-header {
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.dialogue__item-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.dialogue__item-oral {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.dialogue__item-drag-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 12px;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 2px dashed #d1d5db;
+}
+
+.dialogue__word {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: grab;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.dialogue__word:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+.dialogue__word:active {
+  cursor: grabbing;
+}
+
+.dialogue__item-drop-area {
+  margin-top: 15px;
+}
+
+.dialogue__item-drop-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.dialogue__item-drop-line {
+  position: relative;
+  min-height: 50px;
+  border-bottom: 3px solid #10b981;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding-bottom: 10px;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+}
+
+.dialogue__item-drop-placeholder {
+  color: #9ca3af;
+  font-style: italic;
+  align-self: center;
+  flex: 1;
+  text-align: center;
+}
+
+.dialogue__item-drop-item {
+  position: relative;
+  background: #f3f4f6;
+  border: 2px solid #10b981;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  cursor: grab;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dialogue__item-drop-item:hover {
+  background: #d1fae5;
+  transform: translateY(-2px);
+}
+
+.dialogue__item-drop-item:active {
+  cursor: grabbing;
+}
+
+.dialogue__item-remove-item {
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dialogue__item-remove-item:hover {
+  background: #dc2626;
+  transform: scale(1.1);
+}
+
+.dialogue-dialog__footer {
+  padding: 20px 30px;
+  background: white;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* 语法锦囊对话框样式 */
+.grammar-bag-dialog {
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  max-height: 80vh;
+  margin: 20px;
+}
+
+.grammar-bag-dialog__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 30px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  border-radius: 16px 16px 0 0;
+}
+
+.grammar-bag-dialog__title {
+  font-size: 20px;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.grammar-bag-dialog__close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: white;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.grammar-bag-dialog__close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.grammar-bag-dialog__body {
+  padding: 30px;
+  background: #f9fafb;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.grammar-bag-dialog__content {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #4b5563;
+  margin-bottom: 24px;
+}
+
+.grammar-bag-section {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.grammar-bag-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.grammar-bag-section__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.grammar-bag-section__content {
+  font-size: 15px;
+  line-height: 1.5;
+  color: #4b5563;
+  margin: 0;
+}
+
+.grammar-bag-dialog__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 24px 30px;
+  border-top: 1px solid #f0f0f0;
+  background: white;
+  border-radius: 0 0 16px 16px;
+}
+
+.grammar-bag-dialog__button {
+  background: #6366f1;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+  max-width: 180px;
+}
+
+.grammar-bag-dialog__button:hover {
+  background: #4f46e5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.grammar-bag-dialog__button.primary-button {
+  background: #10b981;
+}
+
+.grammar-bag-dialog__button.primary-button:hover {
+  background: #059669;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+/* 响应式调整 */
 @media (max-width: 992px) {
   .calendar-info-card {
     grid-template-columns: 1fr;
   }
   .month-selector {
     grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  }
+  
+  .sentence-sort__word {
+    width: 60px;
+    height: 60px;
+    font-size: 12px;
+  }
+  
+  .sentence-sort__drop-line {
+    min-height: 50px;
   }
 }
 </style>

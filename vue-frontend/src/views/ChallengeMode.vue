@@ -10,14 +10,13 @@
             >
               <!-- 使用已有的默认头像图片代替缺失的 logo 文件，避免 Vite 解析错误 -->
               <img src="/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
-              <span>掌中语-手语学习平台</span>
+              <span>掌中语-手语小镇</span>
             </router-link>
           </div>
           <div class="flex items-center space-x-4">
-            <router-link to="/home" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">首页</router-link>
-            <router-link to="/learn" class="nav-link text-blue-700 font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full">学习</router-link>
-            <router-link to="/translate" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">翻译</router-link>
-            <router-link to="/community" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">社区</router-link>
+            <router-link to="/learn" class="nav-link text-blue-700 font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full">学堂</router-link>
+            <router-link to="/translate" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">译站</router-link>
+            <router-link to="/community" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">手语圈</router-link>
           </div>
         </div>
       </div>
@@ -204,38 +203,86 @@
           </template>
 
           <div class="bag-dialog__body">
-            <div v-if="isLessonSaved" class="bag-item">
-              <div class="bag-item__header">
-                <h3 class="bag-item__title">🎯 小课堂｜用手语"说"出年月日</h3>
-                <span class="bag-item__source">来自：篇章一 · 数字与日历</span>
+            <div v-if="isLessonSaved || isGrammarBagSaved" class="bag-items">
+              <div v-if="isLessonSaved" class="bag-item">
+                <div class="bag-item__header">
+                  <h3 class="bag-item__title">🎯 小课堂｜用手语"说"出年月日</h3>
+                  <span class="bag-item__source">来自：篇章一 · 数字与日历</span>
+                </div>
+                <div class="bag-item__content">
+                  <p class="bag-item__text">
+                    恭喜你学会了手语数字！现在，我们现在来总结一下如何用手语表达日期。
+                  </p>
+                  <div class="bag-item__section">
+                    <h4 class="bag-item__section-title">📅 年​份</h4>
+                    <p class="bag-item__section-content">
+                      右手食指从左拳关节（象征四季）向下划——一年就这样"划"出来啦。想表示几年右手就摆数字几。
+                    </p>
+                  </div>
+                  <div class="bag-item__section">
+                    <h4 class="bag-item__section-title">🌙 月​份</h4>
+                    <p class="bag-item__section-content">
+                      左手食指横伸，手背向外，右手食指指尖沿左手下向左一撇，模拟"月"字的第一个笔画。要表达几个月，左手就摆数字几。
+                    </p>
+                  </div>
+                  <div class="bag-item__section">
+                    <h4 class="bag-item__section-title">☀️ 日期</h4>
+                    <p class="bag-item__section-content">
+                      左手在上表月份（比数字），右手在下列日期（比数字），比如左手"6"+右手"8"，就是 6月8日。
+                    </p>
+                  </div>
+                  <div class="bag-item__section">
+                    <h4 class="bag-item__section-title">💡 试试看</h4>
+                    <p class="bag-item__section-content">
+                      用你学到的数字，搭配上面的手势和位置规则，就能组合出任意日期啦！快去日历里挑几个日子，用手语"说"出来吧～✋💬
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div class="bag-item__content">
-                <p class="bag-item__text">
-                  恭喜你学会了手语数字！现在，我们现在来总结一下如何用手语表达日期。
-                </p>
-                <div class="bag-item__section">
-                  <h4 class="bag-item__section-title">📅 年​份</h4>
-                  <p class="bag-item__section-content">
-                    右手食指从左拳关节（象征四季）向下划——一年就这样"划"出来啦。想表示几年右手就摆数字几。
-                  </p>
+              <div v-if="isGrammarBagSaved" class="bag-item">
+                <div class="bag-item__header">
+                  <h3 class="bag-item__title">🎒 手语语法学习锦囊1</h3>
+                  <span class="bag-item__source">来自：篇章一 · 数字与日历</span>
                 </div>
-                <div class="bag-item__section">
-                  <h4 class="bag-item__section-title">🌙 月​份</h4>
-                  <p class="bag-item__section-content">
-                    左手食指横伸，手背向外，右手食指指尖沿左手下向左一撇，模拟"月"字的第一个笔画。要表达几个月，左手就摆数字几。
-                  </p>
-                </div>
-                <div class="bag-item__section">
-                  <h4 class="bag-item__section-title">☀️ 日期</h4>
-                  <p class="bag-item__section-content">
-                    左手在上表月份（比数字），右手在下列日期（比数字），比如左手"6"+右手"8"，就是 6月8日。
-                  </p>
-                </div>
-                <div class="bag-item__section">
-                  <h4 class="bag-item__section-title">💡 试试看</h4>
-                  <p class="bag-item__section-content">
-                    用你学到的数字，搭配上面的手势和位置规则，就能组合出任意日期啦！快去日历里挑几个日子，用手语"说"出来吧～✋💬
-                  </p>
+                <div class="bag-item__content">
+                  <div class="bag-item__section">
+                    <h4 class="bag-item__section-title">⭐ 核心规则：时间词句首</h4>
+                    <p class="bag-item__section-content">
+                      手语中，先表述时间，再表述主体。手语是视觉语言，先建立时间背景，再传达核心信息，让对方第一时间知道 "什么时候"。
+                    </p>
+                  </div>
+                  <div class="bag-item__section">
+                    <h4 class="bag-item__section-title">📝 规则对比</h4>
+                    <div class="bag-item__table-container">
+                      <table class="bag-item__table">
+                        <thead>
+                          <tr>
+                            <th>场景</th>
+                            <th>口语表达</th>
+                            <th>手语表达</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>今天</td>
+                            <td>我今天去学校</td>
+                            <td>今天我去学校</td>
+                          </tr>
+                          <tr>
+                            <td>明天</td>
+                            <td>我明天买苹果</td>
+                            <td>明天我买苹果</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div class="bag-item__section">
+                    <h4 class="bag-item__section-title">💭 记忆口诀</h4>
+                    <p class="bag-item__section-content">
+                      时间词，放句首，<br>先说时间后说事。<br>今天明天和昨天，<br>统统放到最前面！
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -327,6 +374,9 @@ export default {
     isLessonSaved() {
       return localStorage.getItem('lessonSavedToBag') === 'true'
     },
+    isGrammarBagSaved() {
+       return localStorage.getItem('grammarBagSaved') === 'true'
+     },
     progressDashOffset() {
       const circumference = 2 * Math.PI * 52
       return circumference * (1 - this.progressPercent / 100)
@@ -1675,6 +1725,12 @@ export default {
   padding: 20px 0;
 }
 
+.bag-items {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 .bag-item {
   background: rgba(248, 250, 252, 0.8);
   border-radius: 16px;
@@ -1682,6 +1738,34 @@ export default {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
   cursor: pointer;
+}
+
+.bag-item__table-container {
+  overflow-x: auto;
+  margin: 12px 0;
+}
+
+.bag-item__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.bag-item__table th,
+.bag-item__table td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.bag-item__table th {
+  background-color: rgba(102, 126, 234, 0.1);
+  font-weight: 600;
+  color: #4338ca;
+}
+
+.bag-item__table tr:hover {
+  background-color: rgba(102, 126, 234, 0.05);
 }
 
 .bag-item:hover {

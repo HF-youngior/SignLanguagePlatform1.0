@@ -8,18 +8,18 @@
             <router-link to="/" class="flex items-center text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
               <!-- 使用已有的默认头像图片代替缺失的 logo 文件，避免 Vite 解析错误 -->
               <img src="/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
-              <span>掌中语-手语学习平台</span>
+              <span>掌中语-手语小镇</span>
             </router-link>
           </div>
           <div class="flex items-center space-x-4">
-            <router-link to="/learn/basic-sign" class="text-gray-700 hover:text-blue-600 flex items-center">
+            <router-link to="/learn" class="text-blue-700 font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full flex items-center">
               <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
               </svg>
-              返回基础学习
+              返回学堂
             </router-link>
-            <router-link to="/translate" class="text-gray-700 hover:text-blue-600">翻译</router-link>
-            <router-link to="/community" class="text-gray-700 hover:text-blue-600">社区</router-link>
+            <router-link to="/translate" class="text-gray-700 hover:text-blue-600">译站</router-link>
+            <router-link to="/community" class="text-gray-700 hover:text-blue-600">手语圈</router-link>
           </div>
         </div>
       </div>

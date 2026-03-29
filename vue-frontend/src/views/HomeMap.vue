@@ -8,15 +8,14 @@
               to="/"
               class="flex items-center text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300"
             >
-              <img src="/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3" />
-              <span>掌中语-手语学习平台</span>
+              <img src="/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
+              <span>掌中语-手语小镇</span>
             </router-link>
           </div>
           <div class="flex items-center space-x-4">
-            <router-link to="/home" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">首页</router-link>
-            <router-link to="/learn" class="nav-link text-blue-700 font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full">学习</router-link>
-            <router-link to="/translate" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">翻译</router-link>
-            <router-link to="/community" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">社区</router-link>
+            <router-link to="/learn" class="nav-link text-blue-700 font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full">学堂</router-link>
+            <router-link to="/translate" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">译站</router-link>
+            <router-link to="/community" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">手语圈</router-link>
           </div>
         </div>
       </div>
@@ -354,17 +353,21 @@ const closeBanner = () => {
 };
 
 const loadProgress = () => {
-  // 清除本地存储以测试初始状态
-  localStorage.clear();
+  // 从本地存储加载进度
+  const storedCompletedRooms = localStorage.getItem('completedRooms');
+  const storedCoins = localStorage.getItem('coins');
+  const storedShowConstructionSign = localStorage.getItem('showConstructionSign');
+  const storedShowBanner = localStorage.getItem('showBanner');
+  const storedAchievements = localStorage.getItem('achievements');
   
-  // 初始化已完成房间为空数组
-  completedRooms.value = [];
+  // 初始化已完成房间
+  completedRooms.value = storedCompletedRooms ? JSON.parse(storedCompletedRooms) : [];
   
   // 初始化其他状态
-  coins.value = 0;
-  showConstructionSign.value = true;
-  showBanner.value = true;
-  achievements.value = [
+  coins.value = storedCoins ? Number(storedCoins) : 0;
+  showConstructionSign.value = storedShowConstructionSign !== 'false';
+  showBanner.value = storedShowBanner !== 'false';
+  achievements.value = storedAchievements ? JSON.parse(storedAchievements) : [
     { icon: '🌟', label: '初学者', unlocked: false, position: { top: '20%', left: '10%' } },
     { icon: '🏆', label: '进阶者', unlocked: false, position: { top: '60%', left: '80%' } },
     { icon: '💎', label: '专家', unlocked: false, position: { top: '40%', left: '50%' } }
