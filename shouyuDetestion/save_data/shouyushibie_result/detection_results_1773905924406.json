@@ -1,0 +1,15 @@
+[
+  {
+    "index": 1,
+    "className": "他姐姐的目标是模特",
+    "confidence": 100,
+    "coordinates": {
+      "xmax": 0,
+      "xmin": 0,
+      "ymax": 0,
+      "ymin": 0
+    },
+    "filePath": "P02_s1_04_0_color.mp4",
+    "timestamp": 0
+  }
+]

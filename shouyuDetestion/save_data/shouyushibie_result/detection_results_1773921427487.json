@@ -1,0 +1,14 @@
+[
+  {
+    "index": 1,
+    "className": "时间/时候",
+    "confidence": 93.91,
+    "coordinates": {
+      "xmax": 401,
+      "xmin": 174,
+      "ymax": 397,
+      "ymin": 226
+    },
+    "filePath": "blob"
+  }
+]

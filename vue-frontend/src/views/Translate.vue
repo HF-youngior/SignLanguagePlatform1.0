@@ -79,175 +79,7 @@
 
         <!-- 主界面布局 -->
         <div class="space-y-4 md:space-y-6">
-          <!-- 模型选择（放在最前面） -->
-          <el-card shadow="hover" class="w-full">
-            <template #header>
-              <span class="text-lg font-semibold">选择翻译模型</span>
-            </template>
-            <div class="space-y-4">
-              <el-radio-group v-model="selectedModel" class="w-full">
-                <el-radio value="yolo" border class="w-full mb-2">
-                  <div class="flex flex-col">
-                    <span class="font-semibold">YOLOv8 检测模型</span>
-                    <span class="text-xs text-gray-500">单帧手语检测识别</span>
-                  </div>
-                </el-radio>
-                <el-radio value="seq2seq" border class="w-full">
-                  <div class="flex flex-col">
-                    <span class="font-semibold">Seq2Seq_v4 连续识别模型</span>
-                    <span class="text-xs text-gray-500">连续手语序列识别（新模型）</span>
-                  </div>
-                </el-radio>
-              </el-radio-group>
-            </div>
-          </el-card>
-
-          <!-- 翻译结果（最上面，更加醒目） -->
-          <el-card v-if="detectionResults.length > 0" shadow="hover" class="w-full">
-            <template #header>
-              <div class="flex items-center justify-between">
-                <span class="text-lg font-semibold">📝 翻译结果</span>
-                <el-tag type="success" size="large">{{ detectionResults.length }} 个结果</el-tag>
-              </div>
-            </template>
-            <div class="space-y-4">
-              <!-- 翻译结果列表 -->
-              <div class="space-y-3">
-                <div 
-                  v-for="(result, index) in detectionResults" 
-                  :key="index"
-                  class="p-4 bg-blue-50 rounded-lg border border-blue-200"
-                >
-                  <div class="flex justify-between items-center">
-                    <div class="flex items-center">
-                      <span class="text-xl font-bold text-blue-700 mr-3">{{ result.className }}</span>
-                      <el-tag type="success" size="small">{{ result.confidence }}%</el-tag>
-                    </div>
-                    <span class="text-sm text-gray-500">{{ result.filePath || '检测结果' }}</span>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- 统计信息 -->
-              <div class="grid grid-cols-2 gap-4 mt-4">
-                <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
-                  <div class="text-sm text-gray-600 mb-1">目标总数</div>
-                  <div class="text-3xl font-bold text-blue-600">{{ detectionResults.length }}</div>
-                </div>
-                <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
-                  <div class="text-sm text-gray-600 mb-1">识别用时</div>
-                  <div class="text-2xl font-semibold text-green-600">{{ inferenceTime }}s</div>
-                </div>
-              </div>
-            </div>
-          </el-card>
-
-          <!-- 视频/图像显示区域 -->
-          <el-card shadow="hover" class="w-full">
-            <template #header>
-              <div class="flex items-center justify-between">
-                <span class="text-lg font-semibold">📹 视频/图像显示</span>
-                <el-tag :type="isProcessing ? 'success' : 'info'">
-                  {{ isProcessing ? '处理中' : '就绪' }}
-                </el-tag>
-              </div>
-            </template>
-            <div class="relative">
-              <!-- 图像/视频显示区域 -->
-              <div class="bg-gray-100 rounded-lg mb-4 relative" :style="{ minHeight: isMobile ? '300px' : '500px', display: 'flex', alignItems: 'center', justifyContent: 'center' }">
-                <div v-if="!currentImage && !currentVideo" class="text-center py-8">
-                  <div class="text-6xl mb-4">📷</div>
-                  <p class="text-gray-600">请选择图片、视频或开启摄像头</p>
-                  <p class="text-sm text-gray-500">支持格式：JPG, PNG, MP4, WebM</p>
-                </div>
-                <img 
-                  v-else-if="currentImage && !currentVideo"
-                  :src="currentImage" 
-                  alt="检测结果" 
-                  class="max-w-full max-h-full object-contain w-full h-auto"
-                  :style="{ maxHeight: isMobile ? '300px' : '500px', width: '100%', height: 'auto' }"
-                  @load="handleImageLoad"
-                />
-                <div v-else-if="currentVideo" class="w-full" style="background: black; min-height: 400px; display: flex; align-items: center; justify-content: center; flex-direction: column; position: relative;">
-                  <!-- 显示的视频元素 -->
-                  <video 
-                    ref="videoElement"
-                    :src="currentVideo" 
-                    preload="auto"
-                    controls
-                    style="max-width: 100%; max-height: 500px; display: block;"
-                    @loadeddata="onVideoLoaded"
-                    @play="handleVideoPlay"
-                    @pause="handleVideoPause"
-                    @loadedmetadata="() => { console.log('Video metadata loaded'); }"
-                    @error="(e) => handleVideoError(e)"
-                  >
-                    您的浏览器不支持该视频格式
-                  </video>
-                  
-                  <!-- 检测框overlay canvas -->
-                  <canvas 
-                    v-if="isVideoDetecting && selectedModel.value === 'yolo'"
-                    ref="canvasOverlay"
-                    class="absolute"
-                    style="pointer-events: none; top: 0; left: 0; z-index: 10;"
-                  />
-                  
-                  <!-- 检测进度显示 -->
-                  <div v-if="isVideoDetecting" class="mt-2 w-full px-4">
-                    <div class="flex items-center gap-2 mb-2">
-                      <div class="text-white text-sm">检测进度:</div>
-                      <div class="flex-1">
-                        <input 
-                          type="range" 
-                          min="0" 
-                          max="100" 
-                          :value="videoProgress" 
-                          disabled
-                          class="w-full"
-                        />
-                      </div>
-                      <div class="text-white text-sm">{{ Math.round(videoProgress) }}%</div>
-                    </div>
-                    <div class="text-white text-xs text-center">
-                      {{ formatVideoTime(currentVideoTime) }} / {{ formatVideoTime(videoDuration) }}
-                    </div>
-                  </div>
-                  
-                  <!-- 视频错误提示 -->
-                  <div v-if="videoElement && videoElement.error" class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-                    <p class="font-bold">❌ 视频加载失败</p>
-                    <p class="text-sm mt-2">错误代码: {{ videoElement.error.code }}</p>
-                    <p class="text-sm">错误信息: {{ videoElement.error.message }}</p>
-                    <div class="mt-3 text-sm">
-                      <p class="font-semibold">可能的原因：</p>
-                      <ul class="list-disc list-inside mt-1">
-                        <li>视频编码格式不被浏览器支持（如H.265/HEVC）</li>
-                        <li>视频文件损坏</li>
-                        <li>视频容器格式问题</li>
-                      </ul>
-                      <p class="mt-2 font-semibold">建议解决方案：</p>
-                      <ul class="list-disc list-inside mt-1">
-                        <li>使用H.264编码的MP4视频</li>
-                        <li>使用视频转换工具转换格式</li>
-                        <li>使用手机摄像头直接录制</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-                <!-- 加载遮罩 -->
-                <div v-if="!currentVideo && !currentImage && isProcessing" class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                  <div class="text-white text-center">
-                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-                    <p>AI识别中...</p>
-                    <p v-if="videoProcessingProgress" class="mt-2 text-sm">{{ videoProcessingProgress }}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </el-card>
-
-          <!-- 输入流按钮（四个按钮左右对齐，一样大） -->
+          <!-- 输入选择（放在最前面） -->
           <el-card shadow="hover" class="w-full">
             <template #header>
               <span class="text-lg font-semibold">📁 输入选择</span>
@@ -321,64 +153,141 @@
             </div>
           </el-card>
 
-          <!-- 视频操作 -->
-          <el-card v-if="currentVideo" shadow="hover" class="w-full">
+          <!-- 翻译结果（放在视频框上面） -->
+          <el-card shadow="hover" class="w-full">
             <template #header>
-              <span class="text-lg font-semibold">🎬 视频操作</span>
+              <div class="flex items-center justify-between">
+                <span class="text-lg font-semibold">📝 翻译结果</span>
+                <div class="flex items-center space-x-2">
+                  <el-tag v-if="detectionResults.length > 0" type="success" size="large">{{ detectionResults.length }} 个结果</el-tag>
+                  <el-dropdown trigger="click">
+                    <el-button type="primary" :icon="Download">
+                      操作
+                    </el-button>
+                    <template #dropdown>
+                      <el-dropdown-menu>
+                        <el-dropdown-item @click="saveResults" :disabled="detectionResults.length === 0">
+                          💾 保存结果
+                        </el-dropdown-item>
+                        <el-dropdown-item @click="viewHistory">
+                          📋 查看历史记录
+                        </el-dropdown-item>
+                        <el-dropdown-item @click="clearResults">
+                          🔄 清空/刷新
+                        </el-dropdown-item>
+                      </el-dropdown-menu>
+                    </template>
+                  </el-dropdown>
+                </div>
+              </div>
             </template>
-            <div class="space-y-3">
-              <el-button 
-                type="primary" 
-                @click="startRealtimeDetection"
-                :disabled="isVideoDetecting"
-                class="w-full h-12 text-base"
-              >
-                {{ isVideoDetecting ? '正在检测中...' : '开始实时检测' }}
-              </el-button>
-              <el-button 
-                v-if="isVideoDetecting"
-                type="danger" 
-                @click="stopVideoProcessing"
-                class="w-full h-12 text-base"
-              >
-                停止检测
-              </el-button>
-              <p v-if="!isVideoDetecting" class="text-sm text-gray-500 text-center">
-                提示：先播放视频，然后点击按钮开始检测
-              </p>
+            <div class="space-y-4">
+              <!-- 翻译结果列表 -->
+              <div v-if="detectionResults.length > 0" class="space-y-3">
+                <div 
+                  v-for="(result, index) in detectionResults" 
+                  :key="index"
+                  class="p-5 bg-blue-50 rounded-lg border border-blue-200 shadow-sm"
+                >
+                  <div class="flex flex-col md:flex-row md:justify-between md:items-center">
+                    <div class="flex items-center mb-2 md:mb-0">
+                      <span class="text-2xl md:text-3xl font-bold text-blue-700 mr-3">{{ result.className }}</span>
+                      <el-tag type="success" size="medium">{{ result.confidence }}%</el-tag>
+                    </div>
+                    <span class="text-sm text-gray-500">{{ result.filePath || '检测结果' }}</span>
+                  </div>
+                </div>
+              </div>
+              <!-- 无翻译结果时显示 -->
+              <div v-else class="text-center py-8">
+                <div class="text-4xl mb-4">📝</div>
+                <p class="text-gray-600">无翻译结果</p>
+                <p class="text-sm text-gray-500 mt-2">请选择图片、视频或开启摄像头进行翻译</p>
+              </div>
             </div>
           </el-card>
 
-          <!-- 操作按钮 -->
+          <!-- 视频/图像显示区域 -->
           <el-card shadow="hover" class="w-full">
             <template #header>
-              <span class="text-lg font-semibold">⚙️ 操作</span>
+              <div class="flex items-center justify-between">
+                <span class="text-lg font-semibold">📹 视频/图像显示</span>
+                <el-tag :type="isProcessing ? 'success' : 'info'">
+                  {{ isProcessing ? '处理中' : '就绪' }}
+                </el-tag>
+              </div>
             </template>
-            <div class="space-y-3 operation-buttons">
-              <el-button 
-                type="success" 
-                :icon="Download" 
-                @click="saveResults"
-                :disabled="detectionResults.length === 0"
-                class="w-full h-12 text-base"
-              >
-                💾 保存结果
-              </el-button>
-              <el-button 
-                type="primary" 
-                @click="viewHistory"
-                class="w-full h-12 text-base"
-              >
-                📋 查看历史记录
-              </el-button>
-              <el-button 
-                type="warning" 
-                :icon="Refresh" 
-                @click="clearResults"
-                class="w-full h-12 text-base"
-              >
-                🔄 清空/刷新
-              </el-button>
+            <div class="relative">
+              <!-- 图像/视频显示区域 -->
+              <div class="bg-gray-100 rounded-lg mb-4 relative" :style="{ minHeight: isMobile ? '300px' : '500px', display: 'flex', alignItems: 'center', justifyContent: 'center' }">
+                <div v-if="!currentImage && !currentVideo" class="text-center py-8">
+                  <div class="text-6xl mb-4">📷</div>
+                  <p class="text-gray-600">请选择图片、视频或开启摄像头</p>
+                  <p class="text-sm text-gray-500">支持格式：JPG, PNG, MP4, WebM</p>
+                </div>
+                <img 
+                  v-else-if="currentImage && !currentVideo"
+                  :src="currentImage" 
+                  alt="检测结果" 
+                  class="max-w-full max-h-full object-contain w-full h-auto"
+                  :style="{ maxHeight: isMobile ? '300px' : '500px', width: '100%', height: 'auto' }"
+                  @load="handleImageLoad"
+                />
+                <div v-else-if="currentVideo" class="w-full" style="background: black; min-height: 400px; display: flex; align-items: center; justify-content: center; flex-direction: column; position: relative;">
+                  <!-- 显示的视频元素 -->
+                  <video 
+                    ref="videoElement"
+                    :src="currentVideo" 
+                    preload="auto"
+                    controls
+                    style="max-width: 100%; max-height: 500px; display: block;"
+                    @loadeddata="onVideoLoaded"
+                    @play="handleVideoPlay"
+                    @pause="handleVideoPause"
+                    @loadedmetadata="() => { console.log('Video metadata loaded'); }"
+                    @error="(e) => handleVideoError(e)"
+                  >
+                    您的浏览器不支持该视频格式
+                  </video>
+                  
+                  <!-- 检测框overlay canvas -->
+                  <canvas 
+                    v-if="isVideoDetecting"
+                    ref="canvasOverlay"
+                    class="absolute"
+                    style="pointer-events: none; top: 0; left: 0; z-index: 10;"
+                  />
+                  
+                  <!-- 视频错误提示 -->
+                  <div v-if="videoElement && videoElement.error" class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                    <p class="font-bold">❌ 视频加载失败</p>
+                    <p class="text-sm mt-2">错误代码: {{ videoElement.error.code }}</p>
+                    <p class="text-sm">错误信息: {{ videoElement.error.message }}</p>
+                    <div class="mt-3 text-sm">
+                      <p class="font-semibold">可能的原因：</p>
+                      <ul class="list-disc list-inside mt-1">
+                        <li>视频编码格式不被浏览器支持（如H.265/HEVC）</li>
+                        <li>视频文件损坏</li>
+                        <li>视频容器格式问题</li>
+                      </ul>
+                      <p class="mt-2 font-semibold">建议解决方案：</p>
+                      <ul class="list-disc list-inside mt-1">
+                        <li>使用H.264编码的MP4视频</li>
+                        <li>使用视频转换工具转换格式</li>
+                        <li>使用手机摄像头直接录制</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <!-- 加载遮罩 -->
+                <div v-if="!currentVideo && !currentImage && isProcessing" class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                  <div class="text-white text-center">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+                    <p>AI识别中...</p>
+                    <p v-if="videoProcessingProgress" class="mt-2 text-sm">{{ videoProcessingProgress }}</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </el-card>
         </div>
@@ -400,6 +309,7 @@ import {
   Close 
 } from '@element-plus/icons-vue'
 import translationApiService from '@/services/translationApi'
+import apiService from '@/services/api'
 
 export default {
   name: 'Translate',
@@ -425,7 +335,6 @@ export default {
     const inferenceDelay = ref(10)
     const inferenceTime = ref(0)
     const selectedTarget = ref('all')
-    const selectedModel = ref('yolo')
     const currentFilePath = ref('')
     const videoProcessingProgress = ref('')
     const videoFPS = ref(30) // 默认30fps，从后端获取实际值
@@ -461,7 +370,6 @@ export default {
     })
 
     // 使用API服务
-    const apiService = translationApiService
 
     // 工具函数
     const showMessage = (message, type = 'info') => {
@@ -494,11 +402,30 @@ export default {
       if (isCameraOpen.value) {
         stopCamera()
       } else {
-        await startCamera()
+        // 弹出模型选择弹窗
+        ElMessageBox.confirm(
+          '请选择摄像头识别模式',
+          '选择模型',
+          {
+            confirmButtonText: 'YOLO模型（单词语识别）',
+            cancelButtonText: 'Seq2Seq模型（连续识别）',
+            type: 'info',
+            customClass: 'model-select-dialog'
+          }
+        ).then(async () => {
+          // 使用YOLO模型
+          await startCamera('yolo')
+        }).catch(async (action) => {
+          // 只有当action不是'cancel'时才使用Seq2Seq模型
+          // 当用户点击取消按钮时，action会是'cancel'
+          if (action !== 'cancel') {
+            await startCamera('seq2seq')
+          }
+        })
       }
     }
 
-    const startCamera = async () => {
+    const startCamera = async (model) => {
       try {
         // 检查浏览器是否支持getUserMedia
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -553,7 +480,7 @@ export default {
         showMessage('摄像头已开启', 'success')
         
         // 开始连续检测
-        startContinuousDetection(video)
+        startContinuousDetection(video, model)
       } catch (error) {
         console.error('摄像头访问错误:', error)
         
@@ -586,19 +513,22 @@ export default {
       showMessage('摄像头已关闭', 'info')
     }
 
-    const startContinuousDetection = (video) => {
+    const startContinuousDetection = (video, model) => {
+      // 增加检测间隔，减少检测频率，提高画面流畅度
+      const detectionInterval = 2000 // 每2秒检测一次
       cameraInterval.value = setInterval(async () => {
         if (video.readyState === video.HAVE_ENOUGH_DATA) {
+          // 降低分辨率，提高处理速度
           const canvas = document.createElement('canvas')
-          canvas.width = video.videoWidth
-          canvas.height = video.videoHeight
+          canvas.width = Math.min(video.videoWidth, 320) // 降低分辨率
+          canvas.height = Math.min(video.videoHeight, 240)
           const ctx = canvas.getContext('2d')
-          ctx.drawImage(video, 0, 0)
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
           
-          const imageData = canvas.toDataURL('image/jpeg')
-          await processImage(imageData, 'camera_frame')
+          const imageData = canvas.toDataURL('image/jpeg', 0.7) // 降低图像质量
+          await processImage(imageData, 'camera_frame', model)
         }
-      }, inferenceDelay.value)
+      }, detectionInterval)
     }
 
     // 文件处理方法
@@ -766,10 +696,17 @@ export default {
             console.log('视频数据已加载')
             onVideoLoaded()
             
-            // 如果使用Seq2Seq模型，自动开始分析
-            if (selectedModel.value === 'seq2seq') {
-              console.log('使用Seq2Seq模型，自动开始分析视频...')
-              startRealtimeDetection()
+            // 自动开始分析视频
+            console.log('视频已加载，自动开始分析...')
+            // 确保currentVideoFile存在
+            if (currentVideoFile.value) {
+              // 添加延迟确保模型已经加载完成
+              setTimeout(() => {
+                startRealtimeDetection()
+              }, 1000)
+            } else {
+              console.error('currentVideoFile不存在，无法开始检测')
+              showMessage('视频文件未正确加载，请重新选择', 'error')
             }
           }
           
@@ -791,12 +728,17 @@ export default {
           } catch (error) {
             console.error('自动播放失败:', error)
             // 自动播放失败时不报错，用户可以手动播放
+            // 即使自动播放失败，也尝试开始识别
+            console.log('自动播放失败，但尝试开始识别...')
+            if (currentVideoFile.value) {
+              startRealtimeDetection()
+            }
           }
         } else {
           console.error('videoElement不存在！')
         }
         
-        showMessage('视频已加载' + (selectedModel.value === 'seq2seq' ? '，正在分析...' : '，请播放视频并点击"开始实时检测"'), 'success')
+        showMessage('视频已加载，正在自动识别...', 'success')
         
       } catch (error) {
         console.error('视频处理错误:', error)
@@ -815,248 +757,54 @@ export default {
         return
       }
       
-      // 检查是否使用Seq2Seq模型
-      if (selectedModel.value === 'seq2seq') {
-        // Seq2Seq模型：直接上传整个视频进行预测
-        isVideoDetecting.value = true
-        isProcessing.value = true
+      // 视频默认使用Seq2Seq模型
+      const model = 'seq2seq'
+      
+      // Seq2Seq模型：直接上传整个视频进行预测
+      isVideoDetecting.value = true
+      isProcessing.value = true
+      
+      showMessage('正在分析视频，请稍候...', 'info')
+      
+      try {
+        // 调用视频检测接口
+        const result = await translationApiService.detectVideo(
+          currentVideoFile.value,
+          confidenceThreshold.value,
+          model
+        )
         
-        showMessage('正在分析视频，请稍候...', 'info')
-        
-        try {
-          // 调用视频检测接口
-          const result = await translationApiService.detectVideo(
-            currentVideoFile.value,
-            confidenceThreshold.value,
-            selectedModel.value
-          )
+        // 处理结果
+        if (result.detections && result.detections.length > 0) {
+          // 清空现有结果
+          detectionResults.value = []
           
-          // 处理结果
-          if (result.detections && result.detections.length > 0) {
-            // 清空现有结果
-            detectionResults.value = []
-            
-            // 添加Seq2Seq的识别结果
-            result.detections.forEach((detection, index) => {
-              detectionResults.value.push({
-                index: index + 1,
-                className: detection.className,
-                confidence: detection.confidence,
-                coordinates: detection.coordinates,
-                filePath: currentVideoFile.value.name,
-                timestamp: 0
-              })
+          // 添加Seq2Seq的识别结果
+          result.detections.forEach((detection, index) => {
+            detectionResults.value.push({
+              index: index + 1,
+              className: detection.className,
+              confidence: detection.confidence,
+              coordinates: detection.coordinates,
+              filePath: currentVideoFile.value.name,
+              timestamp: 0
             })
-            
-            showMessage('视频分析完成', 'success')
-          } else {
-            showMessage('未检测到手语内容', 'info')
-          }
-        } catch (error) {
-          console.error('视频分析失败:', error)
-          showMessage('视频分析失败: ' + error.message, 'error')
-        } finally {
-          isVideoDetecting.value = false
-          isProcessing.value = false
-        }
-      } else {
-        // YOLO模型：逐帧处理
-        // 确保视频元素已加载
-        if (!videoElement.value) {
-          showMessage('视频元素未加载，请稍候再试', 'error')
-            return
-          }
-          
-        // 初始化canvas显示
-        if (canvasDisplay.value && videoElement.value) {
-          canvasDisplay.value.width = videoElement.value.videoWidth
-          canvasDisplay.value.height = videoElement.value.videoHeight
-          videoDuration.value = videoElement.value.duration
-        }
-        
-        isVideoDetecting.value = true
-        isVideoPlaying.value = false
-        isProcessing.value = false
-        
-        showMessage('点击播放开始检测...', 'info')
-        
-        // 开始视频帧处理和绘制
-        processVideoFrames()
-      }
-    }
-
-    // 处理视频帧（逐帧检测显示）
-    const processVideoFrames = async () => {
-      if (!isVideoDetecting.value || !videoElement.value) {
-        return
-      }
-      
-        const video = videoElement.value
-      
-      // 检查视频是否结束
-      if (video.ended || video.currentTime >= video.duration) {
-        isVideoDetecting.value = false
-        isVideoPlaying.value = false
-        videoProgress.value = 100
-        currentVideoTime.value = video.duration
-        showMessage('检测完成', 'success')
-        return
-      }
-      
-      // 更新进度
-      currentVideoTime.value = video.currentTime
-      videoProgress.value = video.duration ? (video.currentTime / video.duration * 100) : 0
-      
-      // 抓取当前帧并检测
-      const canvas = document.createElement('canvas')
-      canvas.width = video.videoWidth
-      canvas.height = video.videoHeight
-      const ctx = canvas.getContext('2d')
-      
-      // 绘制当前视频帧
-      if (video.readyState >= 2) {
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-        
-        // 进行检测
-        try {
-          // 等待检测完成后再继续
-          await new Promise((resolve) => {
-        canvas.toBlob(async (blob) => {
-              if (!blob || !isVideoDetecting.value) {
-                resolve()
-                return
-              }
-          
-          try {
-            // 调用API检测当前帧
-            const result = await apiService.detectImage(blob, confidenceThreshold.value)
-            
-                // 更新检测结果
-                result.detections.forEach((detection) => {
-              detectionResults.value.push({
-                index: detectionResults.value.length + 1,
-                className: detection.className,
-                confidence: detection.confidence,
-                coordinates: detection.coordinates,
-                    filePath: `${currentVideoFile.value.name}_${video.currentTime.toFixed(2)}s`,
-                timestamp: video.currentTime
-              })
-            })
-            
-                // 在canvas上绘制检测框
-                if (result.detections.length > 0 && canvasOverlay.value) {
-                  drawDetectionsOnCanvas(result.detections, canvasOverlay.value.width, canvasOverlay.value.height)
-                }
-                
-          } catch (error) {
-            console.error('检测失败:', error)
-              } finally {
-                resolve()
-          }
-        }, 'image/jpeg', 0.9)
           })
+          
+          showMessage('视频分析完成', 'success')
+        } else {
+          showMessage('未检测到手语内容', 'info')
+        }
       } catch (error) {
-          console.error('帧处理错误:', error)
-        }
+        console.error('视频分析失败:', error)
+        showMessage('视频分析失败: ' + error.message, 'error')
+      } finally {
+        isVideoDetecting.value = false
+        isProcessing.value = false
       }
-      
-      // 移动到下一帧
-      if (isVideoDetecting.value && !video.ended) {
-        // 使用固定间隔移动到下一帧（例如每100ms跳转一次）
-        const nextTime = video.currentTime + 0.1 // 每次增加0.1秒
-        
-        if (nextTime < video.duration) {
-          // 等待当前帧处理完成后再跳到下一帧
-          await new Promise((resolve) => {
-            const onSeeked = () => {
-              video.removeEventListener('seeked', onSeeked)
-              setTimeout(resolve, 100) // 等待100ms后继续
-            }
-            video.addEventListener('seeked', onSeeked)
-            video.currentTime = nextTime
-          })
-          
-          // 处理下一帧
-          if (isVideoDetecting.value) {
-            processVideoFrames()
-          }
-        }
-      }
-    }
-    
-    // 在canvas上绘制检测框
-    const drawDetectionsOnCanvas = (detections, width, height) => {
-      if (!canvasDisplay.value || detections.length === 0) return
-      
-      const ctx = canvasDisplay.value.getContext('2d')
-      
-      detections.forEach(detection => {
-        const coords = detection.coordinates
-        const x = coords.xmin
-        const y = coords.ymin
-        const w = coords.xmax - coords.xmin
-        const h = coords.ymax - coords.ymin
-        
-        // 绘制检测框
-        ctx.strokeStyle = '#00ff00'
-        ctx.lineWidth = 3
-        ctx.strokeRect(x, y, w, h)
-        
-        // 绘制标签背景
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)'
-        const label = `${detection.className} ${detection.confidence}%`
-        const textMetrics = ctx.measureText(label)
-        ctx.fillRect(x, y - 20, textMetrics.width + 10, 20)
-        
-        // 绘制标签文本
-        ctx.fillStyle = '#00ff00'
-        ctx.font = '14px Arial'
-        ctx.fillText(label, x + 5, y - 5)
-      })
     }
 
-    // 在canvas上绘制当前帧的检测框
-    const drawFrameDetections = (detections, width, height) => {
-      if (!canvasOverlay.value || !videoElement.value || detections.length === 0) return
-      
-      const canvas = canvasOverlay.value
-      const ctx = canvas.getContext('2d')
-      if (!ctx) return
-      
-      // 计算缩放比例（视频原始尺寸 -> 显示尺寸）
-      const video = videoElement.value
-      const scaleX = canvas.width / width
-      const scaleY = canvas.height / height
-      
-      // 清空画布
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      
-      detections.forEach(detection => {
-        // 绘制检测框
-        ctx.strokeStyle = '#00ff00'
-        ctx.lineWidth = 3
-        ctx.font = '16px Arial'
-        
-        const coords = detection.coordinates
-        const x = coords.xmin * scaleX
-        const y = coords.ymin * scaleY
-        const w = (coords.xmax - coords.xmin) * scaleX
-        const h = (coords.ymax - coords.ymin) * scaleY
-        
-        // 绘制矩形
-        ctx.strokeRect(x, y, w, h)
-        
-        // 绘制标签背景
-        const label = `${detection.className} ${detection.confidence}%`
-        const textMetrics = ctx.measureText(label)
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)'
-        ctx.fillRect(x, y - 25, textMetrics.width + 10, 25)
-        
-        // 绘制标签文本
-        ctx.fillStyle = '#00ff00'
-        ctx.fillText(label, x + 5, y - 5)
-      })
-    }
+
 
     const stopDetection = () => {
       videoProcessingProgress.value = ''
@@ -1080,7 +828,9 @@ export default {
         }
       }
       
-      showMessage('已停止检测', 'info')
+      // 只有在用户主动停止时才显示提示
+      // 注释掉自动停止时的提示，避免频繁弹出
+      // showMessage('已停止检测', 'info')
     }
 
     const handleFolderUpload = async (event) => {
@@ -1104,19 +854,25 @@ export default {
     }
 
     // 图像处理方法
-    const processImage = async (imageData, filename) => {
+    const processImage = async (imageData, filename, model = 'yolo') => {
       if (isProcessing.value) return
       
       isProcessing.value = true
       const startTime = Date.now()
       
       try {
+        // 清空视频相关状态
+        currentVideo.value = ''
+        currentVideoFile.value = null
+        isVideoDetecting.value = false
+        stopVideoProcessing()
+        
         // 将base64转换为blob
         const response = await fetch(imageData)
         const blob = await response.blob()
         
-        // 使用API服务进行检测，传入选择的模型
-        const result = await apiService.detectImage(blob, confidenceThreshold.value, selectedModel.value)
+        // 使用API服务进行检测，传入指定的模型
+        const result = await translationApiService.detectImage(blob, confidenceThreshold.value, model)
         
         // 更新显示图像
         currentImage.value = `data:image/jpeg;base64,${result.image}`
@@ -1137,13 +893,17 @@ export default {
         if (result.detections.length > 0) {
         showMessage(`检测完成，发现 ${result.detections.length} 个目标`, 'success')
         }
+        // 检测失败时不显示提示，避免频繁弹出
       } catch (error) {
         console.error('检测错误:', error)
-        showMessage('检测失败: ' + error.message, 'error')
+        // 注释掉错误提示，避免频繁弹出
+        // showMessage('检测失败: ' + error.message, 'error')
       } finally {
         isProcessing.value = false
       }
     }
+
+
 
     // 结果处理方法
     const saveResults = async () => {
@@ -1153,6 +913,7 @@ export default {
       }
 
       try {
+        // 保存到Python后端
         const saveData = {
           results: detectionResults.value,
           timestamp: Date.now(),
@@ -1160,8 +921,32 @@ export default {
           inference_time: inferenceTime.value
         }
 
-        const result = await apiService.saveResults(saveData)
+        const result = await translationApiService.saveResults(saveData)
         showMessage(`结果已保存到: ${result.file_path}`, 'success')
+        
+        // 同时保存到MySQL数据库（如果用户已登录）
+        try {
+          const token = localStorage.getItem('token')
+          if (token) {
+            const inputType = currentVideo.value ? 'video' : 'image'
+            const inputContent = currentVideo.value || currentImage.value
+            const resultText = detectionResults.value.map(d => d.className).join(', ')
+            const confidence = detectionResults.value.length > 0 ? detectionResults.value[0].confidence : 0
+            
+            await apiService.saveTranslation({
+              inputType,
+              inputContent: inputContent.substring(0, 100) + '...', // 截取部分内容
+              result: resultText,
+              confidence,
+              modelUsed: inputType === 'video' ? 'seq2seq' : 'yolo',
+              processingTime: inferenceTime.value
+            })
+            console.log('翻译记录已保存到数据库')
+          }
+        } catch (dbError) {
+          console.log('保存到数据库失败:', dbError)
+          // 不影响主要功能
+        }
       } catch (error) {
         showMessage('保存失败: ' + error.message, 'error')
       }
@@ -1192,24 +977,67 @@ export default {
     }
     
     // 查看历史记录
-    const viewHistory = () => {
-      if (detectionResults.value.length === 0) {
-        showMessage('暂无历史记录', 'info')
-        return
-      }
-      
-      // 在对话框中显示历史记录
-      ElMessageBox.alert(
-        `共 ${detectionResults.value.length} 条检测记录\n\n` +
-        `检测时间: ${new Date().toLocaleString()}\n` +
-        `置信度阈值: ${confidenceThreshold.value}\n\n` +
-        '点击"保存结果"可以将这些记录保存到文件。',
-        '历史记录',
-        {
-          confirmButtonText: '确定',
-          type: 'info'
+    const viewHistory = async () => {
+      try {
+        const token = localStorage.getItem('token')
+        if (token) {
+          // 从数据库获取历史记录
+          try {
+            const response = await apiService.getTranslationHistory()
+            if (response.success && response.data.records.length > 0) {
+              const records = response.data.records
+              let historyText = `共 ${records.length} 条历史记录\n\n`
+              
+              records.forEach((record, index) => {
+                historyText += `记录 ${index + 1}:\n`
+                historyText += `时间: ${new Date(record.created_at).toLocaleString()}\n`
+                historyText += `类型: ${record.input_type}\n`
+                historyText += `结果: ${record.result}\n`
+                historyText += `模型: ${record.model_used}\n`
+                historyText += `用时: ${record.processing_time}s\n\n`
+              })
+              
+              ElMessageBox.alert(
+                historyText,
+                '历史记录',
+                {
+                  confirmButtonText: '确定',
+                  type: 'info',
+                  customClass: 'history-dialog',
+                  dangerouslyUseHTMLString: false
+                }
+              )
+            } else {
+              showMessage('暂无历史记录', 'info')
+            }
+          } catch (apiError) {
+            console.error('API调用失败:', apiError)
+            // 显示详细错误信息
+            showMessage('获取历史记录失败: ' + (apiError.message || '未知错误'), 'error')
+          }
+        } else {
+          // 未登录时显示当前检测结果
+          if (detectionResults.value.length === 0) {
+            showMessage('暂无历史记录', 'info')
+            return
+          }
+          
+          ElMessageBox.alert(
+            `共 ${detectionResults.value.length} 条检测记录\n\n` +
+            `检测时间: ${new Date().toLocaleString()}\n` +
+            `置信度阈值: ${confidenceThreshold.value}\n\n` +
+            '点击"保存结果"可以将这些记录保存到文件。',
+            '历史记录',
+            {
+              confirmButtonText: '确定',
+              type: 'info'
+            }
+          )
         }
-      )
+      } catch (error) {
+        console.error('获取历史记录失败:', error)
+        showMessage('获取历史记录失败: ' + error.message, 'error')
+      }
     }
 
     const exitApplication = () => {
@@ -1236,9 +1064,24 @@ export default {
       console.log('选择的目标:', selectedTarget.value)
     }
 
+    // 预加载模型
+    const preloadModels = async () => {
+      try {
+        console.log('开始预加载模型...')
+        // 检查API健康状态，触发模型加载
+        await translationApiService.checkHealth()
+        console.log('模型预加载完成')
+      } catch (error) {
+        console.error('模型预加载失败:', error)
+      }
+    }
+
     // 生命周期
     onMounted(() => {
       document.title = '手语识别翻译系统 - 手语教学平台'
+      
+      // 预加载模型
+      preloadModels()
       
       // 检查API连接
       checkAPIHealth()
@@ -1362,8 +1205,6 @@ export default {
       inferenceDelay,
       inferenceTime,
       selectedTarget,
-      selectedModel,
-      selectedDetection,
       videoProcessingProgress,
       videoFPS,
       isVideoDetecting,
@@ -1945,5 +1786,37 @@ export default {
   justify-content: flex-start !important;
   padding-left: 20px !important;
   padding-right: 20px !important;
+}
+
+/* 模型选择弹窗样式 */
+.model-select-dialog {
+  max-width: 400px !important;
+  width: 90% !important;
+}
+
+.model-select-dialog .el-message-box__btns {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 15px !important;
+  padding: 20px !important;
+}
+
+.model-select-dialog .el-button {
+  width: 100% !important;
+  min-height: 50px !important;
+  font-size: 16px !important;
+  border-radius: 8px !important;
+  margin: 0 !important;
+}
+
+.model-select-dialog .el-button--primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+}
+
+.model-select-dialog .el-button--default {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+  border: none !important;
+  color: white !important;
 }
 </style>
