@@ -1,10 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Login from '@/views/Login.vue'
-import Home from '@/views/Home.vue'
 import Learn from '@/views/Learn.vue'
 import Translate from '@/views/Translate.vue'
 import Community from '@/views/Community.vue'
 import Profile from '@/views/Profile.vue'
+import UserProfile from '@/views/UserProfile.vue'
 import PostDetail from '@/views/PostDetail.vue'
 import GroupChat from '@/views/GroupChat.vue'
 import ChatGroup from '@/views/ChatGroup.vue'
@@ -19,15 +19,14 @@ import Admin from '@/views/Admin.vue'
 const routes = [
   {
     path: '/',
+    redirect: '/learn'
+  },
+  {
+    path: '/login',
     name: 'Login',
     component: Login
   },
-  {
-    path: '/home',
-    name: 'Home',
-    component: Home,
-    meta: { requiresAuth: true }
-  },
+
   {
     path: '/learn',
     name: 'Learn',
@@ -98,7 +97,7 @@ const routes = [
   {
     path: '/profile/:id',
     name: 'UserProfile',
-    component: Profile,
+    component: UserProfile,
     meta: { requiresAuth: true }
   },
   {
@@ -132,25 +131,25 @@ router.beforeEach((to, from, next) => {
   const userStr = localStorage.getItem('user')
   const user = userStr ? JSON.parse(userStr) : null
 
-  // 如果已登录且访问登录页，跳转到首页
-  if (to.path === '/' && token) {
+  // 如果已登录且访问登录页，跳转到学习页
+  if (to.path === '/login' && token) {
     if (user?.role === 'admin') {
       next('/admin')
     } else {
-      next('/home')
+      next('/learn')
     }
     return
   }
 
   // 需要登录的页面
   if (to.meta.requiresAuth && !token) {
-    next('/')
+    next('/login')
     return
   }
 
   // 需要管理员权限的页面
   if (to.meta.requiresAdmin && user?.role !== 'admin') {
-    next('/home')
+    next('/learn')
     return
   }
 

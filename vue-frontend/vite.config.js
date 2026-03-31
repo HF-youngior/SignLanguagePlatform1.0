@@ -10,7 +10,7 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3000,
+    port: 8080,
     host: '0.0.0.0', // 监听所有网络接口，允许手机访问
     open: true,
     https: false, // 开发环境使用HTTP，生产环境需要HTTPS
