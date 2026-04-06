@@ -1,0 +1,14 @@
+[
+  {
+    "index": 1,
+    "className": "结婚/妻子",
+    "confidence": 97.19,
+    "coordinates": {
+      "xmax": 407,
+      "xmin": 142,
+      "ymax": 401,
+      "ymin": 230
+    },
+    "filePath": "blob"
+  }
+]

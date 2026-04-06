@@ -122,7 +122,7 @@ class ApiService {
    * 保存翻译记录
    */
   async saveTranslation(data) {
-    return this.request('/translation/save', {
+    return this.request('/translation/record', {
       method: 'POST',
       body: JSON.stringify(data)
     })
@@ -133,7 +133,7 @@ class ApiService {
    */
   async getTranslationHistory(params = {}) {
     const queryString = new URLSearchParams(params).toString()
-    return this.request(`/translation/history?${queryString}`)
+    return this.request(`/translation/records?${queryString}`)
   }
 
   /**
