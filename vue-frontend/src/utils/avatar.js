@@ -1,5 +1,5 @@
-// 默认头像路径
-export const DEFAULT_AVATAR = '/logo-zhangzhongyu.svg'
+// 默认头像路径 - 在Vite中动态导入
+export const DEFAULT_AVATAR = new URL('@/assets/logo/logo-zhangzhongyu.svg', import.meta.url).href
 
 /**
  * 获取用户头像URL
@@ -21,7 +21,8 @@ export function getAvatarUrl(avatar) {
   }
   
   // 如果是相对路径，添加后端服务器地址
-  const backendUrl = 'http://localhost:8000';
+  const hostname = window.location.hostname;
+  const backendUrl = hostname === 'localhost' || hostname === '127.0.0.1' ? 'http://localhost:8000' : `http://${hostname}:8000`;
   const fullUrl = `${backendUrl}${avatar}`;
   console.log('Generated avatar URL:', fullUrl);
   return fullUrl

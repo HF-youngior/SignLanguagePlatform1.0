@@ -3,15 +3,24 @@
     <!-- 导航栏 -->
     <nav class="backdrop-blur-md bg-white/70 shadow-lg">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-          <div class="flex items-center">
+        <div class="flex items-center h-16">
+          <!-- 手机端返回按钮 -->
+          <router-link to="/community" class="lg:hidden mr-4">
+            <el-button type="primary" plain size="small">
+              返回
+            </el-button>
+          </router-link>
+          
+          <div class="flex items-center flex-1">
             <router-link to="/" class="flex items-center text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
               <!-- 使用已有的默认头像图片代替缺失的 logo 文件，避免 Vite 解析错误 -->
-              <img src="/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
+              <img src="@/assets/logo/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
               <span>掌中语-手语小镇</span>
             </router-link>
           </div>
-          <div class="flex items-center space-x-4">
+          
+          <!-- 电脑端导航链接 -->
+          <div class="hidden lg:flex items-center space-x-4">
             <router-link to="/learn" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">学堂</router-link>
             <router-link to="/translate" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">译站</router-link>
             <router-link to="/community" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">手语圈</router-link>
@@ -40,64 +49,59 @@
                 <span class="text-gray-600 text-sm">{{ userInfo.location }}</span>
               </div>
               <p class="text-gray-700 mb-4 text-sm md:text-base px-2 md:px-0">{{ userInfo.bio }}</p>
-              <div class="grid grid-cols-2 md:flex md:items-center md:space-x-6 gap-4 md:gap-0">
+              <div class="grid grid-cols-4 gap-2 md:grid-cols-4 md:flex md:items-center md:space-x-4 gap-0">
                 <div class="text-center">
-                  <div class="text-xl md:text-2xl font-bold text-blue-600">{{ userInfo.posts }}</div>
-                  <div class="text-xs md:text-sm text-gray-500">发布帖子</div>
+                  <div class="text-lg md:text-xl font-bold text-blue-600">{{ userInfo.posts }}</div>
+                  <div class="text-xs text-gray-500">发布帖子</div>
                 </div>
                 <div class="text-center">
-                  <div class="text-xl md:text-2xl font-bold text-green-600">{{ userInfo.groups }}</div>
-                  <div class="text-xs md:text-sm text-gray-500">加入社群</div>
+                  <div class="text-lg md:text-xl font-bold text-green-600">{{ userInfo.groups }}</div>
+                  <div class="text-xs text-gray-500">加入社群</div>
                 </div>
                 <div class="text-center">
-                  <div class="text-xl md:text-2xl font-bold text-purple-600">{{ userInfo.friends }}</div>
-                  <div class="text-xs md:text-sm text-gray-500">好友数量</div>
+                  <div class="text-lg md:text-xl font-bold text-purple-600">{{ userInfo.friends }}</div>
+                  <div class="text-xs text-gray-500">好友数量</div>
                 </div>
                 <div class="text-center">
-                  <div class="text-xl md:text-2xl font-bold text-orange-600">{{ userInfo.points }}</div>
-                  <div class="text-xs md:text-sm text-gray-500">积分</div>
+                  <div class="text-lg md:text-xl font-bold text-orange-600">{{ userInfo.points }}</div>
+                  <div class="text-xs text-gray-500">积分</div>
                 </div>
               </div>
             </div>
             <div class="flex flex-row md:flex-col space-x-2 md:space-x-0 md:space-y-2 w-full md:w-auto justify-center md:justify-start">
-              <el-button type="primary" size="small" class="md:w-full" @click="showEditDialog = true">编辑资料</el-button>
-              <el-button v-if="isOtherUser" type="success" size="small" class="md:w-full" @click="addFriend">添加好友</el-button>
-              <el-button type="danger" size="small" class="md:w-full" @click="logout">退出登录</el-button>
+              <el-button type="primary" size="mini" class="md:w-full" @click="showEditDialog = true">编辑资料</el-button>
+              <el-button v-if="isOtherUser" type="success" size="mini" class="md:w-full" @click="addFriend">添加好友</el-button>
+              <el-button type="danger" size="mini" class="md:w-full" @click="logout">退出登录</el-button>
             </div>
           </div>
         </el-card>
 
         <!-- 提示栏 -->
         <el-card class="mb-6">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-6">
+          <div class="space-y-4">
+            <!-- 赞和评论和好友消息 -->
+            <div class="grid grid-cols-2 gap-3">
               <!-- 赞和评论 -->
-              <div class="flex items-center space-x-2 cursor-pointer hover:bg-blue-50 p-3 rounded-lg transition-colors" @click="showNotifications('likes')">
-                <div class="relative">
-                  <el-icon class="text-blue-600" size="20"><ChatDotRound /></el-icon>
-                  <el-badge :value="notifications.likes + notifications.comments" class="ml-2" v-if="notifications.likes + notifications.comments > 0"></el-badge>
-                </div>
-                <div>
-                  <div class="font-medium">赞和评论</div>
-                  <div class="text-sm text-gray-500">{{ notifications.likes + notifications.comments }} 条新消息</div>
+              <div class="border rounded-lg p-2 cursor-pointer hover:bg-blue-50 transition-colors" @click="showNotifications('likes')">
+                <div class="text-center">
+                  <div class="font-medium text-sm">赞和评论</div>
+                  <div class="text-xs text-gray-500">{{ notifications.likes + notifications.comments }} 条新消息</div>
                 </div>
               </div>
 
               <!-- 好友信息 -->
-              <div class="flex items-center space-x-2 cursor-pointer hover:bg-green-50 p-3 rounded-lg transition-colors" @click="showNotifications('friends')">
-                <div class="relative">
-                  <el-icon class="text-green-600" size="20"><User /></el-icon>
-                  <el-badge :value="notifications.friendRequests + notifications.friendMessages" class="ml-2" v-if="notifications.friendRequests + notifications.friendMessages > 0"></el-badge>
-                </div>
-                <div>
-                  <div class="font-medium">好友信息</div>
-                  <div class="text-sm text-gray-500">{{ notifications.friendRequests + notifications.friendMessages }} 条新消息</div>
+              <div class="border rounded-lg p-2 cursor-pointer hover:bg-green-50 transition-colors" @click="showNotifications('friends')">
+                <div class="text-center">
+                  <div class="font-medium text-sm">好友消息</div>
+                  <div class="text-xs text-gray-500">{{ notifications.friendRequests + notifications.friendMessages }} 条新消息</div>
                 </div>
               </div>
             </div>
             
             <!-- 全部标记为已读 -->
-            <el-button size="small" type="primary" plain @click="markAllAsRead">全部标记为已读</el-button>
+            <div class="text-center">
+              <el-button size="small" type="primary" plain class="w-full" @click="markAllAsRead">全部标记为已读</el-button>
+            </div>
           </div>
         </el-card>
 
@@ -409,6 +413,22 @@
         </div>
       </template>
     </el-dialog>
+
+    <!-- 移动端底部导航栏 -->
+    <div class="mobile-bottom-nav">
+      <router-link to="/learn" class="mobile-nav-item">
+        <span class="mobile-nav-icon">📚</span>
+        <span class="mobile-nav-text">学堂</span>
+      </router-link>
+      <router-link to="/translate" class="mobile-nav-item">
+        <span class="mobile-nav-icon">🔤</span>
+        <span class="mobile-nav-text">译站</span>
+      </router-link>
+      <router-link to="/community" class="mobile-nav-item">
+        <span class="mobile-nav-icon">💬</span>
+        <span class="mobile-nav-text">手语圈</span>
+      </router-link>
+    </div>
   </div>
 </template>
 

@@ -316,10 +316,17 @@ const handleLogin = async () => {
       if (userData.role === 'admin') {
         router.push('/admin')
       } else {
-        router.push('/home')
+        router.push('/learn')
       }
     } else {
-      ElMessage.error(data.message || '登录失败')
+      if (data.errors && data.errors.length > 0) {
+        // 显示具体的验证错误信息
+        data.errors.forEach(error => {
+          ElMessage.error(error.msg)
+        })
+      } else {
+        ElMessage.error(data.message || '登录失败')
+      }
     }
   } catch (error) {
     console.error('登录错误:', error)
@@ -378,7 +385,14 @@ const handleRegister = async () => {
       registerForm.confirmPassword = ''
       registerForm.avatar = ''
     } else {
-      ElMessage.error(data.message || '注册失败')
+      if (data.errors && data.errors.length > 0) {
+        // 显示具体的验证错误信息
+        data.errors.forEach(error => {
+          ElMessage.error(error.msg)
+        })
+      } else {
+        ElMessage.error(data.message || '注册失败')
+      }
     }
   } catch (error) {
     console.error('注册错误:', error)

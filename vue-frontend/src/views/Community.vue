@@ -1,13 +1,12 @@
 <template>
   <div class="min-h-screen animated-gradient">
     <!-- 导航栏 -->
-    <nav class="backdrop-blur-md bg-white/70 shadow-lg">
+    <nav class="backdrop-blur-md bg-white/70 shadow-lg md:block hidden">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center">
             <router-link to="/" class="flex items-center text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
-              <!-- 使用已有的默认头像图片代替缺失的 logo 文件，避免 Vite 解析错误 -->
-              <img src="/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
+              <img src="@/assets/logo/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
               <span>掌中语-手语小镇</span>
             </router-link>
           </div>
@@ -27,22 +26,145 @@
     <main class="pt-8">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- 页面标题 -->
-        <div class="text-center mb-12 fade-in">
-          <h1 class="text-5xl font-bold text-blue-700 mb-4 animate-fade-in-down">
-            👥 我的社区
-          </h1>
-          <p class="text-xl text-gray-700 font-medium animate-fade-in-up">
+        <div class="flex flex-col md:flex-row justify-center md:justify-between items-center mb-12 fade-in">
+          <div class="flex items-center justify-center md:justify-start mb-4 md:mb-0 w-full md:w-auto">
+            <h1 class="text-4xl md:text-5xl font-bold text-blue-700 animate-fade-in-down flex items-center mr-4">
+              👥 我的社区
+            </h1>
+            <div class="md:hidden">
+              <router-link to="/profile">
+                <el-button type="info">我的</el-button>
+              </router-link>
+            </div>
+          </div>
+          <p class="text-xl text-gray-700 font-medium animate-fade-in-up w-full md:w-auto text-center md:text-left">
             用手语连接爱与理解，让沟通无碍
           </p>
         </div>
 
-        <div class="grid lg:grid-cols-3 gap-8">
+        <!-- 手机端布局：发帖区、热门话题、手语公益星 -->
+        <div class="lg:hidden space-y-6">
+          <!-- 发布动态 -->
+          <el-card class="mb-4">
+            <template #header>
+              <span class="text-lg font-semibold"></span>
+            </template>
+            <div class="space-y-3">
+              <div class="relative">
+                <el-input
+                  type="textarea"
+                  :rows="2"
+                  placeholder="说点什么..."
+                  v-model="newPost"
+                  @input="handleHashtagInput"
+                ></el-input>
+                
+                <!-- 话题标签建议框 -->
+                <div v-if="showHashtagSuggestions" class="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-md shadow-lg z-10 mt-1 max-h-48 overflow-y-auto">
+                  <div class="p-2">
+                    <div class="text-xs text-gray-500 mb-2">热门话题</div>
+                    <div v-for="topic in hashtagSuggestions" :key="topic.id" 
+                         class="flex items-center justify-between p-2 hover:bg-gray-100 cursor-pointer rounded"
+                         @click="selectHashtag(topic)">
+                      <span class="text-blue-600">#{{ topic.name }}</span>
+                      <span class="text-xs text-gray-500">{{ topic.count }} 讨论</span>
+                    </div>
+                    <div v-if="newHashtag.trim()" 
+                         class="flex items-center justify-between p-2 hover:bg-gray-100 cursor-pointer rounded border-t border-gray-200 mt-2"
+                         @click="createNewHashtag">
+                      <span class="text-green-600">创建新话题: #{{ newHashtag }}</span>
+                      <span class="text-xs text-green-500">新建</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- 上传的图片预览 -->
+              <div v-if="uploadedImages.length > 0" class="space-y-1">
+                <div class="text-xs text-gray-600">已上传图片：</div>
+                <div class="flex flex-wrap gap-1">
+                  <div v-for="image in uploadedImages" :key="image.id" class="relative">
+                    <img :src="image.url" :alt="image.name" class="w-16 h-16 object-cover rounded border">
+                    <button @click="removeImage(image.id)" class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 text-xs hover:bg-red-600">×</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 上传的视频预览 -->
+              <div v-if="uploadedVideos.length > 0" class="space-y-1">
+                <div class="text-xs text-gray-600">已上传视频：</div>
+                <div class="space-y-1">
+                  <div v-for="video in uploadedVideos" :key="video.id" class="relative">
+                    <video :src="video.url" class="w-32 h-20 object-cover rounded border" controls></video>
+                    <button @click="removeVideo(video.id)" class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 text-xs hover:bg-red-600">×</button>
+                    <div class="text-xs text-gray-500 mt-1">{{ video.name }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex justify-between items-center">
+                <div class="flex space-x-1">
+                  <input
+                    ref="imageInput"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    style="display: none"
+                    @change="handleImageUpload"
+                  >
+                  <el-button size="small" :icon="Picture" @click="imageInput.click()">图片</el-button>
+                  
+                  <input
+                    ref="videoInput"
+                    type="file"
+                    accept="video/*"
+                    multiple
+                    style="display: none"
+                    @change="handleVideoUpload"
+                  >
+                  <el-button size="small" :icon="VideoCamera" @click="videoInput.click()">视频</el-button>
+                </div>
+                <el-button type="primary" size="small" @click="publishPost">发布</el-button>
+              </div>
+            </div>
+          </el-card>
+
+          <!-- 热门话题 -->
+          <el-card class="mb-2 p-2">
+            <template #header>
+              <span class="text-base font-semibold">🔥 热门话题</span>
+            </template>
+            <div class="grid grid-cols-2 gap-1">
+              <div v-for="(topic, index) in hotTopics" :key="topic.id" class="flex items-center space-x-1 py-1 hover:bg-gray-50">
+                <span class="text-xs text-gray-500 mr-1">{{ index + 1 }}</span>
+                <span class="text-xs cursor-pointer hover:text-blue-600 flex-1" @click="goToHashtagPage(topic)">{{ topic.name.replace('#', '') }}</span>
+                <el-tag v-if="index < 3" size="small" type="danger" effect="plain" class="text-xs">热</el-tag>
+              </div>
+            </div>
+          </el-card>
+
+          <!-- 手语公益星 -->
+          <el-card class="mb-4">
+            <template #header>
+              <span class="text-lg font-semibold">⭐ 手语公益星</span>
+            </template>
+            <div class="text-center py-3">
+              <p class="font-medium">本期手语公益星：{{ currentCharityStar.name }}</p>
+              <el-button type="primary" size="small" @click="viewCharityStar" class="mt-2">
+                点击即可查看TA的故事
+              </el-button>
+            </div>
+          </el-card>
+        </div>
+
+        <!-- 电脑端布局 -->
+        <div class="hidden lg:grid lg:grid-cols-3 gap-8">
           <!-- 主要内容区域 -->
           <div class="lg:col-span-2 space-y-6">
             <!-- 发布动态 -->
             <el-card>
               <template #header>
-                <span class="text-lg font-semibold">说点什么：</span>
+                <span class="text-lg font-semibold"></span>
               </template>
               <div class="space-y-4">
                 <div class="relative">
@@ -274,26 +396,6 @@
 
           <!-- 侧边栏 -->
           <div class="space-y-6">
-            <!-- 聋健互通组别 -->
-            <el-card>
-              <template #header>
-                <span class="text-lg font-semibold">🤝 聋健互通</span>
-              </template>
-              <div class="space-y-3">
-                <div v-for="group in deafHearingGroups" :key="group.id" class="flex items-center space-x-3">
-                  <el-avatar :size="40" :src="getAvatarUrl(group.avatar)" :class="group.type === 'deaf' ? 'ring-2 ring-green-500' : 'ring-2 ring-blue-500'">
-                    {{ group.name.charAt(0) }}
-                  </el-avatar>
-                  <div class="flex-1">
-                    <div class="font-medium">{{ group.name }}</div>
-                    <div class="text-sm text-gray-500">{{ group.members }} 成员</div>
-                    <div class="text-xs text-gray-400">{{ group.description }}</div>
-                  </div>
-                  <el-button size="small" type="warning" @click="joinGroup(group)">加入</el-button>
-                </div>
-              </div>
-            </el-card>
-
             <!-- 热门话题 -->
             <el-card>
               <template #header>
@@ -368,6 +470,151 @@
             </el-card>
           </div>
         </div>
+
+        <!-- 手机端帖子列表 -->
+        <div class="lg:hidden">
+          <!-- 动态列表 -->
+          <div class="space-y-4 mt-6">
+            <el-card v-for="post in posts" :key="post.id" class="hover:shadow-lg transition-shadow">
+              <div class="flex items-start space-x-4">
+                <el-avatar :size="50" :src="getAvatarUrl(post.avatar)">
+                  {{ post.username.charAt(0) }}
+                </el-avatar>
+                <div class="flex-1">
+                  <div class="flex items-center space-x-2 mb-2">
+                    <span class="font-semibold">{{ post.username }}</span>
+                    <span class="text-gray-500 text-sm">{{ formatDate(post.time) }}</span>
+                  </div>
+                  <p class="text-gray-700 mb-3">{{ post.content }}</p>
+                  
+                  <!-- 显示帖子中的图片 -->
+                  <div v-if="post.images && post.images.length > 0" class="mb-3">
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      <img v-for="image in post.images" :key="image.id" :src="image.url" :alt="image.name" class="w-full h-32 object-cover rounded border cursor-pointer hover:opacity-80" @click="openImageModal(image.url)" loading="lazy">
+                    </div>
+                  </div>
+
+                  <!-- 显示帖子中的视频 -->
+                  <div v-if="post.videos && post.videos.length > 0" class="mb-3">
+                    <video v-for="video in post.videos" :key="video.id" :src="video.url" class="w-full max-w-md rounded border" controls></video>
+                  </div>
+                  <div class="flex items-center justify-between text-gray-500 text-sm mb-4">
+                    <span class="flex items-center cursor-pointer hover:text-blue-600 flex-1 justify-center" @click="toggleCommentInput(post.id)">
+                      <el-icon class="mr-1"><ChatDotRound /></el-icon>
+                      {{ post.comments }} 评论
+                    </span>
+                    <span class="flex items-center cursor-pointer hover:text-red-600 flex-1 justify-center" @click="toggleLike(post.id)">
+                      <span class="mr-1 text-lg" :class="{ 'text-red-500': post.isLiked }">{{ post.isLiked ? '❤️' : '🤍' }}</span>
+                      {{ post.likes }} 点赞
+                    </span>
+                    <span class="flex items-center cursor-pointer hover:text-green-600 flex-1 justify-center" @click="viewPostDetail(post.id)">
+                      <el-icon class="mr-1"><View /></el-icon>
+                      查看详情
+                    </span>
+                  </div>
+
+                  <!-- 评论输入框 -->
+                  <div v-if="showCommentInput[post.id]" class="mb-4">
+                    <el-input
+                      v-model="newComment"
+                      type="textarea"
+                      :rows="2"
+                      placeholder="写下你的评论..."
+                      class="mb-2"
+                    ></el-input>
+                    <div class="flex justify-end space-x-2">
+                      <el-button size="small" @click="showCommentInput[post.id] = false">取消</el-button>
+                      <el-button size="small" type="primary" @click="addComment(post.id)">发布评论</el-button>
+                    </div>
+                  </div>
+
+                  <!-- 评论列表 - 只显示前3条 -->
+                  <div v-if="post.commentList && post.commentList.length > 0" class="border-t pt-4">
+                    <div v-for="comment in post.commentList.slice(0, 3)" :key="comment.id" class="mb-4">
+                      <div class="flex items-start space-x-3">
+                        <el-avatar :size="35" :src="getAvatarUrl(comment.avatar)">
+                          {{ comment.username.charAt(0) }}
+                        </el-avatar>
+                        <div class="flex-1">
+                          <div class="flex items-center space-x-2 mb-1">
+                            <span class="font-medium text-sm">{{ comment.username }}</span>
+                            <span class="text-gray-500 text-xs">{{ formatDate(comment.time) }}</span>
+                          </div>
+                          <p class="text-gray-700 text-sm mb-2">{{ comment.content }}</p>
+                          <div class="flex items-center space-x-4 text-xs text-gray-500">
+                            <span class="cursor-pointer hover:text-blue-600" @click="toggleReplyInput(post.id, comment.id)">
+                              回复
+                            </span>
+                            <span class="cursor-pointer hover:text-red-600" @click="toggleCommentLike(comment.id, post.id, 'comment')">
+                              <span :class="comment.isLiked ? 'text-red-500' : ''">{{ comment.isLiked ? '❤️' : '🤍' }}</span>
+                              {{ comment.likes || 0 }} 点赞
+                            </span>
+                          </div>
+
+                          <!-- 回复输入框 -->
+                          <div v-if="showReplyInput[`${post.id}-${comment.id}`]" class="mt-2">
+                            <el-input
+                              v-model="replyToComment[`${post.id}-${comment.id}`]"
+                              type="textarea"
+                              :rows="1"
+                              placeholder="回复 @{{ comment.username }}..."
+                              class="mb-2"
+                            ></el-input>
+                            <div class="flex justify-end space-x-2">
+                              <el-button size="small" @click="showReplyInput[`${post.id}-${comment.id}`] = false">取消</el-button>
+                              <el-button size="small" type="primary" @click="addReply(post.id, comment.id)">回复</el-button>
+                            </div>
+                          </div>
+
+                          <!-- 楼中楼回复 -->
+                          <div v-if="comment.replies && comment.replies.length > 0" class="mt-2">
+                            <div v-for="reply in comment.replies" :key="reply.id" class="mb-2 flex items-start space-x-2">
+                              <el-avatar :size="25" :src="getAvatarUrl(reply.avatar)">
+                                {{ reply.username.charAt(0) }}
+                              </el-avatar>
+                              <div class="flex-1">
+                                <div class="flex items-center space-x-2 mb-1">
+                                  <span class="font-medium text-xs">{{ reply.username }}</span>
+                                  <span v-if="reply.replyTo" class="text-blue-600 text-xs">@{{ reply.replyTo }}</span>
+                                  <span class="text-gray-500 text-xs">{{ formatDate(reply.time) }}</span>
+                                </div>
+                                <p class="text-gray-700 text-xs">{{ reply.content }}</p>
+                                <div class="flex items-center space-x-4 text-xs text-gray-500 mt-1">
+                                  <span class="cursor-pointer hover:text-red-600" @click="toggleCommentLike(reply.id, post.id, 'comment')">
+                                    <span :class="reply.isLiked ? 'text-red-500' : ''">{{ reply.isLiked ? '❤️' : '🤍' }}</span>
+                                    {{ reply.likes || 0 }} 点赞
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- 查看更多评论提示 -->
+                    <div v-if="post.commentList.length > 3" class="text-center pt-2 border-t">
+                      <span class="text-blue-600 text-sm cursor-pointer hover:underline" @click="viewPostDetail(post.id)">
+                        查看全部 {{ post.commentList.length }} 条评论
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </el-card>
+          </div>
+          
+          <!-- 加载更多提示 -->
+          <div v-if="loading" class="text-center py-4">
+            <el-icon class="is-loading"><Loading /></el-icon>
+            <span class="ml-2">加载中...</span>
+          </div>
+          <div v-else-if="!hasMore && posts.length > 0" class="text-center py-4 text-gray-500">
+            没有更多内容了
+          </div>
+          <div v-else-if="posts.length === 0" class="text-center py-8 text-gray-500">
+            暂无帖子，快来发布第一条动态吧！
+          </div>
+        </div>
       </div>
     </main>
 
@@ -377,6 +624,22 @@
         <p>&copy; 2025 手语教学平台. All rights reserved.</p>
       </div>
     </footer>
+
+    <!-- 移动端底部导航栏 -->
+    <div class="mobile-bottom-nav">
+      <router-link to="/learn" class="mobile-nav-item">
+        <span class="mobile-nav-icon">📚</span>
+        <span class="mobile-nav-text">学堂</span>
+      </router-link>
+      <router-link to="/translate" class="mobile-nav-item">
+        <span class="mobile-nav-icon">🔤</span>
+        <span class="mobile-nav-text">译站</span>
+      </router-link>
+      <router-link to="/community" class="mobile-nav-item active">
+        <span class="mobile-nav-icon">💬</span>
+        <span class="mobile-nav-text">手语圈</span>
+      </router-link>
+    </div>
   </div>
 </template>
 
@@ -872,6 +1135,17 @@ export default {
       router.push(`/post/${postId}`)
     }
 
+    // 格式化日期，只显示日期部分
+    const formatDate = (dateString) => {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+    };
+
     return {
       newPost,
       newComment,
@@ -917,7 +1191,8 @@ export default {
       openImageModal,
       viewPostDetail,
       loadMorePosts,
-      getAvatarUrl
+      getAvatarUrl,
+      formatDate
     }
   },
   mounted() {
@@ -1006,12 +1281,24 @@ export default {
   transform: translateY(-2px) !important;
 }
 
-:deep(.el-card__header) {
+/* 热门话题和公益星卡片头部保持蓝紫色 */
+:deep(.el-card:nth-child(2) .el-card__header),
+:deep(.el-card:nth-child(3) .el-card__header) {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
   color: white !important;
   border-radius: 16px 16px 0 0 !important;
   padding: 16px 20px !important;
   font-weight: 600 !important;
+}
+
+/* 发帖区卡片头部使用白色背景 */
+:deep(.el-card:nth-child(1) .el-card__header) {
+  background: white !important;
+  color: #333 !important;
+  border-radius: 16px 16px 0 0 !important;
+  padding: 12px 16px !important;
+  font-weight: 600 !important;
+  border-bottom: 1px solid #f0f0f0 !important;
 }
 
 :deep(.el-card__body) {
@@ -1273,5 +1560,91 @@ footer {
 .loading {
   opacity: 0.6;
   pointer-events: none;
+}
+
+/* 移动端底部导航栏 */
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 60px;
+  z-index: 1000;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  height: 100%;
+  text-decoration: none;
+  color: #6b7280;
+  transition: all 0.3s ease;
+}
+
+.mobile-nav-item.active {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.mobile-nav-icon {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.mobile-nav-text {
+  font-size: 12px;
+}
+
+/* 响应式设计 */
+@media (min-width: 768px) {
+  /* 在桌面端隐藏底部导航栏 */
+  .mobile-bottom-nav {
+    display: none;
+  }
+  
+  /* 确保桌面端顶部导航栏可见 */
+  nav .hidden.md\:flex {
+    display: flex;
+  }
+}
+
+@media (max-width: 767px) {
+  /* 在移动端隐藏顶部导航栏 */
+  nav .hidden.md\:flex {
+    display: none;
+  }
+  
+  /* 确保移动端底部导航栏可见 */
+  .mobile-bottom-nav {
+    display: flex;
+  }
+  
+  /* 为移动端内容添加底部间距，避免被底部导航栏遮挡 */
+  main {
+    padding-bottom: 70px;
+  }
+  
+  /* 调整移动端布局 */
+  .grid.lg\:grid-cols-3 {
+    grid-template-columns: 1fr;
+  }
+  
+  .lg\:col-span-2 {
+    width: 100%;
+  }
+  
+  .lg\:col-span-1 {
+    width: 100%;
+  }
 }
 </style>

@@ -135,6 +135,17 @@ const groups = ref([])
 // 获取token
 const getToken = () => localStorage.getItem('token')
 
+// 动态获取API基础地址
+const getApiBaseUrl = () => {
+  const hostname = window.location.hostname
+  // 如果是localhost或127.0.0.1，使用localhost
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return '${getApiBaseUrl()}'
+  }
+  // 否则使用当前页面的hostname（这样手机访问时会自动使用电脑的IP）
+  return `http://${hostname}:8000/api`
+}
+
 // 格式化日期
 const formatDate = (dateString) => {
   if (!dateString) return '-'
@@ -145,7 +156,7 @@ const formatDate = (dateString) => {
 // 获取统计数据
 const fetchStats = async () => {
   try {
-    const response = await fetch('http://localhost:8000/api/admin/stats', {
+    const response = await fetch(`${getApiBaseUrl()}/admin/stats`, {
       headers: {
         'Authorization': `Bearer ${getToken()}`
       }
@@ -166,7 +177,7 @@ const fetchUsers = async (filters = {}) => {
     if (filters.search) params.append('search', filters.search)
     if (filters.role) params.append('role', filters.role)
     
-    const response = await fetch(`http://localhost:8000/api/admin/users?${params}`, {
+    const response = await fetch(`${getApiBaseUrl()}/admin/users?${params}`, {
       headers: {
         'Authorization': `Bearer ${getToken()}`
       }
@@ -188,7 +199,7 @@ const fetchPosts = async (filters = {}) => {
     if (filters.author) params.append('author', filters.author)
     if (filters.date) params.append('date', filters.date)
     
-    const response = await fetch(`http://localhost:8000/api/admin/posts?${params}`, {
+    const response = await fetch(`${getApiBaseUrl()}/admin/posts?${params}`, {
       headers: {
         'Authorization': `Bearer ${getToken()}`
       }
@@ -208,7 +219,7 @@ const fetchComments = async (filters = {}) => {
     const params = new URLSearchParams()
     if (filters.search) params.append('search', filters.search)
     
-    const response = await fetch(`http://localhost:8000/api/admin/comments?${params}`, {
+    const response = await fetch(`${getApiBaseUrl()}/admin/comments?${params}`, {
       headers: {
         'Authorization': `Bearer ${getToken()}`
       }
@@ -225,7 +236,7 @@ const fetchComments = async (filters = {}) => {
 // 获取日志
 const fetchLogs = async () => {
   try {
-    const response = await fetch('http://localhost:8000/api/admin/logs', {
+    const response = await fetch(`${getApiBaseUrl()}/admin/logs`, {
       headers: {
         'Authorization': `Bearer ${getToken()}`
       }
@@ -250,7 +261,7 @@ const fetchGroups = async (filters = {}) => {
     const params = new URLSearchParams()
     if (filters.search) params.append('search', filters.search)
     
-    const response = await fetch(`http://localhost:8000/api/admin/groups?${params}`, {
+    const response = await fetch(`${getApiBaseUrl()}/admin/groups?${params}`, {
       headers: {
         'Authorization': `Bearer ${getToken()}`
       }
@@ -270,7 +281,7 @@ const fetchGroups = async (filters = {}) => {
 // 查看帖子详情
 const viewPost = async (post, callback) => {
   try {
-    const response = await fetch(`http://localhost:8000/api/admin/posts/${post.id}`, {
+    const response = await fetch(`${getApiBaseUrl()}/admin/posts/${post.id}`, {
       headers: {
         'Authorization': `Bearer ${getToken()}`
       }
@@ -288,7 +299,7 @@ const viewPost = async (post, callback) => {
 const viewGroup = async (group, callback) => {
   try {
     // 获取社群基本信息和成员
-    const groupResponse = await fetch(`http://localhost:8000/api/admin/groups/${group.id}`, {
+    const groupResponse = await fetch(`${getApiBaseUrl()}/admin/groups/${group.id}`, {
       headers: {
         'Authorization': `Bearer ${getToken()}`
       }
@@ -301,7 +312,7 @@ const viewGroup = async (group, callback) => {
     }
     
     // 获取群聊消息
-    const messagesResponse = await fetch(`http://localhost:8000/api/admin/groups/${group.id}/messages`, {
+    const messagesResponse = await fetch(`${getApiBaseUrl()}/admin/groups/${group.id}/messages`, {
       headers: {
         'Authorization': `Bearer ${getToken()}`
       }
@@ -339,7 +350,7 @@ const deleteGroup = async (group) => {
       }
     )
     
-    const response = await fetch(`http://localhost:8000/api/admin/groups/${group.id}`, {
+    const response = await fetch(`${getApiBaseUrl()}/admin/groups/${group.id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${getToken()}`
@@ -374,7 +385,7 @@ const removeMember = async (group, member) => {
       }
     )
     
-    const response = await fetch(`http://localhost:8000/api/admin/groups/${group.id}/members/${member.user_id}`, {
+    const response = await fetch(`${getApiBaseUrl()}/admin/groups/${group.id}/members/${member.user_id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${getToken()}`
@@ -410,7 +421,7 @@ const deleteMessage = async (message) => {
       }
     )
     
-    const response = await fetch(`http://localhost:8000/api/admin/group-messages/${message.id}`, {
+    const response = await fetch(`${getApiBaseUrl()}/admin/group-messages/${message.id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${getToken()}`
@@ -436,7 +447,7 @@ const deleteMessage = async (message) => {
 // 查看用户详情
 const viewUserDetail = async (user) => {
   try {
-    const response = await fetch(`http://localhost:8000/api/admin/users/${user.id}`, {
+    const response = await fetch(`${getApiBaseUrl()}/admin/users/${user.id}`, {
       headers: {
         'Authorization': `Bearer ${getToken()}`
       }
@@ -496,7 +507,7 @@ const toggleUserStatus = async (user) => {
       }
     )
     
-    const response = await fetch(`http://localhost:8000/api/admin/users/${user.id}/status`, {
+    const response = await fetch(`${getApiBaseUrl()}/admin/users/${user.id}/status`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -533,7 +544,7 @@ const deleteUser = async (user, callback) => {
       }
     )
     
-    const response = await fetch(`http://localhost:8000/api/admin/users/${user.id}`, {
+    const response = await fetch(`${getApiBaseUrl()}/admin/users/${user.id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${getToken()}`
@@ -559,7 +570,7 @@ const deleteUser = async (user, callback) => {
 // 新增用户
 const createUser = async (userData) => {
   try {
-    const response = await fetch('http://localhost:8000/api/admin/users', {
+    const response = await fetch('${getApiBaseUrl()}/admin/users', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -594,7 +605,7 @@ const deletePost = async (post, callback) => {
       }
     )
     
-    const response = await fetch(`http://localhost:8000/api/admin/posts/${post.id}`, {
+    const response = await fetch(`${getApiBaseUrl()}/admin/posts/${post.id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${getToken()}`
@@ -630,7 +641,7 @@ const deleteComment = async (comment, callback) => {
       }
     )
     
-    const response = await fetch(`http://localhost:8000/api/admin/comments/${comment.id}`, {
+    const response = await fetch(`${getApiBaseUrl()}/admin/comments/${comment.id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${getToken()}`

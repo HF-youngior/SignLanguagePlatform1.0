@@ -1,13 +1,12 @@
 <template>
   <div class="min-h-screen animated-gradient">
     <!-- 导航栏 -->
-    <nav class="backdrop-blur-md bg-white/70 shadow-lg">
+    <nav class="backdrop-blur-md bg-white/70 shadow-lg md:block hidden">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center">
             <router-link to="/" class="flex items-center text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
-              <!-- 使用已有的默认头像图片代替缺失的 logo 文件，避免 Vite 解析错误 -->
-              <img src="/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
+              <img src="@/assets/logo/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
               <span>掌中语-手语小镇</span>
             </router-link>
           </div>
@@ -25,13 +24,13 @@
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- 页面标题 -->
         <div class="text-center mb-8 fade-in">
-          <h1 class="text-5xl font-bold text-blue-700 mb-4 animate-fade-in-down font-sans tracking-wide">
+          <h1 class="text-4xl md:text-5xl font-bold text-blue-700 mb-4 animate-fade-in-down font-sans tracking-wide">
             指尖学堂开课啦！
           </h1>
         </div>
 
         <!-- 学习模式选择 - 移到顶部 -->
-        <div class="mb-16 fade-in">
+        <div class="mb-8 fade-in">
           <div class="town-section-card">
             <div class="town-section-card__header">
               <div class="town-section-card__title">
@@ -42,7 +41,8 @@
                 </div>
             </div>
             <div class="town-section-card__body">
-              <div class="grid gap-8 md:grid-cols-2">
+              <!-- 电脑端布局 -->
+              <div class="hidden md:grid gap-8 md:grid-cols-2">
                 <div
                   v-for="mode in learningModes"
                   :key="mode.key"
@@ -60,7 +60,6 @@
                         <h3>{{ mode.title }}</h3>
                         <span class="adventure-card__badge">{{ mode.badge }}</span>
                       </div>
-  
                     </div>
                   </div>
                   <div class="adventure-card__footer">
@@ -79,6 +78,44 @@
                         {{ mode.actionLabel }}
                       </el-button>
                     </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- 手机端布局 -->
+              <div class="grid grid-cols-2 gap-4 md:hidden">
+                <div
+                  v-for="mode in learningModes"
+                  :key="mode.key"
+                  class="adventure-card-sm"
+                  :style="{
+                    '--accent-color': mode.accent,
+                    '--accent-light': mode.accentLight
+                  }"
+                  @click="goToMode(mode)"
+                >
+                  <div class="adventure-card-sm__header">
+                    <div class="adventure-card-sm__icon" :style="{ background: mode.iconBg }">{{ mode.icon }}</div>
+                    <div class="adventure-card-sm__info">
+                      <div class="adventure-card-sm__title">
+                        <h3>{{ mode.title }}</h3>
+                        <span class="adventure-card-sm__badge">{{ mode.badge }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="adventure-card-sm__footer">
+                    <div class="adventure-card-sm__progress">
+                      <div class="adventure-card-sm__progress-bar" :style="{ width: mode.progress + '%' }"></div>
+                    </div>
+                    <div class="adventure-card-sm__progress-text">已完成 {{ mode.progress }}%</div>
+                    <el-button
+                      :type="mode.buttonType"
+                      :plain="mode.isDeveloping"
+                      size="small"
+                      @click="handleModeClick(mode)"
+                    >
+                      {{ mode.actionLabel }}
+                    </el-button>
                   </div>
                 </div>
               </div>
@@ -141,6 +178,22 @@
         </div>
       </div>
     </main>
+
+    <!-- 移动端底部导航栏 -->
+    <div class="mobile-bottom-nav">
+      <router-link to="/learn" class="mobile-nav-item active">
+        <span class="mobile-nav-icon">📚</span>
+        <span class="mobile-nav-text">学堂</span>
+      </router-link>
+      <router-link to="/translate" class="mobile-nav-item">
+        <span class="mobile-nav-icon">🔤</span>
+        <span class="mobile-nav-text">译站</span>
+      </router-link>
+      <router-link to="/community" class="mobile-nav-item">
+        <span class="mobile-nav-icon">💬</span>
+        <span class="mobile-nav-text">手语圈</span>
+      </router-link>
+    </div>
 
     <!-- 页脚 -->
     <footer class="backdrop-blur-md bg-white/70 text-gray-700 py-8 mt-16">
@@ -298,6 +351,84 @@ export default {
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12) !important;
   transform: translateY(-2px) !important;
 }
+
+/* 移动端底部导航栏 */
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 60px;
+  z-index: 1000;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  height: 100%;
+  text-decoration: none;
+  color: #6b7280;
+  transition: all 0.3s ease;
+}
+
+.mobile-nav-item.active {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.mobile-nav-icon {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.mobile-nav-text {
+  font-size: 12px;
+}
+
+/* 响应式设计 */
+@media (min-width: 768px) {
+  /* 在桌面端隐藏底部导航栏 */
+  .mobile-bottom-nav {
+    display: none;
+  }
+  
+  /* 确保桌面端顶部导航栏可见 */
+  nav .flex.items-center.space-x-4 {
+    display: flex;
+  }
+}
+
+@media (max-width: 767px) {
+  /* 在移动端隐藏顶部导航栏 */
+  nav .flex.items-center.space-x-4 {
+    display: none;
+  }
+  
+  /* 确保移动端底部导航栏可见 */
+  .mobile-bottom-nav {
+    display: flex;
+  }
+  
+  /* 为移动端内容添加底部间距，避免被底部导航栏遮挡 */
+  main {
+    padding-bottom: 70px;
+  }
+  
+  footer {
+    margin-bottom: 60px;
+  }
+}
+
 ::deep(.el-card__header) {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
   color: white !important;
@@ -305,6 +436,7 @@ export default {
   padding: 16px 20px !important;
   font-weight: 600 !important;
 }
+
 ::deep(.el-card__body) {
   padding: 20px !important;
 }
@@ -367,10 +499,16 @@ export default {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 28px 32px;
+  padding: 16px 20px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: #ffffff;
   position: relative;
+}
+
+@media (min-width: 768px) {
+  .town-section-card__header {
+    padding: 28px 32px;
+  }
 }
 
 .town-section-card__header::after {
@@ -404,11 +542,38 @@ export default {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
+.town-section-card__icon-sm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  font-size: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+@media (min-width: 768px) {
+  .town-section-card__icon-sm {
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+    font-size: 32px;
+  }
+}
+
 .town-section-card__heading {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: 0.02em;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@media (min-width: 768px) {
+  .town-section-card__heading {
+    font-size: 2rem;
+  }
 }
 
 .town-section-card__subheading {
@@ -418,8 +583,14 @@ export default {
 }
 
 .town-section-card__body {
-  padding: 40px 32px 32px;
+  padding: 20px 16px 16px;
   background: #ffffff;
+}
+
+@media (min-width: 768px) {
+  .town-section-card__body {
+    padding: 40px 32px 32px;
+  }
 }
 
 ::deep(.town-section-card__tag) {
@@ -524,7 +695,110 @@ export default {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
+/* 手机端冒险卡片样式 */
+.adventure-card-sm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 2px solid rgba(148, 163, 184, 0.2);
+  box-shadow: 0 10px 30px rgba(79, 70, 229, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
 
+.adventure-card-sm::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--accent-color, #f97316);
+  border-radius: 16px 16px 0 0;
+}
+
+.adventure-card-sm__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.adventure-card-sm__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  color: var(--accent-color, #f59e0b);
+}
+
+.adventure-card-sm__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.adventure-card-sm__title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.adventure-card-sm__title h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.adventure-card-sm__badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  background: var(--accent-light, rgba(99, 102, 241, 0.16));
+  color: var(--accent-color, #6366f1);
+}
+
+.adventure-card-sm__footer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.adventure-card-sm__progress {
+  width: 100%;
+  height: 8px;
+  border-radius: 9999px;
+  background: rgba(226, 232, 240, 0.9);
+  overflow: hidden;
+}
+
+.adventure-card-sm__progress-bar {
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, var(--accent-light, rgba(99, 102, 241, 0.2)), var(--accent-color, #6366f1));
+  transition: width 0.5s ease;
+}
+
+.adventure-card-sm__progress-text {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-align: center;
+}
 
 .adventure-card__footer {
   display: flex;
