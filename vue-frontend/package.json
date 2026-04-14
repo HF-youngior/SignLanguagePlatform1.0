@@ -17,7 +17,9 @@
     "element-plus": "^2.4.4",
     "@element-plus/icons-vue": "^2.3.1",
     "pinia": "^2.1.7",
-    "@mediapipe/hands": "^0.4.1675469240"
+    "@mediapipe/hands": "^0.4.1675469240",
+    "chart.js": "^4.5.1",
+    "vue-chartjs": "^5.3.2"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.5.2",

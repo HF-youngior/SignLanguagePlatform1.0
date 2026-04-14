@@ -1,94 +1,201 @@
 <template>
-  <div class="min-h-screen bg-gray-100">
-    <!-- 顶部导航栏 -->
-    <nav class="bg-gray-800 text-white">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-          <div class="flex items-center">
-            <div class="flex-shrink-0">
-              <span class="text-xl font-bold">管理后台</span>
-            </div>
-            <div class="hidden md:block">
-              <div class="ml-10 flex items-baseline space-x-4">
-                <button
-                  v-for="tab in tabs"
-                  :key="tab.id"
-                  @click="currentTab = tab.id"
-                  :class="[
-                    currentTab === tab.id
-                      ? 'bg-gray-900 text-white'
-                      : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                    'px-3 py-2 rounded-md text-sm font-medium'
-                  ]"
-                >
-                  {{ tab.name }}
-                </button>
-              </div>
-            </div>
-          </div>
-          <div class="flex items-center space-x-4">
-            <span class="text-sm text-gray-300">{{ user?.username }}</span>
+  <div class="min-h-screen bg-slate-100">
+    <nav class="border-b border-slate-200 bg-slate-900 text-white">
+      <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center gap-6">
+          <h1 class="text-lg font-semibold tracking-wide">管理员后台</h1>
+          <div class="hidden items-center gap-2 md:flex">
             <button
-              @click="logout"
-              class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded-md text-sm font-medium"
+              v-for="tab in tabs"
+              :key="tab.id"
+              @click="currentTab = tab.id"
+              :class="[
+                'rounded-md px-3 py-2 text-sm transition-colors',
+                currentTab === tab.id
+                  ? 'bg-white text-slate-900'
+                  : 'text-slate-200 hover:bg-slate-700 hover:text-white'
+              ]"
             >
-              退出
+              {{ tab.name }}
             </button>
           </div>
         </div>
+
+        <div class="flex items-center gap-3">
+          <span class="hidden text-sm text-slate-300 sm:inline">{{ user?.username }}</span>
+          <button
+            @click="refreshCurrentTab"
+            class="rounded-md bg-slate-700 px-3 py-2 text-sm hover:bg-slate-600"
+          >
+            刷新
+          </button>
+          <button
+            @click="logout"
+            class="rounded-md bg-rose-600 px-3 py-2 text-sm hover:bg-rose-500"
+          >
+            退出登录
+          </button>
+        </div>
+      </div>
+
+      <div class="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 pb-3 md:hidden">
+        <button
+          v-for="tab in tabs"
+          :key="`mobile-${tab.id}`"
+          @click="currentTab = tab.id"
+          :class="[
+            'whitespace-nowrap rounded-md px-3 py-1.5 text-xs transition-colors',
+            currentTab === tab.id
+              ? 'bg-white text-slate-900'
+              : 'bg-slate-700 text-slate-200'
+          ]"
+        >
+          {{ tab.name }}
+        </button>
       </div>
     </nav>
 
-    <!-- 主内容区 -->
-    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-      <!-- 统计概览 -->
-      <AdminDashboard v-if="currentTab === 'dashboard'" :stats="stats" />
+    <main class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
+      <div class="px-4 sm:px-0">
+        <template v-if="currentTab === 'dashboard'">
+          <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div class="text-sm text-slate-500">看板范围</div>
+            <div class="flex items-center gap-2">
+              <select
+                v-model.number="dashboardDays"
+                class="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
+                @change="reloadDashboard"
+              >
+                <option :value="7">近 7 天</option>
+                <option :value="14">近 14 天</option>
+                <option :value="30">近 30 天</option>
+              </select>
+              <button
+                @click="reloadDashboard"
+                class="rounded-md bg-slate-800 px-3 py-2 text-sm text-white hover:bg-slate-700"
+              >
+                重载看板
+              </button>
+            </div>
+          </div>
 
-      <!-- 用户管理 -->
-      <AdminUsers 
-        v-else-if="currentTab === 'users'" 
-        :users="users" 
-        :currentUser="currentUser"
-        @fetchUsers="fetchUsers"
-        @toggleUserStatus="toggleUserStatus"
-        @deleteUser="deleteUser"
-        @viewUserDetail="viewUserDetail"
-        @createUser="createUser"
-      />
+          <AdminDashboard
+            :stats="stats"
+            :dashboard="dashboard"
+            :loading="tabState.dashboard.loading"
+            :error="tabState.dashboard.error"
+            @retry="reloadDashboard"
+          />
+        </template>
 
-      <!-- 帖子管理 -->
-      <AdminPosts 
-        v-else-if="currentTab === 'posts'" 
-        :posts="posts" 
-        :comments="comments"
-        @fetchPosts="fetchPosts"
-        @fetchComments="fetchComments"
-        @viewPost="viewPost"
-        @deletePost="deletePost"
-        @deleteComment="deleteComment"
-      />
+        <template v-else-if="currentTab === 'users'">
+          <div v-if="tabState.users.loading" class="rounded-lg bg-white p-6 text-center text-slate-500 shadow">
+            正在加载用户数据...
+          </div>
+          <div v-else-if="tabState.users.error" class="rounded-lg bg-white p-6 shadow">
+            <p class="text-red-600">{{ tabState.users.error }}</p>
+            <button class="mt-4 rounded-md bg-slate-800 px-3 py-2 text-sm text-white" @click="reloadUsers">重试</button>
+          </div>
+          <AdminUsers
+            v-else
+            :users="users"
+            :currentUser="currentUser"
+            @fetchUsers="fetchUsers"
+            @toggleUserStatus="toggleUserStatus"
+            @deleteUser="deleteUser"
+            @viewUserDetail="viewUserDetail"
+            @createUser="createUser"
+          />
+        </template>
 
-      <!-- 社群管理 -->
-      <AdminGroups 
-        v-else-if="currentTab === 'groups'" 
-        :groups="groups"
-        @fetchGroups="fetchGroups"
-        @viewGroup="viewGroup"
-        @deleteGroup="deleteGroup"
-        @removeMember="removeMember"
-        @deleteMessage="deleteMessage"
-      />
+        <template v-else-if="currentTab === 'posts'">
+          <div v-if="tabState.posts.loading" class="rounded-lg bg-white p-6 text-center text-slate-500 shadow">
+            正在加载帖子与评论数据...
+          </div>
+          <div v-else-if="tabState.posts.error" class="rounded-lg bg-white p-6 shadow">
+            <p class="text-red-600">{{ tabState.posts.error }}</p>
+            <button class="mt-4 rounded-md bg-slate-800 px-3 py-2 text-sm text-white" @click="reloadPosts">重试</button>
+          </div>
+          <AdminPosts
+            v-else
+            :posts="posts"
+            :comments="comments"
+            @fetchPosts="fetchPosts"
+            @fetchComments="fetchComments"
+            @viewPost="viewPost"
+            @deletePost="deletePost"
+            @deleteComment="deleteComment"
+          />
+        </template>
 
-      <!-- 操作日志 -->
-      <AdminLogs v-else-if="currentTab === 'logs'" :logs="logs" />
+        <template v-else-if="currentTab === 'groups'">
+          <div v-if="tabState.groups.loading" class="rounded-lg bg-white p-6 text-center text-slate-500 shadow">
+            正在加载社群数据...
+          </div>
+          <div v-else-if="tabState.groups.error" class="rounded-lg bg-white p-6 shadow">
+            <p class="text-red-600">{{ tabState.groups.error }}</p>
+            <button class="mt-4 rounded-md bg-slate-800 px-3 py-2 text-sm text-white" @click="reloadGroups">重试</button>
+          </div>
+          <AdminGroups
+            v-else
+            :groups="groups"
+            @fetchGroups="fetchGroups"
+            @viewGroup="viewGroup"
+            @deleteGroup="deleteGroup"
+            @removeMember="removeMember"
+            @deleteMessage="deleteMessage"
+          />
+        </template>
+
+        <template v-else-if="currentTab === 'logs'">
+          <div class="mb-4 rounded-lg bg-white p-4 shadow">
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-6">
+              <input
+                v-model="logFilters.keyword"
+                type="text"
+                placeholder="关键词"
+                class="rounded-md border border-slate-300 px-3 py-2 text-sm"
+              />
+              <input
+                v-model="logFilters.action"
+                type="text"
+                placeholder="操作类型"
+                class="rounded-md border border-slate-300 px-3 py-2 text-sm"
+              />
+              <input
+                v-model="logFilters.startDate"
+                type="date"
+                class="rounded-md border border-slate-300 px-3 py-2 text-sm"
+              />
+              <input
+                v-model="logFilters.endDate"
+                type="date"
+                class="rounded-md border border-slate-300 px-3 py-2 text-sm"
+              />
+              <button class="rounded-md bg-slate-800 px-3 py-2 text-sm text-white" @click="reloadLogs">筛选</button>
+              <button class="rounded-md border border-slate-300 px-3 py-2 text-sm" @click="resetLogFilters">重置</button>
+            </div>
+          </div>
+
+          <div v-if="tabState.logs.loading" class="rounded-lg bg-white p-6 text-center text-slate-500 shadow">
+            正在加载操作日志...
+          </div>
+          <div v-else-if="tabState.logs.error" class="rounded-lg bg-white p-6 shadow">
+            <p class="text-red-600">{{ tabState.logs.error }}</p>
+            <button class="mt-4 rounded-md bg-slate-800 px-3 py-2 text-sm text-white" @click="reloadLogs">重试</button>
+          </div>
+          <AdminLogs v-else :logs="logs" />
+        </template>
+      </div>
     </main>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import apiService from '../services/api'
 import AdminDashboard from '../components/admin/AdminDashboard.vue'
 import AdminUsers from '../components/admin/AdminUsers.vue'
 import AdminPosts from '../components/admin/AdminPosts.vue'
@@ -99,6 +206,8 @@ const router = useRouter()
 const currentTab = ref('dashboard')
 const user = ref(null)
 const currentUser = ref(null)
+const dashboard = ref(null)
+const dashboardDays = ref(7)
 
 const tabs = [
   { id: 'dashboard', name: '系统概览' },
@@ -108,7 +217,6 @@ const tabs = [
   { id: 'logs', name: '操作日志' }
 ]
 
-// 统计数据
 const stats = reactive({
   users: {},
   posts: {},
@@ -117,388 +225,302 @@ const stats = reactive({
   translations: {}
 })
 
-// 用户管理
 const users = ref([])
-
-// 帖子管理
 const posts = ref([])
-
-// 评论管理
 const comments = ref([])
-
-// 日志
 const logs = ref([])
-
-// 社群管理
 const groups = ref([])
 
-// 获取token
-const getToken = () => localStorage.getItem('token')
+const tabState = reactive({
+  dashboard: { loaded: false, loading: false, error: '' },
+  users: { loaded: false, loading: false, error: '' },
+  posts: { loaded: false, loading: false, error: '' },
+  groups: { loaded: false, loading: false, error: '' },
+  logs: { loaded: false, loading: false, error: '' }
+})
 
-// 动态获取API基础地址
-const getApiBaseUrl = () => {
-  const hostname = window.location.hostname
-  // 如果是localhost或127.0.0.1，使用localhost
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return '${getApiBaseUrl()}'
-  }
-  // 否则使用当前页面的hostname（这样手机访问时会自动使用电脑的IP）
-  return `http://${hostname}:8000/api`
-}
+const userFilters = reactive({ search: '', role: '' })
+const postFilters = reactive({ search: '', author: '', date: '' })
+const commentFilters = reactive({ search: '' })
+const groupFilters = reactive({ search: '' })
+const logFilters = reactive({ action: '', startDate: '', endDate: '', keyword: '' })
 
-// 格式化日期
 const formatDate = (dateString) => {
   if (!dateString) return '-'
-  const date = new Date(dateString)
-  return date.toLocaleString('zh-CN')
+  return new Date(dateString).toLocaleString('zh-CN')
 }
 
-// 获取统计数据
+const parseApiError = (error, apiName) => {
+  const status = error?.status ? ` [${error.status}]` : ''
+  const message = error?.message || '未知错误'
+  const endpoint = error?.endpoint ? ` (${error.endpoint})` : ''
+  console.error(`[Admin:${apiName}]`, error)
+  return `${apiName}失败${status}: ${message}${endpoint}`
+}
+
+const withTabLoading = async (tab, loader, force = false) => {
+  const state = tabState[tab]
+  if (state.loading) return
+  if (state.loaded && !force) return
+
+  state.loading = true
+  state.error = ''
+  try {
+    await loader()
+    state.loaded = true
+  } catch (error) {
+    state.error = parseApiError(error, tab)
+    throw error
+  } finally {
+    state.loading = false
+  }
+}
+
 const fetchStats = async () => {
-  try {
-    const response = await fetch(`${getApiBaseUrl()}/admin/stats`, {
-      headers: {
-        'Authorization': `Bearer ${getToken()}`
-      }
-    })
-    const data = await response.json()
-    if (data.success) {
-      Object.assign(stats, data.data)
-    }
-  } catch (error) {
-    console.error('获取统计数据错误:', error)
+  const response = await apiService.getAdminStats()
+  if (response.success) {
+    Object.assign(stats, response.data)
   }
 }
 
-// 获取用户列表
-const fetchUsers = async (filters = {}) => {
-  try {
-    const params = new URLSearchParams()
-    if (filters.search) params.append('search', filters.search)
-    if (filters.role) params.append('role', filters.role)
-    
-    const response = await fetch(`${getApiBaseUrl()}/admin/users?${params}`, {
-      headers: {
-        'Authorization': `Bearer ${getToken()}`
-      }
-    })
-    const data = await response.json()
-    if (data.success) {
-      users.value = data.data.users
-    }
-  } catch (error) {
-    console.error('获取用户列表错误:', error)
+const fetchDashboard = async () => {
+  const response = await apiService.getAdminDashboard(dashboardDays.value)
+  if (response.success) {
+    dashboard.value = response.data
   }
 }
 
-// 获取帖子列表
-const fetchPosts = async (filters = {}) => {
-  try {
-    const params = new URLSearchParams()
-    if (filters.search) params.append('search', filters.search)
-    if (filters.author) params.append('author', filters.author)
-    if (filters.date) params.append('date', filters.date)
-    
-    const response = await fetch(`${getApiBaseUrl()}/admin/posts?${params}`, {
-      headers: {
-        'Authorization': `Bearer ${getToken()}`
-      }
-    })
-    const data = await response.json()
-    if (data.success) {
-      posts.value = data.data.posts
-    }
-  } catch (error) {
-    console.error('获取帖子列表错误:', error)
+const fetchUsers = async (filters = null) => {
+  if (filters) Object.assign(userFilters, filters)
+  const response = await apiService.getAdminUsers(userFilters)
+  if (response.success) {
+    users.value = response.data.users || []
   }
 }
 
-// 获取评论列表
-const fetchComments = async (filters = {}) => {
-  try {
-    const params = new URLSearchParams()
-    if (filters.search) params.append('search', filters.search)
-    
-    const response = await fetch(`${getApiBaseUrl()}/admin/comments?${params}`, {
-      headers: {
-        'Authorization': `Bearer ${getToken()}`
-      }
-    })
-    const data = await response.json()
-    if (data.success) {
-      comments.value = data.data.comments
-    }
-  } catch (error) {
-    console.error('获取评论列表错误:', error)
+const fetchPosts = async (filters = null) => {
+  if (filters) Object.assign(postFilters, filters)
+  const response = await apiService.getAdminPosts(postFilters)
+  if (response.success) {
+    posts.value = response.data.posts || []
   }
 }
 
-// 获取日志
-const fetchLogs = async () => {
-  try {
-    const response = await fetch(`${getApiBaseUrl()}/admin/logs`, {
-      headers: {
-        'Authorization': `Bearer ${getToken()}`
-      }
-    })
-    const data = await response.json()
-    if (data.success) {
-      logs.value = data.data.logs
-      console.log('操作日志数据:', data.data.logs)
-    } else {
-      ElMessage.error('获取操作日志失败')
-      console.error('获取操作日志错误:', data.message)
-    }
-  } catch (error) {
-    console.error('获取日志错误:', error)
-    ElMessage.error('获取操作日志失败')
+const fetchComments = async (filters = null) => {
+  if (filters) Object.assign(commentFilters, filters)
+  const response = await apiService.getAdminComments(commentFilters)
+  if (response.success) {
+    comments.value = response.data.comments || []
   }
 }
 
-// 获取社群列表
-const fetchGroups = async (filters = {}) => {
-  try {
-    const params = new URLSearchParams()
-    if (filters.search) params.append('search', filters.search)
-    
-    const response = await fetch(`${getApiBaseUrl()}/admin/groups?${params}`, {
-      headers: {
-        'Authorization': `Bearer ${getToken()}`
-      }
-    })
-    const data = await response.json()
-    if (data.success) {
-      groups.value = data.data.groups
-    } else {
-      ElMessage.error('获取社群列表失败')
-    }
-  } catch (error) {
-    console.error('获取社群列表错误:', error)
-    ElMessage.error('获取社群列表失败')
+const fetchLogs = async (filters = null) => {
+  if (filters) Object.assign(logFilters, filters)
+  const response = await apiService.getAdminLogs(logFilters)
+  if (response.success) {
+    logs.value = response.data.logs || []
   }
 }
 
-// 查看帖子详情
+const fetchGroups = async (filters = null) => {
+  if (filters) Object.assign(groupFilters, filters)
+  const response = await apiService.getAdminGroups(groupFilters)
+  if (response.success) {
+    groups.value = response.data.groups || []
+  }
+}
+
+const loadDashboardTab = async () => {
+  await Promise.all([fetchStats(), fetchDashboard()])
+}
+
+const loadUsersTab = async () => {
+  await fetchUsers()
+}
+
+const loadPostsTab = async () => {
+  await Promise.all([fetchPosts(), fetchComments()])
+}
+
+const loadGroupsTab = async () => {
+  await fetchGroups()
+}
+
+const loadLogsTab = async () => {
+  await fetchLogs()
+}
+
+const tabLoaderMap = {
+  dashboard: loadDashboardTab,
+  users: loadUsersTab,
+  posts: loadPostsTab,
+  groups: loadGroupsTab,
+  logs: loadLogsTab
+}
+
+const ensureTabLoaded = async (tab, force = false) => {
+  const loader = tabLoaderMap[tab]
+  if (!loader) return
+
+  try {
+    await withTabLoading(tab, loader, force)
+  } catch {
+    ElMessage.error(tabState[tab].error || `${tab} 加载失败`)
+  }
+}
+
+const reloadDashboard = async () => {
+  await ensureTabLoaded('dashboard', true)
+}
+
+const reloadUsers = async () => {
+  await ensureTabLoaded('users', true)
+}
+
+const reloadPosts = async () => {
+  await ensureTabLoaded('posts', true)
+}
+
+const reloadGroups = async () => {
+  await ensureTabLoaded('groups', true)
+}
+
+const reloadLogs = async () => {
+  await ensureTabLoaded('logs', true)
+}
+
+const resetLogFilters = async () => {
+  Object.assign(logFilters, { action: '', startDate: '', endDate: '', keyword: '' })
+  await reloadLogs()
+}
+
+const refreshCurrentTab = async () => {
+  await ensureTabLoaded(currentTab.value, true)
+}
+
 const viewPost = async (post, callback) => {
   try {
-    const response = await fetch(`${getApiBaseUrl()}/admin/posts/${post.id}`, {
-      headers: {
-        'Authorization': `Bearer ${getToken()}`
-      }
-    })
-    const data = await response.json()
-    if (data.success && callback) {
-      callback(data.data)
+    const response = await apiService.getAdminPostById(post.id)
+    if (response.success && callback) {
+      callback(response.data)
     }
   } catch (error) {
-    console.error('获取帖子详情错误:', error)
+    ElMessage.error(parseApiError(error, '查看帖子详情'))
   }
 }
 
-// 查看社群详情
 const viewGroup = async (group, callback) => {
   try {
-    // 获取社群基本信息和成员
-    const groupResponse = await fetch(`${getApiBaseUrl()}/admin/groups/${group.id}`, {
-      headers: {
-        'Authorization': `Bearer ${getToken()}`
-      }
-    })
-    const groupData = await groupResponse.json()
-    
-    if (!groupData.success) {
+    const [groupResponse, messagesResponse] = await Promise.all([
+      apiService.getAdminGroupById(group.id),
+      apiService.getAdminGroupMessages(group.id)
+    ])
+
+    if (!groupResponse.success || !messagesResponse.success) {
       ElMessage.error('获取社群详情失败')
       return
     }
-    
-    // 获取群聊消息
-    const messagesResponse = await fetch(`${getApiBaseUrl()}/admin/groups/${group.id}/messages`, {
-      headers: {
-        'Authorization': `Bearer ${getToken()}`
-      }
+
+    callback?.({
+      group: groupResponse.data.group,
+      members: groupResponse.data.members,
+      messages: messagesResponse.data.messages || []
     })
-    const messagesData = await messagesResponse.json()
-    
-    if (!messagesData.success) {
-      ElMessage.error('获取群聊消息失败')
-      return
-    }
-    
-    if (callback) {
-      callback({
-        group: groupData.data.group,
-        members: groupData.data.members,
-        messages: messagesData.data.messages
-      })
-    }
   } catch (error) {
-    console.error('获取社群详情错误:', error)
-    ElMessage.error('获取社群详情失败')
+    ElMessage.error(parseApiError(error, '查看社群详情'))
   }
 }
 
-// 删除社群
 const deleteGroup = async (group) => {
   try {
-    await ElMessageBox.confirm(
-      `确定要删除社群 ${group.name} 吗？`,
-      '确认删除',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'danger'
-      }
-    )
-    
-    const response = await fetch(`${getApiBaseUrl()}/admin/groups/${group.id}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${getToken()}`
-      }
+    await ElMessageBox.confirm(`确定删除社群 ${group.name} 吗？`, '确认删除', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
     })
-    
-    const data = await response.json()
-    if (data.success) {
-      ElMessage.success(data.message)
-      fetchGroups()
-    } else {
-      ElMessage.error(data.message)
+
+    const response = await apiService.deleteAdminGroup(group.id)
+    if (response.success) {
+      ElMessage.success(response.message)
+      await Promise.all([fetchGroups(), fetchDashboard(), fetchStats()])
     }
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('删除社群错误:', error)
-      ElMessage.error('删除失败')
+      ElMessage.error(parseApiError(error, '删除社群'))
     }
   }
 }
 
-// 移出群成员
 const removeMember = async (group, member) => {
   try {
-    await ElMessageBox.confirm(
-      `确定要移出成员 ${member.user_username} 吗？`,
-      '确认操作',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
-    
-    const response = await fetch(`${getApiBaseUrl()}/admin/groups/${group.id}/members/${member.user_id}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${getToken()}`
-      }
+    await ElMessageBox.confirm(`确定移除成员 ${member.user_username} 吗？`, '确认操作', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
     })
-    
-    const data = await response.json()
-    if (data.success) {
-      ElMessage.success(data.message)
-      // 重新获取社群详情
-      viewGroup(group, () => {})
-    } else {
-      ElMessage.error(data.message)
+
+    const response = await apiService.removeAdminGroupMember(group.id, member.user_id)
+    if (response.success) {
+      ElMessage.success(response.message)
+      await fetchGroups()
     }
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('移出群成员错误:', error)
-      ElMessage.error('操作失败')
+      ElMessage.error(parseApiError(error, '移除社群成员'))
     }
   }
 }
 
-// 删除群消息
 const deleteMessage = async (message) => {
   try {
-    await ElMessageBox.confirm(
-      '确定要删除这条消息吗？',
-      '确认删除',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
-    
-    const response = await fetch(`${getApiBaseUrl()}/admin/group-messages/${message.id}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${getToken()}`
-      }
+    await ElMessageBox.confirm('确定删除该群消息吗？', '确认删除', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
     })
-    
-    const data = await response.json()
-    if (data.success) {
-      ElMessage.success(data.message)
-      // 重新获取群聊消息
-      viewGroup({ id: message.group_id }, () => {})
-    } else {
-      ElMessage.error(data.message)
+
+    const response = await apiService.deleteAdminGroupMessage(message.id)
+    if (response.success) {
+      ElMessage.success(response.message)
     }
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('删除群消息错误:', error)
-      ElMessage.error('删除失败')
+      ElMessage.error(parseApiError(error, '删除群消息'))
     }
   }
 }
 
-// 查看用户详情
-const viewUserDetail = async (user) => {
+const viewUserDetail = async (targetUser) => {
   try {
-    const response = await fetch(`${getApiBaseUrl()}/admin/users/${user.id}`, {
-      headers: {
-        'Authorization': `Bearer ${getToken()}`
-      }
-    })
-    const data = await response.json()
-    if (data.success) {
-      // 显示用户详情弹窗
-      ElMessageBox.alert(
-        `<div class="space-y-4">
-          <div class="flex items-center">
-            <div class="flex-shrink-0 h-16 w-16">
-              ${data.data.user.avatar ? `<img src="${data.data.user.avatar}" class="h-16 w-16 rounded-full" alt="" />` : `<div class="h-16 w-16 rounded-full bg-blue-500 flex items-center justify-center text-white text-2xl font-bold">${data.data.user.username.charAt(0).toUpperCase()}</div>`}
-            </div>
-            <div class="ml-4">
-              <h4 class="text-lg font-bold text-gray-900">${data.data.user.username}</h4>
-              <p class="text-gray-600">${data.data.user.email}</p>
-              <p class="text-gray-600">${data.data.user.first_name} ${data.data.user.last_name}</p>
-              <p class="text-gray-600">角色: ${data.data.user.role === 'admin' ? '管理员' : data.data.user.role === 'moderator' ? '版主' : '用户'}</p>
-              <p class="text-gray-600">状态: ${data.data.user.is_active ? '正常' : '禁用'}</p>
-              <p class="text-gray-600">注册时间: ${formatDate(data.data.user.created_at)}</p>
-            </div>
-          </div>
-          ${data.data.user.bio ? `<div><p class="text-gray-700">签名: ${data.data.user.bio}</p></div>` : ''}
-          <div class="border-t border-gray-200 pt-4">
-            <h5 class="font-medium text-gray-900">统计信息</h5>
-            <div class="grid grid-cols-2 gap-2 mt-2">
-              <p>帖子数: ${data.data.stats.posts}</p>
-              <p>评论数: ${data.data.stats.comments}</p>
-              <p>学习记录: ${data.data.stats.learningRecords}</p>
-              <p>翻译记录: ${data.data.stats.translationRecords}</p>
-            </div>
-          </div>
-        </div>`,
-        '用户详情',
-        {
-          dangerouslyUseHTMLString: true,
-          confirmButtonText: '确定'
-        }
-      )
-    }
+    const response = await apiService.getAdminUserById(targetUser.id)
+    if (!response.success) return
+
+    const detail = response.data
+    await ElMessageBox.alert(
+      `<div class="space-y-3">
+        <div><strong>用户名：</strong>${detail.user.username}</div>
+        <div><strong>邮箱：</strong>${detail.user.email}</div>
+        <div><strong>角色：</strong>${detail.user.role}</div>
+        <div><strong>状态：</strong>${detail.user.is_active ? '正常' : '禁用'}</div>
+        <div><strong>注册时间：</strong>${formatDate(detail.user.created_at)}</div>
+        <hr />
+        <div><strong>帖子：</strong>${detail.stats.posts}</div>
+        <div><strong>评论：</strong>${detail.stats.comments}</div>
+        <div><strong>学习记录：</strong>${detail.stats.learningRecords}</div>
+        <div><strong>翻译记录：</strong>${detail.stats.translationRecords}</div>
+      </div>`,
+      '用户详情',
+      { dangerouslyUseHTMLString: true }
+    )
   } catch (error) {
-    console.error('获取用户详情错误:', error)
-    ElMessage.error('获取用户详情失败')
+    ElMessage.error(parseApiError(error, '查看用户详情'))
   }
 }
 
-// 切换用户状态
-const toggleUserStatus = async (user) => {
+const toggleUserStatus = async (targetUser) => {
   try {
     await ElMessageBox.confirm(
-      `确定要${user.is_active ? '禁用' : '启用'}用户 ${user.username} 吗？`,
+      `确定要${targetUser.is_active ? '禁用' : '启用'}用户 ${targetUser.username} 吗？`,
       '确认操作',
       {
         confirmButtonText: '确定',
@@ -506,197 +528,133 @@ const toggleUserStatus = async (user) => {
         type: 'warning'
       }
     )
-    
-    const response = await fetch(`${getApiBaseUrl()}/admin/users/${user.id}/status`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${getToken()}`
-      },
-      body: JSON.stringify({ isActive: !user.is_active })
-    })
-    
-    const data = await response.json()
-    if (data.success) {
-      ElMessage.success(data.message)
-      fetchUsers()
-    } else {
-      ElMessage.error(data.message)
+
+    const response = await apiService.toggleAdminUserStatus(targetUser.id, !targetUser.is_active)
+    if (response.success) {
+      ElMessage.success(response.message)
+      await Promise.all([fetchUsers(), fetchStats(), fetchDashboard()])
     }
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('切换用户状态错误:', error)
-      ElMessage.error('操作失败')
+      ElMessage.error(parseApiError(error, '修改用户状态'))
     }
   }
 }
 
-// 删除用户
-const deleteUser = async (user, callback) => {
+const deleteUser = async (targetUser, callback) => {
   try {
     await ElMessageBox.confirm(
-      `确定要删除用户 ${user.username} 吗？此操作不可恢复！`,
+      `确定删除用户 ${targetUser.username} 吗？此操作不可恢复。`,
       '确认删除',
       {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'danger'
+        type: 'warning'
       }
     )
-    
-    const response = await fetch(`${getApiBaseUrl()}/admin/users/${user.id}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${getToken()}`
-      }
-    })
-    
-    const data = await response.json()
-    if (data.success) {
-      ElMessage.success(data.message)
-      fetchUsers()
-      if (callback) callback()
-    } else {
-      ElMessage.error(data.message)
+
+    const response = await apiService.deleteAdminUser(targetUser.id)
+    if (response.success) {
+      ElMessage.success(response.message)
+      await Promise.all([fetchUsers(), fetchStats(), fetchDashboard()])
+      callback?.()
     }
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('删除用户错误:', error)
-      ElMessage.error('删除失败')
+      ElMessage.error(parseApiError(error, '删除用户'))
     }
   }
 }
 
-// 新增用户
 const createUser = async (userData) => {
   try {
-    const response = await fetch('${getApiBaseUrl()}/admin/users', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${getToken()}`
-      },
-      body: JSON.stringify(userData)
-    })
-    
-    const data = await response.json()
-    if (data.success) {
-      ElMessage.success(data.message)
-      fetchUsers()
-    } else {
-      ElMessage.error(data.message)
+    const response = await apiService.createAdminUser(userData)
+    if (response.success) {
+      ElMessage.success(response.message)
+      await Promise.all([fetchUsers(), fetchStats(), fetchDashboard()])
     }
   } catch (error) {
-    console.error('创建用户错误:', error)
-    ElMessage.error('创建失败')
+    ElMessage.error(parseApiError(error, '创建用户'))
   }
 }
 
-// 删除帖子
 const deletePost = async (post, callback) => {
   try {
-    await ElMessageBox.confirm(
-      '确定要删除这个帖子吗？',
-      '确认删除',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
-    
-    const response = await fetch(`${getApiBaseUrl()}/admin/posts/${post.id}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${getToken()}`
-      }
+    await ElMessageBox.confirm('确定删除该帖子吗？', '确认删除', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
     })
-    
-    const data = await response.json()
-    if (data.success) {
-      ElMessage.success(data.message)
-      fetchPosts()
-      if (callback) callback()
-    } else {
-      ElMessage.error(data.message)
+
+    const response = await apiService.deleteAdminPost(post.id)
+    if (response.success) {
+      ElMessage.success(response.message)
+      await Promise.all([fetchPosts(), fetchStats(), fetchDashboard()])
+      callback?.()
     }
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('删除帖子错误:', error)
-      ElMessage.error('删除失败')
+      ElMessage.error(parseApiError(error, '删除帖子'))
     }
   }
 }
 
-// 删除评论
 const deleteComment = async (comment, callback) => {
   try {
-    await ElMessageBox.confirm(
-      '确定要删除这条评论吗？',
-      '确认删除',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
-    
-    const response = await fetch(`${getApiBaseUrl()}/admin/comments/${comment.id}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${getToken()}`
-      }
+    await ElMessageBox.confirm('确定删除该评论吗？', '确认删除', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
     })
-    
-    const data = await response.json()
-    if (data.success) {
-      ElMessage.success(data.message)
-      fetchComments()
-      fetchPosts() // 同时刷新帖子列表，以便更新评论数
-      if (callback) callback()
-    } else {
-      ElMessage.error(data.message)
+
+    const response = await apiService.deleteAdminComment(comment.id)
+    if (response.success) {
+      ElMessage.success(response.message)
+      await Promise.all([fetchComments(), fetchPosts(), fetchStats(), fetchDashboard()])
+      callback?.()
     }
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('删除评论错误:', error)
-      ElMessage.error('删除失败')
+      ElMessage.error(parseApiError(error, '删除评论'))
     }
   }
 }
 
-// 退出登录
 const logout = () => {
-  localStorage.clear() // 清除所有存储数据，避免存储空间不足
+  localStorage.clear()
   router.push('/')
   ElMessage.success('已退出登录')
 }
 
-onMounted(() => {
-  // 检查用户是否已登录且是管理员
+watch(currentTab, async (tab) => {
+  await ensureTabLoaded(tab)
+})
+
+onMounted(async () => {
   const userStr = localStorage.getItem('user')
   const token = localStorage.getItem('token')
-  
+
   if (!userStr || !token) {
     router.push('/')
     return
   }
-  
-  currentUser.value = JSON.parse(userStr)
+
+  try {
+    currentUser.value = JSON.parse(userStr)
+  } catch {
+    localStorage.clear()
+    router.push('/')
+    return
+  }
+
   user.value = currentUser.value
-  
+
   if (currentUser.value.role !== 'admin') {
     ElMessage.error('权限不足')
     router.push('/home')
     return
   }
-  
-  // 加载数据
-  fetchStats()
-  fetchUsers()
-  fetchPosts()
-  fetchComments()
-  fetchLogs()
-  fetchGroups()
+
+  await ensureTabLoaded('dashboard', true)
 })
 </script>

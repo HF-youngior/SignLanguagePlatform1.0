@@ -5,10 +5,10 @@ dotenv.config();
 
 // 阿里云RDS云端数据库配置
 const dbConfig = {
-  host: process.env.MYSQL_HOST || 'rm-2ze90ovu5a037y1ujxo.mysql.rds.aliyuncs.com',
+  host: process.env.MYSQL_HOST || 'rm-2zelg8vzn3xb07mvako.mysql.rds.aliyuncs.com',
   user: process.env.MYSQL_USER || 'test1',
   password: process.env.MYSQL_PASSWORD || 'asdfgh0625YYH',
-  database: process.env.MYSQL_DATABASE || 'signlanguage_platform',
+  database: process.env.MYSQL_DATABASE || 'csl',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
