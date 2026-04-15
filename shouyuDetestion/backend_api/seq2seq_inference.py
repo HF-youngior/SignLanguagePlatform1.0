@@ -54,7 +54,12 @@ class Seq2SeqRecognizer:
             print(f"Seq2Seq模型路径: {model_path}")
             
             # 加载模型权重
-            checkpoint = torch.load(model_path, map_location=self.device)
+            # 兼容新版本 torch 的 weights_only 参数
+            try:
+                checkpoint = torch.load(model_path, map_location=self.device, weights_only=False)
+            except TypeError:
+                # 如果 torch 版本较旧，不支持 weights_only 参数
+                checkpoint = torch.load(model_path, map_location=self.device)
             
             # 从权重中获取实际的输出维度（词汇表大小）
             # 从decoder.embedding.weight的形状中获取

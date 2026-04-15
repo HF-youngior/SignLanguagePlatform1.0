@@ -8,6 +8,8 @@ import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import os from 'os';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 // 导入路由
 import authRoutes from './routes/auth_mysql.js';
@@ -29,6 +31,12 @@ import { testConnection } from './config/mysql.js';
 
 // 加载环境变量
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const frontendDistPath = path.resolve(__dirname, '../../vue-frontend/dist');
+const frontendIndexPath = path.join(frontendDistPath, 'index.html');
+const pythonApiBaseUrl = process.env.PYTHON_API_BASE_URL || 'http://127.0.0.1:5000/api';
 
 const app = express();
 const server = createServer(app);
@@ -95,6 +103,52 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/uploads', express.static('uploads'));
 app.use('/public', express.static('public'));
 
+// 代理 Python 手语识别服务到同源路径，前端只需访问 3000 端口
+app.use('/translation-api', async (req, res, next) => {
+  try {
+    const targetUrl = new URL(req.originalUrl.replace(/^\/translation-api/, ''), `${pythonApiBaseUrl}/`);
+    const headers = new Headers();
+
+    Object.entries(req.headers).forEach(([key, value]) => {
+      if (!value || key === 'host' || key === 'content-length') {
+        return;
+      }
+
+      if (Array.isArray(value)) {
+        value.forEach((item) => headers.append(key, item));
+        return;
+      }
+
+      headers.set(key, value);
+    });
+
+    const upstreamResponse = await fetch(targetUrl, {
+      method: req.method,
+      headers,
+      body: ['GET', 'HEAD'].includes(req.method) ? undefined : req,
+      duplex: ['GET', 'HEAD'].includes(req.method) ? undefined : 'half'
+    });
+
+    res.status(upstreamResponse.status);
+
+    upstreamResponse.headers.forEach((value, key) => {
+      if (key === 'content-encoding' || key === 'transfer-encoding') {
+        return;
+      }
+      res.setHeader(key, value);
+    });
+
+    const responseBody = Buffer.from(await upstreamResponse.arrayBuffer());
+    res.send(responseBody);
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get('/favicon.ico', (req, res) => {
+  res.status(204).end();
+});
+
 // 健康检查端点
 app.get('/health', (req, res) => {
   res.status(200).json({
@@ -134,6 +188,27 @@ app.get('/api', (req, res) => {
   });
 });
 
+if (process.env.SERVE_FRONTEND !== 'false') {
+  app.use(express.static(frontendDistPath));
+
+  app.get(/^\/(?!api(?:\/|$)|translation-api(?:\/|$)|uploads(?:\/|$)|public(?:\/|$)|health$|socket\.io(?:\/|$)).*/, (req, res, next) => {
+    res.sendFile(frontendIndexPath, (error) => {
+      if (error) {
+        next(error);
+      }
+    });
+  });
+} else {
+  app.get('/', (req, res) => {
+    res.status(200).json({
+      status: 'success',
+      message: '手语教学平台后端服务运行中',
+      api: '/api',
+      health: '/health'
+    });
+  });
+}
+
 // Socket.IO连接处理
 io.on('connection', (socket) => {
   console.log('用户连接:', socket.id);
@@ -163,7 +238,7 @@ app.use(notFound);
 app.use(errorHandler);
 
 // 启动服务器
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 3000;
 
 // 监听所有网络接口，允许通过IP地址访问
 server.listen(PORT, '0.0.0.0', () => {
@@ -184,6 +259,8 @@ server.listen(PORT, '0.0.0.0', () => {
     if (networkAddress !== '127.0.0.1') break;
   }
   console.log(`🌐 网络访问地址: http://${networkAddress}:${PORT}`);
+  console.log(`🖥️  页面访问地址: http://localhost:${PORT}/learn`);
+  console.log(`📱 手机预览地址: http://${networkAddress}:${PORT}/learn`);
   console.log(`📚 API文档地址: http://localhost:${PORT}/api`);
   console.log(`🏥 健康检查地址: http://localhost:${PORT}/health`);
   console.log(`\n✅ 后端服务已就绪\n`);

@@ -3,20 +3,18 @@
     <!-- 导航栏 -->
     <nav class="backdrop-blur-md bg-white/70 shadow-lg">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center h-16">
-          <!-- 手机端返回按钮 -->
-          <router-link to="/community" class="lg:hidden mr-4">
-            <el-button type="primary" plain size="small">
-              返回
-            </el-button>
-          </router-link>
-          
-          <div class="flex items-center flex-1">
+        <div class="flex items-center justify-between h-16 profile-nav-inner">
+          <div class="flex items-center">
+            <!-- 手机端返回按钮 -->
+            <router-link to="/community" class="lg:hidden mr-3 profile-back-chevron" aria-label="返回">〈</router-link>
+
+            <div class="hidden lg:flex items-center flex-1">
             <router-link to="/" class="flex items-center text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
               <!-- 使用已有的默认头像图片代替缺失的 logo 文件，避免 Vite 解析错误 -->
               <img src="@/assets/logo/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
               <span>掌中语-手语小镇</span>
             </router-link>
+            </div>
           </div>
           
           <!-- 电脑端导航链接 -->
@@ -26,30 +24,46 @@
             <router-link to="/community" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">手语圈</router-link>
             <router-link to="/profile" class="nav-link text-blue-700 font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full">我的</router-link>
           </div>
+
+          <!-- 手机端菜单 -->
+          <el-dropdown class="lg:hidden" trigger="click" @command="handleMobileMenuCommand">
+            <button type="button" class="profile-mobile-menu-btn" aria-label="菜单">
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="notifications">消息提示</el-dropdown-item>
+                <el-dropdown-item command="edit">编辑资料</el-dropdown-item>
+                <el-dropdown-item command="logout" divided>退出登录</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </div>
       </div>
     </nav>
 
     <!-- 主要内容 -->
-    <main class="pt-8">
+    <main class="pt-7">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- 个人信息卡片 -->
-        <el-card class="mb-8">
-          <div class="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
-            <el-avatar :size="isMobile ? 80 : 100" :src="getAvatarUrl(userInfo.avatar)" class="ring-4 ring-blue-500 flex-shrink-0">
+        <el-card class="mb-8 profile-summary-card">
+          <div class="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6 profile-summary-layout">
+            <el-avatar :size="isMobile ? 72 : 100" :src="getAvatarUrl(userInfo.avatar)" class="ring-4 ring-blue-500 flex-shrink-0 profile-summary-avatar">
               {{ userInfo.name.charAt(0) }}
             </el-avatar>
-            <div class="flex-1 w-full md:w-auto text-center md:text-left">
+            <div class="flex-1 w-full md:w-auto text-left md:text-left profile-summary-main">
               <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{{ userInfo.name }}</h1>
-              <div class="flex flex-wrap items-center justify-center md:justify-start gap-2 md:space-x-4 mb-4">
+              <div class="hidden md:flex flex-wrap items-center justify-center md:justify-start gap-2 md:space-x-4 mb-4">
                 <el-tag :type="userInfo.level === '初级' ? 'info' : userInfo.level === '中级' ? 'warning' : 'success'">
                   {{ userInfo.level }}
                 </el-tag>
                 <span class="text-gray-600 text-sm">{{ userInfo.joinDate }} 加入</span>
                 <span class="text-gray-600 text-sm">{{ userInfo.location }}</span>
               </div>
-              <p class="text-gray-700 mb-4 text-sm md:text-base px-2 md:px-0">{{ userInfo.bio }}</p>
-              <div class="grid grid-cols-4 gap-2 md:grid-cols-4 md:flex md:items-center md:space-x-4 gap-0">
+              <p class="text-gray-700 mb-4 text-sm md:text-base">{{ userInfo.bio }}</p>
+              <div class="hidden md:grid grid-cols-3 gap-2 md:grid-cols-4 md:flex md:items-center md:space-x-4 gap-0 profile-summary-stats">
                 <div class="text-center">
                   <div class="text-lg md:text-xl font-bold text-blue-600">{{ userInfo.posts }}</div>
                   <div class="text-xs text-gray-500">发布帖子</div>
@@ -62,22 +76,36 @@
                   <div class="text-lg md:text-xl font-bold text-purple-600">{{ userInfo.friends }}</div>
                   <div class="text-xs text-gray-500">好友数量</div>
                 </div>
-                <div class="text-center">
+                <div class="hidden md:block text-center">
                   <div class="text-lg md:text-xl font-bold text-orange-600">{{ userInfo.points }}</div>
                   <div class="text-xs text-gray-500">积分</div>
                 </div>
               </div>
             </div>
-            <div class="flex flex-row md:flex-col space-x-2 md:space-x-0 md:space-y-2 w-full md:w-auto justify-center md:justify-start">
+            <div class="hidden md:flex flex-row md:flex-col space-x-2 md:space-x-0 md:space-y-2 w-full md:w-auto justify-center md:justify-start">
               <el-button type="primary" size="mini" class="md:w-full" @click="showEditDialog = true">编辑资料</el-button>
               <el-button v-if="isOtherUser" type="success" size="mini" class="md:w-full" @click="addFriend">添加好友</el-button>
               <el-button type="danger" size="mini" class="md:w-full" @click="logout">退出登录</el-button>
             </div>
           </div>
+          <div class="md:hidden profile-summary-stats-mobile">
+            <div class="text-center">
+              <div class="text-lg font-bold text-blue-600">{{ userInfo.posts }}</div>
+              <div class="text-xs text-gray-500">发布帖子</div>
+            </div>
+            <div class="text-center">
+              <div class="text-lg font-bold text-green-600">{{ userInfo.groups }}</div>
+              <div class="text-xs text-gray-500">加入社群</div>
+            </div>
+            <div class="text-center">
+              <div class="text-lg font-bold text-purple-600">{{ userInfo.friends }}</div>
+              <div class="text-xs text-gray-500">好友数量</div>
+            </div>
+          </div>
         </el-card>
 
         <!-- 提示栏 -->
-        <el-card class="mb-6">
+        <el-card class="mb-6 hidden md:block">
           <div class="space-y-4">
             <!-- 赞和评论和好友消息 -->
             <div class="grid grid-cols-2 gap-3">
@@ -106,7 +134,7 @@
         </el-card>
 
         <!-- 标签页 -->
-        <el-tabs v-model="activeTab" class="mb-6">
+        <el-tabs v-model="activeTab" class="mb-6 profile-tabs">
           <el-tab-pane label="我的帖子" name="posts">
             <div class="space-y-4 md:space-y-6">
               <el-card v-for="post in myPosts" :key="post.id" class="hover:shadow-lg transition-shadow">
@@ -239,8 +267,8 @@
           </el-tab-pane>
 
           <el-tab-pane label="学习成就" name="achievements">
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <el-card v-for="achievement in achievements" :key="achievement.id" class="hover:shadow-lg transition-shadow">
+            <div class="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <el-card v-for="achievement in achievements" :key="achievement.id" class="hover:shadow-lg transition-shadow cursor-pointer" @click="openAchievementDialog(achievement)">
                 <div class="text-center">
                   <div class="text-4xl mb-4">{{ achievement.icon }}</div>
                   <h3 class="text-lg font-semibold mb-2">{{ achievement.title }}</h3>
@@ -252,6 +280,17 @@
                   </div>
                 </div>
               </el-card>
+            </div>
+            <div class="grid grid-cols-4 gap-2 md:hidden profile-achievement-mobile-grid">
+              <div
+                v-for="achievement in achievements"
+                :key="`mobile-achievement-${achievement.id}`"
+                class="profile-achievement-mobile-item"
+                @click="openAchievementDialog(achievement)"
+              >
+                <div class="profile-achievement-mobile-icon">{{ achievement.icon }}</div>
+                <div class="profile-achievement-mobile-title">{{ achievement.title }}</div>
+              </div>
             </div>
           </el-tab-pane>
         </el-tabs>
@@ -414,21 +453,25 @@
       </template>
     </el-dialog>
 
-    <!-- 移动端底部导航栏 -->
-    <div class="mobile-bottom-nav">
-      <router-link to="/learn" class="mobile-nav-item">
-        <span class="mobile-nav-icon">📚</span>
-        <span class="mobile-nav-text">学堂</span>
-      </router-link>
-      <router-link to="/translate" class="mobile-nav-item">
-        <span class="mobile-nav-icon">🔤</span>
-        <span class="mobile-nav-text">译站</span>
-      </router-link>
-      <router-link to="/community" class="mobile-nav-item">
-        <span class="mobile-nav-icon">💬</span>
-        <span class="mobile-nav-text">手语圈</span>
-      </router-link>
-    </div>
+    <el-dialog v-model="showAchievementDialog" title="成就详情" :width="isMobile ? '88%' : '420px'">
+      <div v-if="selectedAchievement" class="text-center">
+        <div class="text-4xl mb-3">{{ selectedAchievement.icon }}</div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ selectedAchievement.title }}</h3>
+        <div class="space-y-3 text-left">
+          <div class="bg-gray-50 rounded-lg px-3 py-2">
+            <div class="text-xs text-gray-500 mb-1">达成条件</div>
+            <div class="text-sm text-gray-700">{{ selectedAchievement.condition }}</div>
+          </div>
+          <div class="bg-gray-50 rounded-lg px-3 py-2">
+            <div class="text-xs text-gray-500 mb-1">达成时间</div>
+            <div class="text-sm text-gray-700">{{ selectedAchievement.achievedAt }}</div>
+          </div>
+        </div>
+      </div>
+      <template #footer>
+        <el-button type="primary" @click="showAchievementDialog = false">我知道了</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -460,8 +503,10 @@ export default {
     const showCreateGroupDialog = ref(false)
     const showGroupManageDialog = ref(false)
     const showTransferDialog = ref(false)
+    const showAchievementDialog = ref(false)
     const notificationType = ref('')
     const isOtherUser = ref(false)
+    const selectedAchievement = ref(null)
     let handleResize
     const editForm = ref({
       name: '',
@@ -792,42 +837,108 @@ export default {
         icon: '🎯',
         title: '初学者',
         description: '发布第一个帖子',
-        unlocked: true
+        unlocked: true,
+        condition: '成功发布 1 个帖子',
+        achievedAt: '2026-03-02 10:18'
       },
       {
         id: 2,
         icon: '💬',
         title: '活跃用户',
         description: '发布10个帖子',
-        unlocked: true
+        unlocked: true,
+        condition: '累计发布 10 个帖子',
+        achievedAt: '2026-03-14 19:42'
       },
       {
         id: 3,
         icon: '👥',
         title: '社交达人',
         description: '添加20个好友',
-        unlocked: true
+        unlocked: true,
+        condition: '好友数量达到 20 人',
+        achievedAt: '2026-03-20 21:05'
       },
       {
         id: 4,
         icon: '🏆',
         title: '学习标兵',
         description: '获得1000积分',
-        unlocked: true
+        unlocked: true,
+        condition: '累计学习积分达到 1000',
+        achievedAt: '2026-03-28 08:36'
       },
       {
         id: 5,
         icon: '🌟',
         title: '社区贡献者',
         description: '获得50个点赞',
-        unlocked: false
+        unlocked: false,
+        condition: '累计获得 50 个点赞',
+        achievedAt: '暂未达成'
       },
       {
         id: 6,
         icon: '🎖️',
         title: '资深会员',
         description: '加入平台超过1年',
-        unlocked: false
+        unlocked: false,
+        condition: '账号注册满 1 年',
+        achievedAt: '暂未达成'
+      },
+      {
+        id: 7,
+        icon: '📚',
+        title: '手语新星',
+        description: '完成5次学习任务',
+        unlocked: true,
+        condition: '累计完成 5 次学习任务',
+        achievedAt: '2026-03-11 18:10'
+      },
+      {
+        id: 8,
+        icon: '🔥',
+        title: '连续打卡王',
+        description: '连续学习7天',
+        unlocked: true,
+        condition: '连续学习打卡 7 天',
+        achievedAt: '2026-03-24 07:52'
+      },
+      {
+        id: 9,
+        icon: '🧠',
+        title: '翻译能手',
+        description: '完成30次翻译',
+        unlocked: false,
+        condition: '累计完成 30 次译站翻译',
+        achievedAt: '暂未达成'
+      },
+      {
+        id: 10,
+        icon: '🤝',
+        title: '社群组织者',
+        description: '创建3个社群活动',
+        unlocked: false,
+        condition: '累计发起 3 次社群活动',
+        achievedAt: '暂未达成'
+      },
+      {
+        id: 11,
+        icon: '💡',
+        title: '乐于助人',
+        description: '发布20条高质量回复',
+        unlocked: false,
+        condition: '累计发布 20 条高质量回复',
+        achievedAt: '暂未达成'
+      },
+      {
+        id: 12,
+        icon: '🗓️',
+        title: '百日坚持',
+        description: '累计学习100天',
+        unlocked: false,
+        condition: '累计学习打卡达到 100 天',
+        achievedAt: '暂未达成'
       }
     ])
 
@@ -868,6 +979,11 @@ export default {
 
     const createNewGroup = () => {
       showCreateGroupDialog.value = true
+    }
+
+    const openAchievementDialog = (achievement) => {
+      selectedAchievement.value = achievement
+      showAchievementDialog.value = true
     }
 
     // 加载通知数据
@@ -1003,6 +1119,21 @@ export default {
     const showNotifications = (type) => {
       notificationType.value = type
       showNotificationDialog.value = true
+    }
+
+    // 手机端右上角菜单操作
+    const handleMobileMenuCommand = (command) => {
+      if (command === 'notifications') {
+        showNotifications('likes')
+        return
+      }
+      if (command === 'edit') {
+        editProfile()
+        return
+      }
+      if (command === 'logout') {
+        logout()
+      }
     }
 
     // 退出群聊
@@ -1195,8 +1326,10 @@ export default {
       showCreateGroupDialog,
       showGroupManageDialog,
       showTransferDialog,
+      showAchievementDialog,
       notificationType,
       isOtherUser,
+      selectedAchievement,
       editForm,
       createGroupForm,
       userInfo,
@@ -1216,7 +1349,9 @@ export default {
       getPrivacyText,
       viewPostDetail,
       createNewGroup,
+      openAchievementDialog,
       showNotifications,
+      handleMobileMenuCommand,
       markAllAsRead,
       editProfile,
       saveEdit,
@@ -1240,8 +1375,167 @@ export default {
 </script>
 
 <style scoped>
+.profile-back-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  font-size: 24px;
+  line-height: 1;
+  color: #374151;
+  text-decoration: none;
+}
+
+.profile-mobile-menu-btn {
+  width: 34px;
+  height: 34px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0;
+}
+
+.profile-mobile-menu-btn span {
+  width: 16px;
+  height: 2px;
+  border-radius: 9999px;
+  background: #4b5563;
+}
+
 /* 移动端优化 */
 @media (max-width: 768px) {
+  .profile-nav-inner {
+    height: 56px !important;
+  }
+
+  .profile-back-chevron {
+    width: 28px;
+    height: 28px;
+    font-size: 22px;
+  }
+
+  .profile-mobile-menu-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 7px;
+    gap: 3px;
+  }
+
+  .profile-summary-card :deep(.el-card__body) {
+    padding: 14px !important;
+  }
+
+  .profile-summary-layout {
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+
+  .profile-summary-avatar {
+    flex: 0 0 auto;
+  }
+
+  .profile-summary-main {
+    min-width: 0;
+  }
+
+  .profile-summary-main h1 {
+    margin-bottom: 6px !important;
+    font-size: 1.75rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .profile-summary-main p {
+    margin-bottom: 10px !important;
+    font-size: 0.98rem !important;
+    line-height: 1.4 !important;
+  }
+
+  .profile-summary-stats-mobile {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    margin-top: 10px;
+    padding-left: 0;
+    padding-right: 0;
+    width: 100%;
+  }
+
+  .profile-summary-stats-mobile > div {
+    width: 100%;
+    text-align: center;
+  }
+
+  .profile-summary-stats {
+    gap: 6px !important;
+  }
+
+  .profile-summary-stats .text-lg {
+    font-size: 1.1rem !important;
+  }
+
+  .profile-tabs :deep(.el-tabs__header) {
+    margin-bottom: 10px !important;
+  }
+
+  .profile-tabs :deep(.el-tabs__nav) {
+    width: 100%;
+    display: flex;
+  }
+
+  .profile-tabs :deep(.el-tabs__nav-wrap) {
+    padding: 0 1px;
+  }
+
+  .profile-tabs :deep(.el-tabs__item) {
+    flex: 1 1 25%;
+    max-width: 25%;
+    min-width: 0;
+    padding: 0 1px !important;
+    font-size: 12px !important;
+    font-weight: 500;
+    text-align: center;
+    line-height: 34px;
+    white-space: nowrap;
+  }
+
+  .profile-achievement-mobile-grid {
+    margin-top: 2px;
+    gap: 6px 4px;
+  }
+
+  .profile-achievement-mobile-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 3px;
+    padding: 5px 1px;
+    cursor: pointer;
+  }
+
+  .profile-achievement-mobile-icon {
+    font-size: 23px;
+    line-height: 1;
+  }
+
+  .profile-achievement-mobile-title {
+    font-size: 11px;
+    line-height: 1.2;
+    text-align: center;
+    color: #374151;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+  }
+
   /* 帖子卡片优化 */
   :deep(.el-card) {
     margin-bottom: 16px;

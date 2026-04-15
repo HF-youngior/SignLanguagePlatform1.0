@@ -213,6 +213,7 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { getNodeApiBaseUrl } from '@/utils/runtimeUrls'
 
 const router = useRouter()
 const isLogin = ref(true)
@@ -237,15 +238,7 @@ const toggleMode = () => {
 }
 
 // 动态获取API基础地址
-const getApiBaseUrl = () => {
-  const hostname = window.location.hostname
-  // 如果是localhost或127.0.0.1，使用localhost
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return 'http://localhost:8000/api'
-  }
-  // 否则使用当前页面的hostname（这样手机访问时会自动使用电脑的IP）
-  return `http://${hostname}:8000/api`
-}
+const getApiBaseUrl = () => getNodeApiBaseUrl()
 
 // 处理头像上传
 const handleAvatarUpload = (event) => {

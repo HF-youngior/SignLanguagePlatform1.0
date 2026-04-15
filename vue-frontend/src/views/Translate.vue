@@ -1,66 +1,29 @@
 <template>
   <div class="min-h-screen animated-gradient">
-    <!-- 导航栏 -->
-    <nav class="backdrop-blur-md bg-white/70 shadow-lg">
+    <!-- 导航栏（仅桌面端显示） -->
+    <nav class="backdrop-blur-md bg-white/70 shadow-lg md:block hidden">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center">
             <router-link to="/" class="flex items-center text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
-              <!-- 使用已有的默认头像图片代替缺失的 logo 文件，避免 Vite 解析错误 -->
               <img src="/images/default-avatar.png" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
               <span>掌中语-手语小镇</span>
             </router-link>
           </div>
-          <!-- 桌面端导航 -->
-          <div class="hidden md:flex items-center space-x-4">
+          <div class="flex items-center space-x-4">
             <router-link to="/learn" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">学堂</router-link>
-            <router-link to="/community" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">手语圈</router-link>
             <router-link to="/translate" class="nav-link text-blue-700 font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full">译站</router-link>
+            <router-link to="/community" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">手语圈</router-link>
           </div>
-          <!-- 移动端菜单按钮 -->
-          <button
-            @click="mobileMenuOpen = !mobileMenuOpen"
-            class="md:hidden p-2 text-gray-700 hover:text-blue-600 focus:outline-none"
-            aria-label="菜单"
-          >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path v-if="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-              <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        <!-- 移动端菜单 -->
-        <div v-if="mobileMenuOpen" class="md:hidden py-4 border-t border-gray-200 mt-2">
-          <router-link
-            to="/learn"
-            @click="mobileMenuOpen = false"
-            class="block py-3 px-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
-          >
-            学堂
-          </router-link>
-          <router-link
-            to="/translate"
-            @click="mobileMenuOpen = false"
-            class="block py-3 px-4 text-blue-700 bg-blue-50 font-semibold rounded-lg"
-          >
-            译站
-          </router-link>
-          <router-link
-            to="/community"
-            @click="mobileMenuOpen = false"
-            class="block py-3 px-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
-          >
-            手语圈
-          </router-link>
         </div>
       </div>
     </nav>
 
     <!-- 主要内容 -->
-    <main class="pt-8">
+    <main class="pt-3 md:pt-8">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- 页面标题 -->
-        <div class="text-center mb-6 md:mb-8 fade-in">
+        <div class="text-center mb-6 md:mb-8 fade-in hidden md:block">
           <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-blue-700 mb-2 md:mb-4 animate-fade-in-down">
             🤖 手语识别翻译系统
           </h1>
@@ -70,9 +33,9 @@
         </div>
 
         <!-- 主界面布局 -->
-        <div class="space-y-4 md:space-y-6">
+        <div class="flex flex-col gap-4 md:gap-6 translate-mobile-stack">
           <!-- 输入选择（放在最前面） -->
-          <el-card shadow="hover" class="w-full">
+          <el-card shadow="hover" class="hidden md:block w-full order-3 md:order-1">
             <template #header>
               <span class="text-lg font-semibold">📁 输入选择</span>
             </template>
@@ -146,10 +109,10 @@
           </el-card>
 
           <!-- 翻译结果（放在视频框上面） -->
-          <el-card shadow="hover" class="w-full">
+          <el-card shadow="hover" class="w-full order-2 mobile-result-card">
             <template #header>
               <div class="flex items-center justify-between">
-                <span class="text-lg font-semibold">📝 翻译结果</span>
+                <span class="text-lg font-semibold mobile-card-title">📝 翻译结果</span>
                 <div class="flex items-center space-x-2">
                   <el-tag v-if="detectionResults.length > 0" type="success" size="large">{{ detectionResults.length }} 个结果</el-tag>
                   <el-dropdown trigger="click">
@@ -173,7 +136,7 @@
                 </div>
               </div>
             </template>
-            <div class="space-y-4">
+            <div class="space-y-4 mobile-result-content">
               <!-- 翻译结果列表 -->
               <div v-if="detectionResults.length > 0" class="space-y-3">
                 <div 
@@ -191,19 +154,19 @@
                 </div>
               </div>
               <!-- 无翻译结果时显示 -->
-              <div v-else class="text-center py-8">
-                <div class="text-4xl mb-4">📝</div>
-                <p class="text-gray-600">无翻译结果</p>
-                <p class="text-sm text-gray-500 mt-2">请选择图片、视频或开启摄像头进行翻译</p>
+              <div v-else class="text-center py-8 mobile-result-empty">
+                <div class="text-4xl mb-4 mobile-result-empty-icon">📝</div>
+                <p class="text-gray-600 mobile-result-empty-title">无翻译结果</p>
+                <p class="text-sm text-gray-500 mt-2 mobile-result-empty-desc">请选择图片、视频或开启摄像头进行翻译</p>
               </div>
             </div>
           </el-card>
 
           <!-- 视频/图像显示区域 -->
-          <el-card shadow="hover" class="w-full">
+          <el-card shadow="hover" class="w-full order-1 md:order-3 mobile-display-card">
             <template #header>
               <div class="flex items-center justify-between">
-                <span class="text-lg font-semibold">📹 视频/图像显示</span>
+                <span class="text-lg font-semibold mobile-card-title">📹 视频/图像显示</span>
                 <el-tag :type="isProcessing ? 'success' : 'info'">
                   {{ isProcessing ? '处理中' : '就绪' }}
                 </el-tag>
@@ -211,18 +174,23 @@
             </template>
             <div class="relative">
               <!-- 图像/视频显示区域 -->
-              <div class="bg-gray-100 rounded-lg mb-4 relative" :style="{ minHeight: isMobile ? '300px' : '500px', display: 'flex', alignItems: 'center', justifyContent: 'center' }">
-                <div v-if="!currentImage && !currentVideo" class="text-center py-8">
-                  <div class="text-6xl mb-4">📷</div>
-                  <p class="text-gray-600">请选择图片、视频或开启摄像头</p>
-                  <p class="text-sm text-gray-500">支持格式：JPG, PNG, MP4, WebM</p>
+              <div class="bg-gray-100 rounded-lg mb-4 relative mobile-display-surface" :style="{ minHeight: isMobile ? '220px' : '500px', display: 'flex', alignItems: 'center', justifyContent: 'center' }">
+                <div
+                  v-if="!currentImage && !currentVideo"
+                  class="text-center py-8 cursor-pointer mobile-display-empty"
+                  @click="openMobileInputOptions"
+                >
+                  <div class="text-6xl mb-4 mobile-display-empty-icon">📷</div>
+                  <p class="text-gray-600 mobile-display-empty-title">请选择图片、视频或开启摄像头</p>
+                  <p class="text-sm text-gray-500 mobile-display-empty-desc">支持格式：JPG, PNG, MP4, WebM</p>
+                  <p class="text-xs text-blue-500 mt-3 md:hidden">点击此区域选择输入方式</p>
                 </div>
                 <img 
                   v-else-if="currentImage && !currentVideo"
                   :src="currentImage" 
                   alt="检测结果" 
                   class="max-w-full max-h-full object-contain w-full h-auto"
-                  :style="{ maxHeight: isMobile ? '300px' : '500px', width: '100%', height: 'auto' }"
+                  :style="{ maxHeight: isMobile ? '220px' : '500px', width: '100%', height: 'auto' }"
                   @load="handleImageLoad"
                 />
                 <div v-else-if="currentVideo" class="w-full" style="background: black; min-height: 400px; display: flex; align-items: center; justify-content: center; flex-direction: column; position: relative;">
@@ -285,6 +253,48 @@
         </div>
       </div>
     </main>
+
+    <!-- 移动端输入方式弹窗 -->
+    <el-dialog
+      v-model="mobileInputOptionsVisible"
+      title="输入选择"
+      width="92%"
+      :show-close="true"
+      :close-on-click-modal="true"
+      :close-on-press-escape="true"
+      class="md:hidden"
+    >
+      <div class="grid grid-cols-2 gap-3">
+        <el-button type="primary" :icon="Picture" @click="handleMobileInputSelect('image')">
+          选择图片
+        </el-button>
+        <el-button type="success" :icon="VideoPlay" @click="handleMobileInputSelect('video')">
+          选择视频
+        </el-button>
+        <el-button type="warning" :icon="Camera" @click="handleMobileInputSelect('camera')">
+          开启摄像头
+        </el-button>
+        <el-button type="info" :icon="Folder" @click="handleMobileInputSelect('folder')">
+          批量处理
+        </el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 移动端底部导航栏 -->
+    <div class="mobile-bottom-nav">
+      <router-link to="/learn" class="mobile-nav-item">
+        <span class="mobile-nav-icon">📚</span>
+        <span class="mobile-nav-text">学堂</span>
+      </router-link>
+      <router-link to="/translate" class="mobile-nav-item active">
+        <span class="mobile-nav-icon">🔤</span>
+        <span class="mobile-nav-text">译站</span>
+      </router-link>
+      <router-link to="/community" class="mobile-nav-item">
+        <span class="mobile-nav-icon">💬</span>
+        <span class="mobile-nav-text">手语圈</span>
+      </router-link>
+    </div>
   </div>
 </template>
 
@@ -316,8 +326,8 @@ export default {
   },
   setup() {
     // 响应式数据
-    const mobileMenuOpen = ref(false)
     const isMobile = ref(window.innerWidth <= 768)
+    const mobileInputOptionsVisible = ref(false)
     const isProcessing = ref(false)
     const isCameraOpen = ref(false)
     const currentImage = ref('')
@@ -387,6 +397,23 @@ export default {
 
     const selectFolder = () => {
       folderInput.value?.click()
+    }
+
+    const openMobileInputOptions = () => {
+      if (!isMobile.value) return
+      if (currentImage.value || currentVideo.value) return
+      if (isProcessing.value) return
+      mobileInputOptionsVisible.value = true
+    }
+
+    const handleMobileInputSelect = (type) => {
+      mobileInputOptionsVisible.value = false
+      nextTick(() => {
+        if (type === 'image') selectImage()
+        if (type === 'video') selectVideo()
+        if (type === 'folder') selectFolder()
+        if (type === 'camera') toggleCamera()
+      })
     }
 
     // 摄像头控制
@@ -1186,8 +1213,8 @@ export default {
 
     return {
       // 响应式数据
-      mobileMenuOpen,
       isMobile,
+      mobileInputOptionsVisible,
       isProcessing,
       isCameraOpen,
       currentImage,
@@ -1230,6 +1257,8 @@ export default {
       selectImage,
       selectVideo,
       selectFolder,
+      openMobileInputOptions,
+      handleMobileInputSelect,
       toggleCamera,
       handleImageUpload,
       handleVideoUpload,
@@ -1810,5 +1839,151 @@ export default {
   background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
   border: none !important;
   color: white !important;
+}
+/* 移动端底部导航栏 */
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 60px;
+  z-index: 1000;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  height: 100%;
+  text-decoration: none;
+  color: #6b7280;
+  transition: all 0.3s ease;
+}
+
+.mobile-nav-item.active {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.mobile-nav-icon {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.mobile-nav-text {
+  font-size: 12px;
+}
+
+/* 响应式设计 */
+@media (min-width: 768px) {
+  /* 在桌面端隐藏底部导航栏 */
+  .mobile-bottom-nav {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .translate-mobile-stack {
+    gap: 10px !important;
+  }
+
+  :deep(.mobile-display-card .el-card__header),
+  :deep(.mobile-result-card .el-card__header) {
+    padding: 10px 14px !important;
+  }
+
+  :deep(.mobile-display-card .el-card__body),
+  :deep(.mobile-result-card .el-card__body) {
+    padding: 10px !important;
+  }
+
+  .mobile-card-title {
+    font-size: 1rem !important;
+  }
+
+  :deep(.mobile-display-card .el-tag),
+  :deep(.mobile-result-card .el-tag) {
+    padding: 4px 10px !important;
+    font-size: 12px !important;
+  }
+
+  :deep(.mobile-result-card .el-button) {
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+  }
+
+  .mobile-result-content > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 8px !important;
+  }
+
+  .mobile-result-empty {
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+  }
+
+  .mobile-result-empty-icon {
+    font-size: 2.2rem !important;
+    margin-bottom: 6px !important;
+  }
+
+  .mobile-result-empty-title {
+    font-size: 0.95rem !important;
+    line-height: 1.3 !important;
+  }
+
+  .mobile-result-empty-desc {
+    margin-top: 4px !important;
+    font-size: 0.85rem !important;
+    line-height: 1.3 !important;
+  }
+
+  .mobile-display-surface {
+    min-height: 220px !important;
+    margin-bottom: 0 !important;
+  }
+
+  .mobile-display-empty {
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+  }
+
+  .mobile-display-empty-icon {
+    font-size: 3rem !important;
+    margin-bottom: 8px !important;
+  }
+
+  .mobile-display-empty-title {
+    font-size: 0.95rem !important;
+    line-height: 1.3 !important;
+  }
+
+  .mobile-display-empty-desc {
+    font-size: 0.85rem !important;
+    line-height: 1.3 !important;
+  }
+
+  .mobile-display-empty .text-xs {
+    margin-top: 8px !important;
+  }
+
+  /* 确保移动端底部导航栏可见 */
+  .mobile-bottom-nav {
+    display: flex;
+  }
+  
+  /* 为移动端内容添加底部间距，避免被底部导航栏遮挡 */
+  main {
+    padding-top: 8px !important;
+    padding-bottom: 68px;
+  }
 }
 </style>

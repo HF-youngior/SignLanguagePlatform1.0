@@ -1,3 +1,5 @@
+import { getNodeApiBaseUrl } from '@/utils/runtimeUrls'
+
 /**
  * API服务
  * 提供所有API调用的统一接口
@@ -15,7 +17,7 @@ const getApiBaseUrl = () => {
 }
 
 // API基础地址
-const API_BASE_URL = getApiBaseUrl()
+const API_BASE_URL = getNodeApiBaseUrl()
 
 class ApiService {
   constructor() {

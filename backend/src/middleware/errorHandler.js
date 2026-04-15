@@ -1,9 +1,12 @@
 export const errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
+  error.statusCode = err.statusCode || error.statusCode;
 
   // 记录错误日志
-  console.error(err);
+  if ((error.statusCode || res.statusCode) >= 500) {
+    console.error(err);
+  }
 
   // Mongoose错误处理
   if (err.name === 'CastError') {
@@ -34,7 +37,9 @@ export const errorHandler = (err, req, res, next) => {
     error = { message, statusCode: 401 };
   }
 
-  res.status(error.statusCode || 500).json({
+  const statusCode = error.statusCode || (res.statusCode !== 200 ? res.statusCode : 500);
+
+  res.status(statusCode).json({
     success: false,
     error: error.message || '服务器内部错误',
     ...(process.env.NODE_ENV === 'development' && { stack: err.stack })

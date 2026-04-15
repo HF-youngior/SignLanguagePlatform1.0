@@ -94,6 +94,7 @@ import AdminUsers from '../components/admin/AdminUsers.vue'
 import AdminPosts from '../components/admin/AdminPosts.vue'
 import AdminGroups from '../components/admin/AdminGroups.vue'
 import AdminLogs from '../components/admin/AdminLogs.vue'
+import { getNodeApiBaseUrl } from '@/utils/runtimeUrls'
 
 const router = useRouter()
 const currentTab = ref('dashboard')
@@ -136,15 +137,7 @@ const groups = ref([])
 const getToken = () => localStorage.getItem('token')
 
 // 动态获取API基础地址
-const getApiBaseUrl = () => {
-  const hostname = window.location.hostname
-  // 如果是localhost或127.0.0.1，使用localhost
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return '${getApiBaseUrl()}'
-  }
-  // 否则使用当前页面的hostname（这样手机访问时会自动使用电脑的IP）
-  return `http://${hostname}:8000/api`
-}
+const getApiBaseUrl = () => getNodeApiBaseUrl()
 
 // 格式化日期
 const formatDate = (dateString) => {
@@ -570,7 +563,7 @@ const deleteUser = async (user, callback) => {
 // 新增用户
 const createUser = async (userData) => {
   try {
-    const response = await fetch('${getApiBaseUrl()}/admin/users', {
+    const response = await fetch(`${getApiBaseUrl()}/admin/users`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

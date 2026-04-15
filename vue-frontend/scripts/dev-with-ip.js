@@ -1,65 +1,78 @@
-import { spawn } from 'child_process';
-import os from 'os';
-import { fileURLToPath } from 'url';
-import { dirname, resolve } from 'path';
+import { spawn } from 'child_process'
+import os from 'os'
+import { dirname, resolve } from 'path'
+import { fileURLToPath } from 'url'
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+const PORT = '3000'
 
-// 获取本机IP地址
-function getLocalIP() {
-  const interfaces = os.networkInterfaces();
-  const addresses = [];
-  
-  for (const name of Object.keys(interfaces)) {
-    for (const iface of interfaces[name]) {
-      // 跳过内部（即127.0.0.1）和非IPv4地址
-      if (iface.family === 'IPv4' && !iface.internal) {
-        addresses.push(iface.address);
-      }
-    }
-  }
-  
-  // 优先返回非169.254.x.x的地址（排除自动配置的链路本地地址）
-  const validIP = addresses.find(ip => !ip.startsWith('169.254.')) || addresses[0];
-  return validIP || 'localhost';
+function isPrivateIPv4(ip) {
+  if (!ip || typeof ip !== 'string') return false
+
+  if (ip.startsWith('10.')) return true
+  if (ip.startsWith('192.168.')) return true
+
+  const match = ip.match(/^172\.(\d{1,3})\./)
+  if (!match) return false
+
+  const secondOctet = Number(match[1])
+  return secondOctet >= 16 && secondOctet <= 31
 }
 
-// 获取IP地址
-const localIP = getLocalIP();
-const port = 3000;
+function getLocalIPs() {
+  const interfaces = os.networkInterfaces()
+  const ips = []
 
-// 显示信息
-console.log('\n');
-console.log('═══════════════════════════════════════════════════════════');
-console.log('🚀 手语教学平台 - 开发服务器启动中...');
-console.log('═══════════════════════════════════════════════════════════');
-console.log('\n');
-console.log('💻 本地访问:');
-console.log(`   http://localhost:${port}`);
-console.log('\n');
-console.log('📱 手机访问（请确保手机和电脑在同一WiFi）:');
-console.log(`   http://${localIP}:${port}`);
-console.log('\n');
-console.log('📋 复制上面的手机访问地址到手机浏览器即可！');
-console.log('\n');
-console.log('═══════════════════════════════════════════════════════════');
-console.log('\n');
+  for (const ifaces of Object.values(interfaces)) {
+    for (const iface of ifaces || []) {
+      if (iface.family !== 'IPv4' || iface.internal) continue
+      if (iface.address.startsWith('169.254.')) continue
+      if (!isPrivateIPv4(iface.address)) continue
+      ips.push(iface.address)
+    }
+  }
 
-// 启动Vite开发服务器
-const viteProcess = spawn('npm', ['run', 'vite'], {
+  return [...new Set(ips)]
+}
+
+const allIPs = getLocalIPs()
+const preferredIP = allIPs[0] || 'localhost'
+
+console.log('')
+console.log('============================================================')
+console.log('Sign Language Platform - Mobile Development Mode')
+console.log('============================================================')
+console.log('')
+console.log(`Local URL : http://localhost:${PORT}`)
+console.log(`LAN URL   : http://${preferredIP}:${PORT}`)
+if (allIPs.length > 1) {
+  console.log(`All LAN IPs: ${allIPs.join(', ')}`)
+}
+console.log('')
+console.log('If phone cannot open the page:')
+console.log('1) Ensure phone and computer are on the same Wi-Fi')
+console.log('2) Turn off phone VPN/proxy')
+console.log('3) Allow Node.js through Windows Firewall')
+console.log('')
+
+const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm'
+const viteArgs = ['run', 'vite', '--', '--host', '0.0.0.0', '--port', PORT, '--strictPort']
+
+const viteProcess = spawn(npmCommand, viteArgs, {
   cwd: resolve(__dirname, '..'),
-  shell: true,
-  stdio: 'inherit'
-});
+  stdio: 'inherit',
+  env: {
+    ...process.env,
+    ...(preferredIP !== 'localhost' ? { VITE_HMR_HOST: preferredIP } : {}),
+  },
+})
 
-// 处理退出
 viteProcess.on('close', (code) => {
-  process.exit(code);
-});
+  process.exit(code ?? 0)
+})
 
-viteProcess.on('error', (err) => {
-  console.error('启动失败:', err);
-  process.exit(1);
-});
-
+viteProcess.on('error', (error) => {
+  console.error('Failed to start Vite:', error)
+  process.exit(1)
+})

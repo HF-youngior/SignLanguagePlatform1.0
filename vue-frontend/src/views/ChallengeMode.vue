@@ -1,6 +1,7 @@
 <template>
   <div class="min-h-screen animated-gradient">
-    <nav class="backdrop-blur-md bg-white/70 shadow-lg">
+    <!-- 导航栏 -->
+    <nav class="backdrop-blur-md bg-white/70 shadow-lg md:block hidden">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center">
@@ -8,7 +9,6 @@
               to="/"
               class="flex items-center text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300"
             >
-              <!-- 使用已有的默认头像图片代替缺失的 logo 文件，避免 Vite 解析错误 -->
               <img src="@/assets/logo/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
               <span>掌中语-手语小镇</span>
             </router-link>
@@ -22,25 +22,25 @@
       </div>
     </nav>
 
-    <main class="pt-10 pb-20">
+    <main class="pt-8">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-        <section class="challenge-banner fade-in" style="padding: 25px 40px; height: auto;">
-          <div class="flex items-center justify-between w-full">
-            <div class="flex items-center gap-4">
-              <div class="banner-icon" style="width: 60px; height: 60px; font-size: 28px;">🌟</div>
-              <div>
-                <h1 class="text-2xl font-bold text-white mb-1">闯关模式</h1>
-                <p class="text-sm text-white/85">循序渐进，逐章点亮手语旅程，让学习像冒险闯关一样充满期待。</p>
+        <section class="challenge-banner fade-in">
+          <div class="banner-content">
+            <div class="banner-left">
+              <div class="banner-icon">🌟</div>
+              <div class="banner-text">
+                <h1 class="banner-title">闯关模式</h1>
+                <p class="banner-description">循序渐进，逐章点亮手语旅程，让学习像冒险闯关一样充满期待。</p>
               </div>
             </div>
-            <div class="flex items-center gap-4">
-              <button @click="showBagDialog" class="bag-button" style="padding: 8px 16px; font-size: 14px;">
+            <div class="banner-buttons">
+              <button @click="showBagDialog" class="bag-button">
                 <span class="bag-icon">💼</span>
                 <span class="bag-text">我的锦囊</span>
               </button>
-              <router-link to="/learn" class="back-button" style="padding: 8px 16px; font-size: 14px;">
+              <router-link to="/learn" class="back-button">
                 <span class="back-button__icon">←</span>
-                <span class="back-button__text">返回学习模式</span>
+                <span class="back-button__text">返回学堂</span>
               </router-link>
             </div>
           </div>
@@ -551,79 +551,134 @@ export default {
 }
 
 .challenge-banner {
-    background: linear-gradient(135deg, #8a2be2 0%, #9370db 100%);
-    color: white;
-    padding: 25px 40px;
-    border-radius: 12px;
-    margin: 20px 0;
-    box-shadow: 0 8px 32px rgba(138, 43, 226, 0.2);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 20px;
-  }
-  
-  .challenge-banner .banner-left {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-  }
-  
-  .challenge-banner .banner-left .sun-icon {
-    font-size: 32px;
-    animation: pulse 2s infinite;
-  }
-  
-  .challenge-banner .banner-content h2 {
-    font-size: 24px;
-    margin-bottom: 5px;
-    font-weight: 700;
-  }
-  
-  .challenge-banner .banner-content p {
-    font-size: 14px;
-    opacity: 0.9;
-    margin: 0;
-  }
-  
-  .challenge-banner .banner-right {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-  }
-  
-  .challenge-banner .banner-right .el-button {
-    border-radius: 20px;
-    padding: 8px 16px;
-    font-size: 14px;
-    transition: all 0.3s ease;
-  }
-  
-  .challenge-banner .banner-right .el-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
-  }
-  
-  @keyframes pulse {
-    0%, 100% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.1);
-    }
-  }
+  background: linear-gradient(135deg, #8a2be2 0%, #9370db 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin: 20px 0;
+  box-shadow: 0 8px 32px rgba(138, 43, 226, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.banner-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.banner-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
 .banner-icon {
-  width: 72px;
-  height: 72px;
+  width: 60px;
+  height: 60px;
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 34px;
+  font-size: 28px;
   box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
 }
+
+.banner-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.banner-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.banner-description {
+  font-size: 14px;
+  opacity: 0.9;
+  margin: 0;
+  line-height: 1.4;
+  max-width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.banner-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.bag-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  width: 100%;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+  color: white;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+  width: 100%;
+}
+
+/* 桌面端样式 */
+@media (min-width: 768px) {
+  .challenge-banner {
+    padding: 25px 40px;
+  }
+  
+  .banner-content {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .banner-buttons {
+    flex-direction: row;
+    width: auto;
+  }
+  
+  .bag-button,
+  .back-button {
+    width: auto;
+  }
+}
+
 .banner-hand-illustration {
   position: absolute;
   right: -20px;
@@ -691,21 +746,6 @@ export default {
   border-bottom: 1px solid rgba(99, 102, 241, 0.08);
 }
 
-.back-button {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 16px;
-  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
-  color: white;
-  border-radius: 12px;
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
-}
-
 .back-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);
@@ -721,67 +761,50 @@ export default {
   white-space: nowrap;
 }
 
-  /* 锦囊按钮样式 */
-  .bag-button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    border-radius: 25px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-  }
+.bag-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
 
-  .bag-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
-  }
+.bag-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
 
-  .bag-button:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-  }
+.bag-icon {
+  font-size: 18px;
+}
 
-  .bag-icon {
-    font-size: 18px;
-  }
+.bag-text {
+  white-space: nowrap;
+}
 
-  .bag-text {
-    white-space: nowrap;
-  }
+/* 复习按钮样式 */
+.review-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
+}
 
-  /* 复习按钮样式 */
-  .review-button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    color: white;
-    border: none;
-    border-radius: 25px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
-  }
+.review-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(79, 172, 254, 0.4);
+}
 
-  .review-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(79, 172, 254, 0.4);
-  }
-
-  .review-button:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(79, 172, 254, 0.3);
-  }
+.review-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(79, 172, 254, 0.3);
+}
 
 .map-container {
   position: relative;

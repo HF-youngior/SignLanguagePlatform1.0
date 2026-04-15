@@ -1,11 +1,12 @@
-// API配置
+import { getNodeApiBaseUrl } from '@/utils/runtimeUrls'
+
 const apiConfig = {
-  baseURL: 'http://localhost:8000/api',
+  baseURL: getNodeApiBaseUrl(),
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json'
-  }
+    'Accept': 'application/json',
+  },
 }
 
-export default apiConfig;
+export default apiConfig

@@ -169,6 +169,7 @@
 <script>
 import { ArrowLeft, Loading, Warning } from '@element-plus/icons-vue'
 import axios from 'axios'
+import { getNodeApiBaseUrl, resolveNodeAssetUrl } from '@/utils/runtimeUrls'
 
 export default {
   name: 'SignLetterLearning',
@@ -193,13 +194,7 @@ export default {
       showExplanationDialog: false,
       
       // API基础URL
-      apiBaseUrl: (function() {
-        const hostname = window.location.hostname
-        if (hostname === 'localhost' || hostname === '127.0.0.1') {
-          return 'http://localhost:8000/api'
-        }
-        return `http://${hostname}:8000/api`
-      })(),
+      apiBaseUrl: getNodeApiBaseUrl(),
     }
   },
   computed: {
@@ -311,14 +306,7 @@ export default {
     
     // 获取图片URL
     getImageUrl(imagePath) {
-      if (!imagePath) return ''
-      // 如果是相对路径，添加API基础URL
-      if (imagePath.startsWith('images/')) {
-        const hostname = window.location.hostname;
-        const baseUrl = hostname === 'localhost' || hostname === '127.0.0.1' ? 'http://localhost:8000' : `http://${hostname}:8000`;
-        return `${baseUrl}/${imagePath}`
-      }
-      return imagePath
+      return resolveNodeAssetUrl(imagePath)
     },
     
     // 处理图片加载错误

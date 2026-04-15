@@ -1,7 +1,5 @@
-/**
- * 手语翻译API服务
- * 提供与后端API的通信功能
- */
+
+import { getPythonApiBaseUrl } from '@/utils/runtimeUrls'
 
 // 动态获取API基础地址
 // 如果当前页面是通过IP访问的（如手机访问），使用相同的IP
@@ -16,7 +14,7 @@ function getApiBaseUrl() {
   return `http://${hostname}:5000/api`
 }
 
-const API_BASE_URL = getApiBaseUrl()
+const API_BASE_URL = getPythonApiBaseUrl()
 
 class TranslationApiService {
   constructor() {

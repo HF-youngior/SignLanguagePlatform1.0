@@ -1,27 +1,6 @@
 <template>
   <div class="min-h-screen animated-gradient">
-    <nav class="backdrop-blur-md bg-white/70 shadow-lg">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-          <div class="flex items-center">
-            <router-link
-              to="/home"
-              class="flex items-center text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300"
-            >
-              <img src="@/assets/logo/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
-              <span>掌中语-手语小镇</span>
-            </router-link>
-          </div>
-          <div class="flex items-center space-x-4">
-            <router-link to="/learn" class="nav-link text-blue-700 font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full">学堂</router-link>
-            <router-link to="/translate" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">译站</router-link>
-            <router-link to="/community" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">手语圈</router-link>
-          </div>
-        </div>
-      </div>
-    </nav>
-
-    <main class="pt-10 pb-20">
+    <main class="pt-8 pb-20">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         <section class="calendar-banner fade-in">
           <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">

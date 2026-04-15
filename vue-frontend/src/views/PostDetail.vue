@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- 导航栏 -->
-    <nav class="bg-white shadow-md">
+    <nav class="bg-white shadow-md hidden md:block">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center">
@@ -21,11 +21,11 @@
     </nav>
 
     <!-- 主要内容 -->
-    <main class="pt-8">
+    <main class="pt-3 md:pt-8">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- 返回按钮 -->
-        <div class="mb-6">
-          <el-button @click="$router.back()" icon="ArrowLeft">返回</el-button>
+        <div class="mb-3 md:mb-6 post-back-wrap">
+          <el-button size="small" class="post-back-btn" @click="$router.back()" icon="ArrowLeft">返回</el-button>
         </div>
 
         <!-- 加载状态 -->
@@ -122,34 +122,32 @@
           </el-card>
 
           <!-- 评论区 -->
-          <el-card v-if="showComments" class="mb-6">
+          <el-card v-if="showComments" class="mb-6 comments-card">
             <template #header>
               <span class="text-lg font-semibold">评论区 ({{ comments.length }})</span>
             </template>
             
             <!-- 评论输入框 -->
-            <div class="mb-6">
-              <div class="flex items-start space-x-3">
+            <div class="mb-3 md:mb-6">
+              <div class="flex items-start space-x-3 comment-editor-row">
                 <el-avatar :size="40" :src="getAvatarUrl(currentUser.avatar)">
                   {{ currentUser.name ? currentUser.name.charAt(0) : '?' }}
                 </el-avatar>
-                <div class="flex-1">
+                <div class="flex-1 comment-editor-input-wrap">
                   <el-input
                     type="textarea"
                     :rows="2"
                     placeholder="写下你的评论..."
                     v-model="newComment"
-                    class="mb-3"
+                    class="comment-editor-input"
                   ></el-input>
-                  <div class="flex justify-end">
-                    <el-button type="primary" size="small" @click="addComment">发表评论</el-button>
-                  </div>
                 </div>
+                <el-button type="primary" size="small" class="comment-editor-submit" @click="addComment">发表评论</el-button>
               </div>
             </div>
 
             <!-- 评论列表 -->
-            <div class="space-y-4">
+            <div v-if="comments.length > 0" class="space-y-4">
               <div v-for="comment in comments" :key="comment.id" class="flex items-start space-x-3">
                 <el-avatar :size="40" :src="getAvatarUrl(comment.user_avatar)">
                   {{ comment.user_username ? comment.user_username.charAt(0) : '?' }}
@@ -211,6 +209,7 @@
                 </div>
               </div>
             </div>
+            <div v-else class="comments-empty">暂无评论，来发表第一条评论吧</div>
           </el-card>
         </template>
       </div>
@@ -503,5 +502,52 @@ export default {
 .rotate-180 {
   transform: rotate(180deg);
   transition: transform 0.3s ease;
+}
+
+.comments-empty {
+  color: #9ca3af;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 6px 0 2px;
+}
+
+@media (max-width: 767px) {
+  .post-back-wrap {
+    margin-bottom: 10px !important;
+  }
+
+  .post-back-btn {
+    min-height: 34px;
+    padding: 6px 14px;
+    font-size: 14px;
+  }
+
+  :deep(.comments-card .el-card__header) {
+    padding: 12px 14px !important;
+  }
+
+  :deep(.comments-card .el-card__body) {
+    padding: 12px 14px !important;
+  }
+
+  .comment-editor-row {
+    align-items: flex-start;
+  }
+
+  .comment-editor-input-wrap {
+    min-width: 0;
+  }
+
+  :deep(.comment-editor-input .el-textarea__inner) {
+    min-height: 42px !important;
+    padding: 8px 10px !important;
+  }
+
+  .comment-editor-submit {
+    align-self: stretch;
+    min-height: 42px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
 }
 </style>
