@@ -1,0 +1,50 @@
+﻿{
+  "generatedAt": "2026-04-14T07:04:31.249Z",
+  "oldDb": {
+    "host": "rm-2ze90ovu5a037y1ujxo.mysql.rds.aliyuncs.com",
+    "database": "signlanguage_platform"
+  },
+  "newDb": {
+    "host": "rm-2zelg8vzn3xb07mvako.mysql.rds.aliyuncs.com",
+    "database": "csl"
+  },
+  "pass": true,
+  "checks": {
+    "tableSetMatch": true,
+    "countMatch": true,
+    "expectedTableCoverage": true,
+    "keyUsersMatch": true
+  },
+  "details": {
+    "oldTableCount": 14,
+    "newTableCount": 14,
+    "missingInNew": [],
+    "extraInNew": [],
+    "countMismatches": [],
+    "missingExpectedInNew": [],
+    "extraBeyondExpectedInNew": [],
+    "keyUsers": [
+      {
+        "username": "admin",
+        "oldExists": true,
+        "newExists": true,
+        "hashMatch": true,
+        "newIsActive": true
+      },
+      {
+        "username": "testuser",
+        "oldExists": true,
+        "newExists": true,
+        "hashMatch": true,
+        "newIsActive": true
+      },
+      {
+        "username": "金珞辰",
+        "oldExists": true,
+        "newExists": true,
+        "hashMatch": true,
+        "newIsActive": true
+      }
+    ]
+  }
+}

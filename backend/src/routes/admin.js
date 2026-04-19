@@ -10,6 +10,7 @@ import {
   getAllComments,
   deleteComment,
   getSystemStats,
+  getAdminDashboard,
   getAdminLogs,
   getAllGroups,
   getGroupById,
@@ -46,6 +47,7 @@ router.delete('/comments/:id', deleteComment);
 
 // 系统统计
 router.get('/stats', getSystemStats);
+router.get('/dashboard', getAdminDashboard);
 
 // 操作日志
 router.get('/logs', getAdminLogs);
