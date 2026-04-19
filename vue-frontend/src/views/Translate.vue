@@ -6,7 +6,8 @@
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center">
             <router-link to="/" class="flex items-center text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
-              <img src="/images/default-avatar.png" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
+              <!-- 使用新的logo文件 -->
+              <img src="@/assets/logo/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
               <span>掌中语-手语小镇</span>
             </router-link>
           </div>
