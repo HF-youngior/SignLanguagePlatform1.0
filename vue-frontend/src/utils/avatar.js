@@ -10,8 +10,8 @@ export function getAvatarUrl(avatar) {
     return DEFAULT_AVATAR
   }
 
-  if (avatar.startsWith('http://') || avatar.startsWith('https://')) {
-    console.log('Avatar is full URL, returning directly')
+  if (avatar.startsWith('http://') || avatar.startsWith('https://') || avatar.startsWith('data:image')) {
+    console.log('Avatar is full URL or base64 data, returning directly')
     return avatar
   }
 

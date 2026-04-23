@@ -1,209 +1,165 @@
 <template>
-  <div class="min-h-screen animated-gradient">
-    <!-- 导航栏 -->
-    <nav class="backdrop-blur-md bg-white/70 shadow-lg md:block hidden">
+  <div class="learn-page animated-gradient">
+    <nav class="top-nav md:block hidden">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-          <div class="flex items-center">
-            <router-link to="/" class="flex items-center text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
-              <img src="@/assets/logo/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
-              <span>掌中语-手语小镇</span>
-            </router-link>
-          </div>
-          <div class="flex items-center space-x-4">
-            <router-link to="/learn" class="nav-link text-blue-700 font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full">学堂</router-link>
-            <router-link to="/translate" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">译站</router-link>
-            <router-link to="/community" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">手语圈</router-link>
+        <div class="nav-wrap">
+          <router-link to="/" class="brand-link">
+            <img src="@/assets/logo/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 rounded-full" />
+            <span>掌中语</span>
+          </router-link>
+          <div class="nav-menu">
+            <router-link to="/learn" class="nav-link nav-link--active">学堂</router-link>
+            <router-link to="/translate" class="nav-link">译站</router-link>
+            <router-link to="/community" class="nav-link">手语圈</router-link>
           </div>
         </div>
       </div>
     </nav>
 
-    <!-- 主要内容 -->
-    <main class="pt-8">
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- 页面标题 -->
-        <div class="text-center mb-8 fade-in md:block hidden">
-          <h1 class="text-4xl md:text-5xl font-bold text-blue-700 mb-4 animate-fade-in-down font-sans tracking-wide">
-            指尖学堂开课啦！
-          </h1>
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 md:pb-10">
+
+
+      <section class="town-section-card fade-in">
+        <div class="town-section-card__header">
+          <div class="town-section-card__title">
+            <span class="town-section-card__icon">
+              <el-icon><Compass /></el-icon>
+            </span>
+            <div>
+              <h2 class="town-section-card__heading">走进小镇学手语</h2>
+              <p>选择一个模式，开始今天的练习</p>
+            </div>
+          </div>
         </div>
 
-        <!-- 学习模式选择 - 移到顶部 -->
-        <div class="mb-8 fade-in">
-          <div class="town-section-card">
-            <div class="town-section-card__header">
-              <div class="town-section-card__title">
-                  <span class="town-section-card__icon">🏰</span>
-                  <div>
-                    <h2 class="town-section-card__heading">走进小镇学手语</h2>
+        <div class="town-section-card__body">
+          <div class="hidden md:grid gap-8 md:grid-cols-2">
+            <article
+              v-for="mode in learningModes"
+              :key="mode.key"
+              class="adventure-card"
+              :style="{ '--accent-color': mode.accent, '--accent-light': mode.accentLight }"
+              @click="goToMode(mode)"
+            >
+              <header class="adventure-card__header">
+                <div class="adventure-card__icon" :style="{ background: mode.iconBg }">{{ mode.icon }}</div>
+                <div class="adventure-card__info">
+                  <div class="adventure-card__title">
+                    <h3>{{ mode.title }}</h3>
+                    <span class="adventure-card__badge">{{ mode.badge }}</span>
                   </div>
                 </div>
+              </header>
+
+              <div class="adventure-card__footer">
+                <div class="adventure-card__progress">
+                  <div class="adventure-card__progress-bar" :style="{ width: mode.progress + '%' }"></div>
+                  <div class="adventure-card__progress-icon">✓</div>
+                </div>
+                <div class="adventure-card__progress-text">完成进度：{{ mode.progress }}%</div>
+                <el-button :type="mode.buttonType" :plain="mode.isDeveloping" size="large" @click="handleModeClick(mode)">
+                  {{ mode.actionLabel }}
+                </el-button>
+              </div>
+            </article>
+          </div>
+
+          <div class="grid grid-cols-1 gap-4 md:hidden">
+            <article
+              v-for="mode in learningModes"
+              :key="mode.key"
+              class="adventure-card-sm"
+              :style="{ '--accent-color': mode.accent, '--accent-light': mode.accentLight }"
+              @click="goToMode(mode)"
+            >
+              <div class="adventure-card-sm__title">
+                <h3 class="mode-title-text">{{ mode.title }}</h3>
+                <span class="adventure-card-sm__badge">{{ mode.badge }}</span>
+              </div>
+              <div class="adventure-card-sm__footer">
+                <div class="adventure-card-sm__progress-container">
+                  <div class="adventure-card-sm__progress-text">完成进度：{{ mode.progress }}%</div>
+                  <div class="adventure-card-sm__progress">
+                    <div class="adventure-card-sm__progress-bar" :style="{ width: mode.progress + '%' }"></div>
+                  </div>
+                </div>
+                <el-button :type="mode.buttonType" :plain="mode.isDeveloping" size="small" @click="handleModeClick(mode)">
+                  {{ mode.actionLabel }}
+                </el-button>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="town-section-card fade-in mt-6 md:mt-10">
+        <div class="town-section-card__header town-section-card__header--video">
+          <div class="town-section-card__title">
+            <span class="town-section-card__icon">
+              <el-icon><VideoPlay /></el-icon>
+            </span>
+            <div>
+              <h2 class="town-section-card__heading">轻松一刻</h2>
+              <p>看看大家如何把手语融入日常</p>
             </div>
-            <div class="town-section-card__body">
-              <!-- 电脑端布局 -->
-              <div class="hidden md:grid gap-8 md:grid-cols-2">
-                <div
-                  v-for="mode in learningModes"
-                  :key="mode.key"
-                  class="adventure-card"
-                  :style="{
-                    '--accent-color': mode.accent,
-                    '--accent-light': mode.accentLight
-                  }"
-                  @click="goToMode(mode)"
-                >
-                  <div class="adventure-card__header">
-                    <div class="adventure-card__icon" :style="{ background: mode.iconBg }">{{ mode.icon }}</div>
-                    <div class="adventure-card__info">
-                      <div class="adventure-card__title">
-                        <h3>{{ mode.title }}</h3>
-                        <span class="adventure-card__badge">{{ mode.badge }}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="adventure-card__footer">
-                    <div class="adventure-card__progress">
-                      <div class="adventure-card__progress-bar" :style="{ width: mode.progress + '%' }"></div>
-                      <div class="adventure-card__progress-icon">🎯</div>
-                    </div>
-                    <div class="adventure-card__progress-text">已完成 {{ mode.progress }}%</div>
-                    <div class="adventure-card__actions">
-                      <el-button
-                        :type="mode.buttonType"
-                        :plain="mode.isDeveloping"
-                        size="large"
-                        @click="handleModeClick(mode)"
-                      >
-                        {{ mode.actionLabel }}
-                      </el-button>
-                    </div>
-                  </div>
+          </div>
+          <el-tag class="town-section-card__tag" type="success" effect="dark">精选推荐</el-tag>
+        </div>
+
+        <div class="town-section-card__body">
+          <div class="video-stream-desktop">
+            <div class="video-stream-container">
+              <div v-for="(video, index) in videos" :key="index" class="video-card">
+                <div class="video-card__thumbnail">
+                  <img :src="video.thumbnail" :alt="video.title" />
+                  <div class="video-card__play-icon">▶</div>
+                </div>
+                <div class="video-card__info">
+                  <h4 class="video-card__title">{{ video.title }}</h4>
+                  <p class="video-card__author">{{ video.author }}</p>
                 </div>
               </div>
-              
-              <!-- 手机端布局 -->
-              <div class="grid grid-cols-1 gap-4 md:hidden">
-                <div
-                  v-for="mode in learningModes"
-                  :key="mode.key"
-                  class="adventure-card-sm"
-                  :style="{
-                    '--accent-color': mode.accent,
-                    '--accent-light': mode.accentLight
-                  }"
-                  @click="goToMode(mode)"
-                >
-                  <div class="adventure-card-sm__header">
-                    <div class="adventure-card-sm__info">
-                      <div class="adventure-card-sm__title">
-                        <h3 class="mode-title-text">{{ mode.title }}</h3>
-                        <span class="adventure-card-sm__badge">{{ mode.badge }}</span>
-                      </div>
-                    </div>
+            </div>
+          </div>
+
+          <div class="video-stream-mobile">
+            <div class="tiktok-frame">
+              <div class="tiktok-container">
+                <div v-for="(video, index) in videos" :key="index" class="tiktok-item">
+                  <div class="tiktok-thumbnail">
+                    <img :src="video.thumbnail" :alt="video.title" />
+                    <div class="tiktok-play-icon">▶</div>
                   </div>
-                  <div class="adventure-card-sm__footer">
-                    <div class="adventure-card-sm__progress-container">
-                      <div class="adventure-card-sm__progress-text">已完成 {{ mode.progress }}%</div>
-                      <div class="adventure-card-sm__progress">
-                        <div class="adventure-card-sm__progress-bar" :style="{ width: mode.progress + '%' }"></div>
-                      </div>
-                    </div>
-                    <el-button
-                      :type="mode.buttonType"
-                      :plain="mode.isDeveloping"
-                      size="small"
-                      @click="handleModeClick(mode)"
-                    >
-                      {{ mode.actionLabel }}
-                    </el-button>
+                  <div class="tiktok-info">
+                    <h4 class="tiktok-title">{{ video.title }}</h4>
+                    <p class="tiktok-author">@{{ video.author }}</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-        <!-- 视频流板块 - 移到底部 -->
-        <div class="mb-12 fade-in">
-          <div class="town-section-card">
-            <div class="town-section-card__header">
-              <div class="town-section-card__title">
-                  <span class="town-section-card__icon">🎬</span>
-                  <div>
-                    <h2 class="town-section-card__heading">轻松一刻</h2>
-                  </div>
-                </div>
-              <el-tag class="town-section-card__tag" type="success" effect="dark">持续更新</el-tag>
-            </div>
-            <div class="town-section-card__body">
-              <!-- 电脑端横向滑动视频流 -->
-              <div class="video-stream-desktop">
-                <div class="video-stream-container">
-                  <div
-                    v-for="(video, index) in videos"
-                    :key="index"
-                    class="video-card"
-                  >
-                    <div class="video-card__thumbnail">
-                      <img :src="video.thumbnail" :alt="video.title" />
-                      <div class="video-card__play-icon">▶️</div>
-                    </div>
-                    <div class="video-card__info">
-                      <h4 class="video-card__title">{{ video.title }}</h4>
-                      <p class="video-card__author">{{ video.author }}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- 移动端抖音风格视频流 -->
-              <div class="video-stream-mobile">
-                <div class="tiktok-frame">
-                  <div class="tiktok-container">
-                    <div
-                      v-for="(video, index) in videos"
-                      :key="index"
-                      class="tiktok-item"
-                    >
-                      <div class="tiktok-thumbnail">
-                        <img :src="video.thumbnail" :alt="video.title" />
-                        <div class="tiktok-play-icon">▶️</div>
-                      </div>
-                      <div class="tiktok-info">
-                        <h4 class="tiktok-title">{{ video.title }}</h4>
-                        <p class="tiktok-author">@{{ video.author }}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      </section>
     </main>
 
-    <!-- 移动端底部导航栏 -->
     <div class="mobile-bottom-nav">
       <router-link to="/learn" class="mobile-nav-item active">
-        <span class="mobile-nav-icon">📚</span>
+        <el-icon class="mobile-nav-icon"><Reading /></el-icon>
         <span class="mobile-nav-text">学堂</span>
       </router-link>
       <router-link to="/translate" class="mobile-nav-item">
-        <span class="mobile-nav-icon">🔤</span>
+        <el-icon class="mobile-nav-icon"><Position /></el-icon>
         <span class="mobile-nav-text">译站</span>
       </router-link>
       <router-link to="/community" class="mobile-nav-item">
-        <span class="mobile-nav-icon">💬</span>
+        <el-icon class="mobile-nav-icon"><ChatDotRound /></el-icon>
         <span class="mobile-nav-text">手语圈</span>
       </router-link>
     </div>
 
-    <!-- 页脚 -->
-    <footer class="backdrop-blur-md bg-white/70 text-gray-700 py-8 mt-16">
+    <footer class="learn-footer">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <p>&copy; 2025 掌中语-手语小镇. All rights reserved.</p>
+        <p>&copy; 2026 掌中语 · 让沟通更平等</p>
       </div>
     </footer>
   </div>
@@ -218,11 +174,11 @@ export default {
         {
           key: 'challenge',
           title: '闯关模式',
-          badge: '升级打怪',
-          icon: '🚀',
-          iconBg: 'linear-gradient(135deg, #fff1d6 0%, #ffe4b5 100%)',
-          accent: '#f97316',
-          accentLight: 'rgba(249, 115, 22, 0.18)',
+          badge: '升级打卡',
+          icon: '闯',
+          iconBg: 'linear-gradient(135deg, #ecebff 0%, #d9d5ff 100%)',
+          accent: '#5e59ea',
+          accentLight: 'rgba(94, 89, 234, 0.18)',
           progress: 0,
           actionLabel: '开始闯关',
           buttonType: 'primary',
@@ -233,13 +189,13 @@ export default {
           key: 'thematic',
           title: '专题模式',
           badge: '沉浸探索',
-          icon: '🎯',
-          iconBg: 'linear-gradient(135deg, #ffe8d6 0%, #ffd6a5 100%)',
-          accent: '#f59e0b',
-          accentLight: 'rgba(245, 158, 11, 0.18)',
+          icon: '专',
+          iconBg: 'linear-gradient(135deg, #edefff 0%, #e3e7ff 100%)',
+          accent: '#6a56ef',
+          accentLight: 'rgba(106, 86, 239, 0.18)',
           progress: 0,
           actionLabel: '开始探索',
-          buttonType: 'warning',
+          buttonType: 'primary',
           isDeveloping: true,
           route: { name: 'Learn', query: { mode: 'thematic' } }
         }
@@ -252,7 +208,7 @@ export default {
         },
         {
           title: '手语故事：小兔子的一天',
-          author: '手语故事汇',
+          author: '手语故事馆',
           thumbnail: 'https://neeko-copilot.bytedance.net/api/text2image?prompt=sign%20language%20story%20about%20rabbit&size=1024x768'
         },
         {
@@ -282,7 +238,7 @@ export default {
     handleModeClick(mode) {
       if (mode.isDeveloping) {
         this.$message({
-          message: '专题模式正在开发中，敬请期待！',
+          message: '专题模式正在开发中，敬请期待。',
           type: 'info'
         })
         return
@@ -290,18 +246,15 @@ export default {
       this.goToMode(mode)
     },
     loadLearningProgress() {
-      // 加载闯关模式进度
       const challengeCompleted = Number(localStorage.getItem('challengeCompletedLevels') || 0)
-      const challengeTotal = 2 // 总关卡数
+      const challengeTotal = 2
       const challengeProgress = Math.round((challengeCompleted / challengeTotal) * 100)
-      
-      // 加载专题模式进度
+
       const thematicCompleted = Number(localStorage.getItem('thematicCompletedTopics') || 0)
-      const thematicTotal = 3 // 总专题数（假设）
+      const thematicTotal = 3
       const thematicProgress = Math.round((thematicCompleted / thematicTotal) * 100)
-      
-      // 更新学习模式进度
-      this.learningModes.forEach(mode => {
+
+      this.learningModes.forEach((mode) => {
         if (mode.key === 'challenge') {
           mode.progress = challengeProgress
         } else if (mode.key === 'thematic') {
@@ -311,14 +264,12 @@ export default {
     }
   },
   mounted() {
-    document.title = '手语小镇 - 手语教学平台'
+    document.title = '掌中语 - 学堂'
     this.loadLearningProgress()
-    // 监听进度变化事件
     window.addEventListener('challenge-progress-changed', this.loadLearningProgress)
     window.addEventListener('thematic-progress-changed', this.loadLearningProgress)
   },
   beforeUnmount() {
-    // 移除事件监听器
     window.removeEventListener('challenge-progress-changed', this.loadLearningProgress)
     window.removeEventListener('thematic-progress-changed', this.loadLearningProgress)
   }
@@ -326,240 +277,227 @@ export default {
 </script>
 
 <style scoped>
-.animated-gradient {
-  background: linear-gradient(-45deg, #e6f3ff, #f0f8ff, #e6f3ff, #f0f9ff, #e6f7ff);
-  background-size: 400% 400%;
-  animation: gradientShift 8s ease infinite;
-  min-height: 100vh;
+.learn-page {
+  color: #243556;
 }
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-.fade-in { animation: fadeIn 0.8s ease-in; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-.animate-fade-in-down { animation: fadeInDown 0.8s ease-out; }
-@keyframes fadeInDown { from { opacity:0; transform: translateY(-20px);} to { opacity:1; transform: translateY(0);} }
-.animate-fade-in-up { animation: fadeInUp 0.8s ease-out 0.2s both; }
-@keyframes fadeInUp { from { opacity:0; transform: translateY(20px);} to { opacity:1; transform: translateY(0);} }
 
-/* 移动端底部导航栏 */
-.mobile-bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(255, 255, 255, 0.95);
+.top-nav {
   backdrop-filter: blur(10px);
-  border-top: 1px solid #e5e7eb;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  height: 60px;
-  z-index: 1000;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.76);
+  border-bottom: 1px solid rgba(108, 114, 210, 0.26);
+  box-shadow: 0 12px 30px rgba(76, 85, 171, 0.12);
 }
 
-.mobile-nav-item {
+.nav-wrap {
+  height: 74px;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  flex: 1;
-  height: 100%;
+  justify-content: space-between;
+}
+
+.brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #2f3f74;
+  font-size: 1.3rem;
+  font-weight: 800;
   text-decoration: none;
-  color: #6b7280;
 }
 
-.mobile-nav-item.active {
-  color: #3b82f6;
-  font-weight: 600;
+.nav-menu {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.mobile-nav-icon {
-  font-size: 20px;
-  margin-bottom: 4px;
+.nav-link--active {
+  color: #5d54e8;
+  background: rgba(230, 226, 255, 0.9);
 }
 
-.mobile-nav-text {
-  font-size: 12px;
-}
 
-/* 响应式设计 */
-@media (min-width: 768px) {
-  .mobile-bottom-nav {
-    display: none;
-  }
-}
 
-@media (max-width: 767px) {
-  main {
-    padding-bottom: 70px;
-  }
-  footer {
-    margin-bottom: 60px;
-  }
-}
-
-/* 小镇风格板块卡片 */
 .town-section-card {
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.84);
   border-radius: 28px;
-  border: 2px solid rgba(99, 102, 241, 0.15);
-  box-shadow: 0 24px 65px rgba(79, 70, 229, 0.12);
+  border: 1px solid rgba(112, 118, 209, 0.22);
+  box-shadow: 0 22px 54px rgba(80, 88, 172, 0.14);
   overflow: hidden;
-  position: relative;
 }
 
 .town-section-card__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #ffffff;
+  padding: 14px 16px;
+  background: linear-gradient(120deg, rgba(89, 95, 232, 0.96), rgba(126, 84, 247, 0.94));
+  color: #fff;
 }
 
-@media (min-width: 768px) {
-  .town-section-card__header {
-    padding: 16px 24px;
-  }
+.town-section-card__header p {
+  margin: 2px 0 0;
+  opacity: 0.9;
+  font-size: 0.85rem;
 }
 
 .town-section-card__title {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .town-section-card__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   width: 40px;
   height: 40px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.2);
-  font-size: 22px;
-}
-
-@media (min-width: 768px) {
-  .town-section-card__icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
-    font-size: 26px;
-  }
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.22);
+  display: grid;
+  place-items: center;
+  font-size: 18px;
 }
 
 .town-section-card__heading {
-  font-size: 1.1rem;
+  margin: 0;
+  font-size: 1.15rem;
   font-weight: 700;
 }
 
-@media (min-width: 768px) {
-  .town-section-card__heading {
-    font-size: 1.6rem;
-  }
-}
-
 .town-section-card__body {
-  padding: 20px 16px;
+  padding: 16px;
 }
 
-@media (min-width: 768px) {
-  .town-section-card__body {
-    padding: 40px 32px;
-  }
-}
-
-/* 冒险卡片样式 (PC) */
 .adventure-card {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  padding: 32px;
-  background: #ffffff;
-  border-radius: 24px;
-  border: 2px solid rgba(148, 163, 184, 0.2);
-  box-shadow: 0 20px 50px rgba(79, 70, 229, 0.15);
+  gap: 20px;
+  padding: 24px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(113, 119, 210, 0.2);
+  box-shadow: 0 16px 36px rgba(82, 90, 173, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
+}
+
+.adventure-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 42px rgba(82, 90, 173, 0.18);
 }
 
 .adventure-card__header {
   display: flex;
-  align-items: flex-start;
-  gap: 24px;
+  gap: 16px;
+  align-items: center;
 }
 
 .adventure-card__icon {
-  width: 72px;
-  height: 72px;
-  border-radius: 24px;
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  font-size: 30px;
+  font-weight: 800;
+  color: #5955df;
+}
+
+.adventure-card__title {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 36px;
+  gap: 10px;
 }
 
 .adventure-card__title h3 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1f2937;
+  margin: 0;
+  font-size: 1.3rem;
 }
 
 .adventure-card__badge {
-  display: inline-flex;
-  padding: 6px 12px;
-  border-radius: 9999px;
-  font-size: 0.8rem;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 0.76rem;
   font-weight: 700;
-  background: var(--accent-light);
   color: var(--accent-color);
+  background: var(--accent-light);
 }
 
-/* 手机端冒险卡片样式 */
+.adventure-card__progress {
+  height: 10px;
+  border-radius: 999px;
+  background: #e3e7fb;
+  position: relative;
+  overflow: hidden;
+}
+
+.adventure-card__progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-color), #8f84ff);
+}
+
+.adventure-card__progress-icon {
+  position: absolute;
+  top: -8px;
+  right: 10px;
+  color: #5f5adf;
+}
+
+.adventure-card__progress-text {
+  margin-top: 8px;
+  margin-bottom: 14px;
+  color: #5d6787;
+  font-size: 0.9rem;
+}
+
+.adventure-card :deep(.el-button) {
+  border: none;
+  background: linear-gradient(120deg, #5a5fe8, #7656ef 74%, #9368ff);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(93, 88, 220, 0.3);
+}
+
+.adventure-card :deep(.el-button.is-plain) {
+  background: rgba(244, 246, 255, 0.92);
+  color: #5a58e0;
+  border: 1px solid rgba(114, 120, 208, 0.3);
+  box-shadow: none;
+}
+
 .adventure-card-sm {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px 14px;
-  background: #ffffff;
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(112, 118, 209, 0.2);
+  cursor: pointer;
 }
 
 .adventure-card-sm__title {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
-  flex-wrap: nowrap; /* 强制不换行 */
 }
 
 .mode-title-text {
+  margin: 0;
   font-size: 1rem;
-  font-weight: 700;
-  color: #1f2937;
-  white-space: nowrap;
 }
 
 .adventure-card-sm__badge {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.72rem;
+  font-weight: 700;
   color: var(--accent-color);
   background: var(--accent-light);
-  padding: 2px 6px;
   border-radius: 6px;
-  white-space: nowrap;
+  padding: 3px 6px;
 }
 
 .adventure-card-sm__footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
 }
 
 .adventure-card-sm__progress-container {
@@ -567,16 +505,15 @@ export default {
 }
 
 .adventure-card-sm__progress-text {
-  font-size: 0.75rem;
-  color: #6b7280;
   margin-bottom: 4px;
+  font-size: 0.76rem;
+  color: #5c6887;
 }
 
 .adventure-card-sm__progress {
-  width: 100%;
   height: 6px;
-  background: #f3f4f6;
   border-radius: 999px;
+  background: #e3e7fb;
   overflow: hidden;
 }
 
@@ -585,105 +522,238 @@ export default {
   background: var(--accent-color);
 }
 
-/* 视频流样式 */
-.video-stream-desktop {
-  display: block;
+.adventure-card-sm :deep(.el-button) {
+  border: none;
+  background: linear-gradient(120deg, #5a5fe8, #7656ef 74%, #9368ff);
+  color: #fff;
+}
+
+.adventure-card-sm :deep(.el-button.is-plain) {
+  background: rgba(244, 246, 255, 0.92);
+  color: #5a58e0;
+  border: 1px solid rgba(114, 120, 208, 0.3);
+}
+
+.video-stream-container {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scroll-snap-type: x mandatory;
+}
+
+.video-card {
+  flex: 0 0 278px;
+  scroll-snap-align: start;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid rgba(112, 118, 209, 0.2);
+  box-shadow: 0 12px 28px rgba(82, 90, 173, 0.12);
+}
+
+.video-card__thumbnail {
+  position: relative;
+  height: 170px;
+}
+
+.video-card__thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-card__play-icon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(236, 231, 255, 0.9);
+  color: #5f59e4;
+  font-size: 16px;
+}
+
+.video-card__info {
+  padding: 12px;
+}
+
+.video-card__title {
+  margin: 0;
+  color: #2f3f74;
+}
+
+.video-card__author {
+  margin: 6px 0 0;
+  color: #61708e;
+  font-size: 0.86rem;
 }
 
 .video-stream-mobile {
   display: none;
 }
 
-@media (max-width: 768px) {
-  .video-stream-desktop {
-    display: none;
-  }
-  .video-stream-mobile {
-    display: block;
-  }
-}
-
-.video-stream-container {
-  display: flex;
-  gap: 20px;
-  overflow-x: auto;
-  padding-bottom: 10px;
-}
-
-.video-card {
-  flex: 0 0 300px;
-  background: #fff;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-/* 抖音风格容器 */
-.tiktok-frame {
-  width: 100%;
-  height: 450px; /* 展示框固定高度 */
-  background: #000;
-  border-radius: 16px;
-  overflow: hidden;
-}
-
-.tiktok-container {
-  height: 100%;
-  overflow-y: scroll;
-  scroll-snap-type: y mandatory;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.tiktok-container::-webkit-scrollbar {
-  display: none;
-}
-
-.tiktok-item {
-  height: 100%;
-  width: 100%;
-  scroll-snap-align: start;
-  position: relative;
-}
-
-.tiktok-thumbnail {
-  width: 100%;
-  height: 100%;
-}
-
-.tiktok-thumbnail img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.tiktok-play-icon {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 48px;
-  color: rgba(255,255,255,0.3);
-}
-
-.tiktok-info {
-  position: absolute;
+.mobile-bottom-nav {
+  position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 20px;
-  background: linear-gradient(transparent, rgba(0,0,0,0.7));
-  color: white;
+  height: 64px;
+  display: flex;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(114, 120, 208, 0.24);
+  z-index: 1000;
 }
 
-.tiktok-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 4px;
+.mobile-nav-item {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+  color: #667694;
 }
 
-.tiktok-author {
-  font-size: 0.9rem;
-  opacity: 0.8;
+.mobile-nav-item.active {
+  color: #5d54e8;
+  font-weight: 700;
+}
+
+.mobile-nav-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.mobile-nav-text {
+  font-size: 12px;
+}
+
+.learn-footer {
+  margin-top: 34px;
+  padding: 20px 0 80px;
+  color: #637792;
+}
+
+@media (min-width: 768px) {
+  .mobile-bottom-nav {
+    display: none;
+  }
+
+  .town-section-card__header {
+    padding: 16px 24px;
+  }
+
+  .town-section-card__heading {
+    font-size: 1.4rem;
+  }
+
+  .town-section-card__body {
+    padding: 24px;
+  }
+
+  .hero-panel {
+    margin-top: 32px;
+    margin-bottom: 24px;
+    padding: 32px;
+    grid-template-columns: minmax(0, 1.5fr) minmax(210px, 0.7fr);
+    align-items: flex-end;
+  }
+
+  .hero-badges {
+    margin-top: 0;
+    justify-content: flex-end;
+    align-content: flex-end;
+  }
+
+  .hero-badges span {
+    text-align: center;
+    min-width: 132px;
+  }
+
+  .learn-footer {
+    padding-bottom: 24px;
+  }
+}
+
+@media (max-width: 767px) {
+  .video-stream-desktop {
+    display: none;
+  }
+
+  .video-stream-mobile {
+    display: block;
+  }
+
+  .tiktok-frame {
+    width: 100%;
+    height: 450px;
+    background: #2c2f78;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .tiktok-container {
+    height: 100%;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .tiktok-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tiktok-item {
+    height: 100%;
+    scroll-snap-align: start;
+    position: relative;
+  }
+
+  .tiktok-thumbnail,
+  .tiktok-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .tiktok-play-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 48px;
+    height: 48px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    color: #eef2ff;
+    background: rgba(98, 93, 232, 0.6);
+  }
+
+  .tiktok-info {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 16px;
+    color: #fff;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.72));
+  }
+
+  .tiktok-title {
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  .tiktok-author {
+    margin: 6px 0 0;
+    opacity: 0.86;
+    font-size: 0.86rem;
+  }
 }
 </style>

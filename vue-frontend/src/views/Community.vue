@@ -127,7 +127,12 @@
           <!-- 热门话题 -->
           <el-card class="p-2 order-1 mobile-hot-topics-card">
             <template #header>
-              <span class="font-semibold mobile-hot-topics-title">🔥 热门话题</span>
+              <div class="flex justify-between items-center w-full">
+                <span class="font-semibold mobile-hot-topics-title">🔥 热门话题</span>
+                <router-link to="/profile" class="flex items-center justify-center bg-white/20 text-white rounded-md px-3 py-1 text-sm font-medium hover:bg-white/30 transition-colors border border-white/30 backdrop-blur-sm shadow-sm">
+                  <el-icon class="mr-1"><User /></el-icon>我的
+                </router-link>
+              </div>
             </template>
             <div class="mobile-hot-topics-grid">
               <div class="mobile-hot-topics-column">
@@ -421,7 +426,7 @@
                 <p class="text-sm text-gray-600">
                   每月走近一位热心的手语公益实践者，记录他们用双手带来的温暖改变。
                 </p>
-                <div class="p-3 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100">
+                <div class="p-3 rounded-lg bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-100">
                   <div class="flex items-center space-x-3 mb-2">
                     <el-avatar :size="40" :src="getAvatarUrl(currentCharityStar.avatar)">
                       {{ currentCharityStar.name.charAt(0) }}
@@ -1223,7 +1228,7 @@ export default {
 /* 热门话题和公益星卡片头部保持蓝紫色 */
 :deep(.el-card:nth-child(2) .el-card__header),
 :deep(.el-card:nth-child(3) .el-card__header) {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background: linear-gradient(135deg, #2f7de0 0%, #56beda 100%) !important;
   color: white !important;
   border-radius: 16px 16px 0 0 !important;
   padding: 16px 20px !important;
@@ -1241,7 +1246,7 @@ export default {
 }
 
 :deep(.mobile-hot-topics-card .el-card__header) {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background: linear-gradient(135deg, #2f7de0 0%, #56beda 100%) !important;
   color: white !important;
   border-radius: 16px 16px 0 0 !important;
   padding: 8px 14px !important;
@@ -1279,7 +1284,7 @@ export default {
 
 /* 按钮类型美化 */
 :deep(.el-button--primary) {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background: linear-gradient(135deg, #2f7de0 0%, #56beda 100%) !important;
   border: none !important;
 }
 
@@ -1436,12 +1441,12 @@ video.rounded:hover {
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #2f7de0 0%, #56beda 100%);
   border-radius: 10px;
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  background: linear-gradient(135deg, #56beda 0%, #2f7de0 100%);
 }
 
 .mobile-hot-topics-grid {
@@ -1714,6 +1719,138 @@ footer {
   
   .lg\:col-span-1 {
     width: 100%;
+  }
+}
+
+/* ---- 2026 Unified Community Refresh ---- */
+.animated-gradient {
+  background:
+    radial-gradient(circle at 9% 16%, rgba(85, 156, 224, 0.22), transparent 30%),
+    radial-gradient(circle at 88% 12%, rgba(82, 192, 216, 0.18), transparent 32%),
+    radial-gradient(circle at 72% 86%, rgba(139, 199, 231, 0.14), transparent 32%),
+    linear-gradient(160deg, #f8fbff 0%, #eef4fa 52%, #e8f0f7 100%);
+  background-size: 180% 180%;
+  animation: gradientShift 12s ease infinite;
+}
+
+:deep(.el-card) {
+  border: 1px solid rgba(106, 138, 181, 0.2) !important;
+  border-radius: 22px !important;
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.94), rgba(243, 248, 253, 0.92)) !important;
+  box-shadow: 0 14px 30px rgba(63, 101, 148, 0.12) !important;
+}
+
+:deep(.el-card__header) {
+  border-bottom: 1px solid rgba(108, 139, 182, 0.16) !important;
+}
+
+:deep(.el-card:nth-child(2) .el-card__header),
+:deep(.el-card:nth-child(3) .el-card__header),
+:deep(.mobile-hot-topics-card .el-card__header) {
+  background: linear-gradient(130deg, #2f7de0, #4da4e5 62%, #61c5da) !important;
+  color: #fff !important;
+}
+
+:deep(.el-card:nth-child(1) .el-card__header),
+:deep(.mobile-publish-card .el-card__header) {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.94), rgba(242, 248, 253, 0.94)) !important;
+  color: #2f4f6f !important;
+}
+
+:deep(.el-button--primary),
+:deep(.mobile-submit-btn.el-button--primary) {
+  border: 1px solid rgba(81, 137, 198, 0.28) !important;
+  background: linear-gradient(122deg, #2f7de0, #3f9ee4 70%, #5fc1da) !important;
+  color: #fff !important;
+}
+
+:deep(.el-button--success),
+:deep(.el-button--warning),
+:deep(.el-button--info) {
+  border: 1px solid rgba(77, 154, 190, 0.28) !important;
+  background: linear-gradient(122deg, #338fcd, #40acd2 62%, #69c8ce) !important;
+  color: #fff !important;
+}
+
+.mobile-posts-panel {
+  background: linear-gradient(170deg, rgba(255, 255, 255, 0.94), rgba(244, 249, 253, 0.92));
+  border: 1px solid rgba(106, 138, 181, 0.2);
+  border-radius: 18px;
+  box-shadow: 0 12px 24px rgba(63, 101, 148, 0.1);
+}
+
+.mobile-post-item {
+  padding: 12px 12px 10px;
+}
+
+.mobile-post-divider {
+  border-bottom-color: rgba(108, 139, 182, 0.16);
+}
+
+.mobile-hot-topic-item {
+  border-radius: 10px;
+  padding: 4px 6px;
+  transition: background-color 0.2s ease;
+}
+
+.mobile-hot-topic-item:hover {
+  background: rgba(76, 146, 217, 0.1);
+}
+
+.mobile-hot-topic-rank {
+  color: #7088a1;
+}
+
+.mobile-hot-topic-name {
+  color: #2f4f6f;
+}
+
+.mobile-hot-topic-name:hover {
+  color: #2f7de0;
+}
+
+.mobile-bottom-nav {
+  border-top: 1px solid rgba(108, 140, 183, 0.2);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 -8px 18px rgba(64, 103, 149, 0.12);
+}
+
+.mobile-nav-item {
+  color: #667d95;
+}
+
+.mobile-nav-item.active {
+  color: #2f7de0;
+}
+
+footer {
+  border-top: 1px solid rgba(108, 139, 182, 0.2);
+  background: rgba(255, 255, 255, 0.84);
+  color: #5f758d;
+}
+
+@media (max-width: 767px) {
+  :deep(.mobile-publish-card .el-card__body),
+  :deep(.mobile-hot-topics-card .el-card__body) {
+    padding: 10px !important;
+  }
+
+  .mobile-post-layout {
+    gap: 8px;
+  }
+
+  .mobile-top-sections {
+    margin-top: 12px !important;
+    gap: 8px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animated-gradient,
+  :deep(.el-card),
+  :deep(.el-button) {
+    animation: none !important;
+    transition: none !important;
   }
 }
 </style>

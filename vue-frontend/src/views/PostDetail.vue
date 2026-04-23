@@ -1,20 +1,20 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen animated-gradient">
     <!-- 导航栏 -->
-    <nav class="bg-white shadow-md hidden md:block">
+    <nav class="backdrop-blur-md bg-white/70 shadow-lg hidden md:block">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center">
-            <router-link to="/" class="flex items-center text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">
+            <router-link to="/" class="flex items-center text-2xl font-bold text-blue-700 hover:text-blue-800 transition-colors duration-300">
               <!-- 使用已有的默认头像图片代替缺失的 logo 文件，避免 Vite 解析错误 -->
               <img src="@/assets/logo/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
               <span>掌中语-手语小镇</span>
             </router-link>
           </div>
           <div class="flex items-center space-x-4">
-            <router-link to="/learn" class="text-gray-600 hover:text-blue-600">学堂</router-link>
-            <router-link to="/translate" class="text-gray-600 hover:text-blue-600">译站</router-link>
-            <router-link to="/community" class="text-gray-600 hover:text-blue-600">手语圈</router-link>
+            <router-link to="/learn" class="nav-link text-gray-700 hover:text-blue-600">学堂</router-link>
+            <router-link to="/translate" class="nav-link text-gray-700 hover:text-blue-600">译站</router-link>
+            <router-link to="/community" class="nav-link text-blue-700 font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full">手语圈</router-link>
           </div>
         </div>
       </div>
@@ -64,7 +64,7 @@
                     <span class="mr-1 text-lg" :class="{ 'text-red-500': isLiked }">{{ isLiked ? '❤️' : '🤍' }}</span>
                     <span>{{ post.likes_count || 0 }} 点赞</span>
                   </div>
-                  <div v-if="isAuthor" class="flex items-center space-x-2 cursor-pointer hover:text-purple-600" @click="showPrivacyMenu = !showPrivacyMenu">
+                  <div v-if="isAuthor" class="flex items-center space-x-2 cursor-pointer hover:text-blue-600" @click="showPrivacyMenu = !showPrivacyMenu">
                     <el-icon><Setting /></el-icon>
                     <span>权限设置</span>
                     <el-icon class="ml-1" :class="{ 'rotate-180': showPrivacyMenu }"><ArrowDown /></el-icon>
@@ -216,7 +216,7 @@
     </main>
 
     <!-- 页脚 -->
-    <footer class="bg-gray-800 text-white py-8 mt-12">
+    <footer class="backdrop-blur-md bg-white/70 text-gray-700 py-8 mt-12 border-t border-indigo-100/80">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <p>&copy; 2024 掌中语-手语小镇. All rights reserved.</p>
       </div>
@@ -509,6 +509,45 @@ export default {
   font-size: 0.9rem;
   text-align: center;
   padding: 6px 0 2px;
+}
+
+/* ---- 2026 Unified PostDetail Refresh ---- */
+.rotate-180 {
+  color: #5a66ef;
+}
+
+:deep(.el-card) {
+  border: 1px solid rgba(106, 138, 181, 0.2) !important;
+  border-radius: 22px !important;
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.94), rgba(243, 248, 253, 0.92)) !important;
+  box-shadow: 0 14px 30px rgba(63, 101, 148, 0.12) !important;
+}
+
+:deep(.el-card__header) {
+  border-bottom: 1px solid rgba(108, 139, 182, 0.16) !important;
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.9), rgba(241, 248, 253, 0.9)) !important;
+  color: #2b486a !important;
+}
+
+:deep(.el-button--primary),
+:deep(.el-button--success),
+:deep(.el-button--warning),
+:deep(.el-button--info) {
+  border: 1px solid rgba(81, 137, 198, 0.28) !important;
+  background: linear-gradient(122deg, #2f7de0, #3f9ee4 70%, #5fc1da) !important;
+  color: #fff !important;
+}
+
+:deep(.el-button--default) {
+  border: 1px solid rgba(108, 139, 182, 0.22) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #35668d !important;
+}
+
+:deep(.comment-editor-input .el-textarea__inner) {
+  border: 1px solid rgba(108, 139, 182, 0.24) !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, 0.9) !important;
 }
 
 @media (max-width: 767px) {

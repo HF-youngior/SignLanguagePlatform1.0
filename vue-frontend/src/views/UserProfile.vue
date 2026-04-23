@@ -1,97 +1,101 @@
 <template>
-  <div class="user-profile">
-    <el-card class="profile-card">
-      <!-- 顶部背景 -->
-      <div class="bg-cover h-48 bg-gradient-to-r from-blue-400 to-purple-500 rounded-t-lg flex items-center justify-center">
-        <!-- 头像 -->
-        <div class="relative">
-          <img :src="getAvatarUrl(user.avatar)" :alt="user.username" class="w-32 h-32 rounded-full border-4 border-white object-cover">
-        </div>
-      </div>
-      
-      <!-- 个人信息 -->
-      <div class="mt-16">
-        <div class="text-center mb-6">
-          <h2 class="text-2xl font-bold">{{ user.username }}</h2>
-          <p v-if="user.first_name" class="text-gray-500">{{ user.first_name }}</p>
-          <p v-if="user.bio" class="text-gray-600 mt-2">{{ user.bio }}</p>
-        </div>
-        
-        <!-- 操作按钮 -->
-        <div class="flex justify-center space-x-4 mb-8">
-          <el-button 
-            v-if="!isCurrentUser" 
-            type="primary" 
-            @click="addFriend" 
-            :loading="addingFriend"
-          >
-            {{ isFriend ? '已添加' : '添加好友' }}
-          </el-button>
-          <el-button v-else type="primary" @click="editProfile">编辑资料</el-button>
-        </div>
-        
-        <!-- 统计信息 -->
-        <div class="flex justify-around mb-8 border-t border-b py-4">
-          <div class="text-center">
-            <div class="text-xl font-bold">{{ user.postsCount || 0 }}</div>
-            <div class="text-gray-500 text-sm">帖子</div>
+  <div class="user-profile min-h-screen animated-gradient">
+    <main class="pt-8 pb-14">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <el-card class="profile-card">
+          <!-- 顶部背景 -->
+          <div class="profile-cover bg-cover h-52 rounded-t-lg flex items-center justify-center">
+            <!-- 头像 -->
+            <div class="relative">
+              <img :src="getAvatarUrl(user.avatar)" :alt="user.username" class="w-32 h-32 rounded-full border-4 border-white object-cover">
+            </div>
           </div>
-          <div class="text-center">
-            <div class="text-xl font-bold">{{ user.friendsCount || 0 }}</div>
-            <div class="text-gray-500 text-sm">好友</div>
-          </div>
-          <div class="text-center">
-            <div class="text-xl font-bold">{{ user.likesCount || 0 }}</div>
-            <div class="text-gray-500 text-sm">获赞</div>
-          </div>
-        </div>
-      </div>
-    </el-card>
-    
-    <!-- 用户帖子 -->
-    <div class="mt-6">
-      <el-card>
-        <template #header>
-          <div class="flex justify-between items-center">
-            <span class="text-lg font-semibold">发布的帖子</span>
-          </div>
-        </template>
-        <div v-if="userPosts.length > 0" class="space-y-4">
-          <el-card v-for="post in userPosts" :key="post.id" class="hover:shadow-lg transition-shadow">
-            <div class="flex items-start space-x-4">
-              <div class="relative">
-                <img :src="getAvatarUrl(user.avatar)" :alt="user.username" class="w-10 h-10 rounded-full object-cover">
+          
+          <!-- 个人信息 -->
+          <div class="mt-16">
+            <div class="text-center mb-6">
+              <h2 class="text-2xl font-bold">{{ user.username }}</h2>
+              <p v-if="user.first_name" class="text-gray-500">{{ user.first_name }}</p>
+              <p v-if="user.bio" class="text-gray-600 mt-2">{{ user.bio }}</p>
+            </div>
+            
+            <!-- 操作按钮 -->
+            <div class="flex justify-center space-x-4 mb-8">
+              <el-button 
+                v-if="!isCurrentUser" 
+                type="primary" 
+                @click="addFriend" 
+                :loading="addingFriend"
+              >
+                {{ isFriend ? '已添加' : '添加好友' }}
+              </el-button>
+              <el-button v-else type="primary" @click="editProfile">编辑资料</el-button>
+            </div>
+            
+            <!-- 统计信息 -->
+            <div class="profile-stats flex justify-around mb-8 border-t border-b py-4">
+              <div class="text-center">
+                <div class="text-xl font-bold">{{ user.postsCount || 0 }}</div>
+                <div class="text-gray-500 text-sm">帖子</div>
               </div>
-              <div class="flex-1">
-                <div class="flex items-center space-x-2 mb-2">
-                  <span class="font-semibold">{{ user.username }}</span>
-                  <span class="text-gray-500 text-sm">{{ new Date(post.created_at).toLocaleString('zh-CN') }}</span>
-                </div>
-                <p class="text-gray-700 mb-3">{{ post.content }}</p>
-                
-                <!-- 显示帖子中的图片 -->
-                <div v-if="post.images && post.images.length > 0" class="mb-3">
-                  <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    <img v-for="image in post.images" :key="image.id" :src="image.url" :alt="image.name" class="w-full h-32 object-cover rounded border cursor-pointer hover:opacity-80">
+              <div class="text-center">
+                <div class="text-xl font-bold">{{ user.friendsCount || 0 }}</div>
+                <div class="text-gray-500 text-sm">好友</div>
+              </div>
+              <div class="text-center">
+                <div class="text-xl font-bold">{{ user.likesCount || 0 }}</div>
+                <div class="text-gray-500 text-sm">获赞</div>
+              </div>
+            </div>
+          </div>
+        </el-card>
+        
+        <!-- 用户帖子 -->
+        <div class="mt-6">
+          <el-card>
+            <template #header>
+              <div class="flex justify-between items-center">
+                <span class="text-lg font-semibold">发布的帖子</span>
+              </div>
+            </template>
+            <div v-if="userPosts.length > 0" class="space-y-4">
+              <el-card v-for="post in userPosts" :key="post.id" class="hover:shadow-lg transition-shadow">
+                <div class="flex items-start space-x-4">
+                  <div class="relative">
+                    <img :src="getAvatarUrl(user.avatar)" :alt="user.username" class="w-10 h-10 rounded-full object-cover">
+                  </div>
+                  <div class="flex-1">
+                    <div class="flex items-center space-x-2 mb-2">
+                      <span class="font-semibold">{{ user.username }}</span>
+                      <span class="text-gray-500 text-sm">{{ new Date(post.created_at).toLocaleString('zh-CN') }}</span>
+                    </div>
+                    <p class="text-gray-700 mb-3">{{ post.content }}</p>
+                    
+                    <!-- 显示帖子中的图片 -->
+                    <div v-if="post.images && post.images.length > 0" class="mb-3">
+                      <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                        <img v-for="image in post.images" :key="image.id" :src="image.url" :alt="image.name" class="w-full h-32 object-cover rounded border cursor-pointer hover:opacity-80">
+                      </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4 text-gray-500 text-sm">
+                      <span class="cursor-pointer hover:text-blue-600">{{ post.comments_count || 0 }} 评论</span>
+                      <span class="cursor-pointer hover:text-red-600" @click="togglePostLike(post.id)">
+                        <span :class="post.isLiked ? 'text-red-500' : ''">{{ post.isLiked ? '❤️' : '🤍' }}</span>
+                        {{ post.likes_count || 0 }} 点赞
+                      </span>
+                    </div>
                   </div>
                 </div>
-                
-                <div class="flex items-center space-x-4 text-gray-500 text-sm">
-                  <span class="cursor-pointer hover:text-blue-600">{{ post.comments_count || 0 }} 评论</span>
-                  <span class="cursor-pointer hover:text-red-600" @click="togglePostLike(post.id)">
-                    <span :class="post.isLiked ? 'text-red-500' : ''">{{ post.isLiked ? '❤️' : '🤍' }}</span>
-                    {{ post.likes_count || 0 }} 点赞
-                  </span>
-                </div>
-              </div>
+              </el-card>
+            </div>
+            <div v-else class="text-center py-8 text-gray-500">
+              该用户还没有发布帖子
             </div>
           </el-card>
         </div>
-        <div v-else class="text-center py-8 text-gray-500">
-          该用户还没有发布帖子
-        </div>
-      </el-card>
-    </div>
+      </div>
+    </main>
   </div>
 </template>
 
@@ -216,18 +220,43 @@ export default {
 
 <style scoped>
 .user-profile {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
+  color: #2c4a67;
 }
 
 .profile-card {
-  border-radius: 12px;
+  border-radius: 22px;
+  border: 1px solid rgba(106, 142, 182, 0.22);
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.94), rgba(242, 248, 253, 0.9));
+  box-shadow: 0 18px 38px rgba(58, 99, 146, 0.14);
   overflow: hidden;
 }
 
 .bg-cover {
   background-size: cover;
   background-position: center;
+}
+
+.profile-cover {
+  background:
+    radial-gradient(circle at 18% 24%, rgba(255, 255, 255, 0.3), transparent 46%),
+    radial-gradient(circle at 84% 10%, rgba(242, 179, 143, 0.2), transparent 36%),
+    linear-gradient(128deg, #2f7de0, #45a7de 64%, #63c6d6);
+}
+
+.profile-stats {
+  border-color: rgba(107, 142, 183, 0.22);
+  background: rgba(255, 255, 255, 0.76);
+  border-radius: 14px;
+}
+
+@media (max-width: 768px) {
+  .profile-cover {
+    height: 12rem;
+  }
+
+  .profile-stats {
+    padding-top: 0.8rem;
+    padding-bottom: 0.8rem;
+  }
 }
 </style>

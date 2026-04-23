@@ -3,6 +3,7 @@
     <h2 class="text-2xl font-bold text-gray-900 mb-6">操作日志</h2>
     
     <div class="bg-white shadow rounded-lg overflow-hidden">
+      <div class="admin-table-wrap">
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
           <tr>
@@ -29,6 +30,7 @@
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
   </div>
 </template>

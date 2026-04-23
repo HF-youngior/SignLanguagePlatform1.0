@@ -31,7 +31,7 @@ export function getNodeOrigin() {
 
 export function resolveNodeAssetUrl(path) {
   if (!path) return ''
-  if (isAbsoluteUrl(path)) return path
+  if (isAbsoluteUrl(path) || path.startsWith('data:')) return path
 
   const normalizedPath = path.startsWith('/') ? path : `/${path}`
   return new URL(normalizedPath, `${getNodeOrigin()}/`).toString()

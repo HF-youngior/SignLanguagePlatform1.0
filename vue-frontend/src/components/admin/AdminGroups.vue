@@ -23,6 +23,7 @@
 
     <!-- 社群列表 -->
     <div class="bg-white shadow rounded-lg overflow-hidden">
+      <div class="admin-table-wrap">
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
           <tr>
@@ -56,6 +57,7 @@
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
 
     <!-- 社群详情弹窗 -->
@@ -85,6 +87,7 @@
           <div>
             <h4 class="text-lg font-medium text-gray-900 mb-3">成员管理</h4>
             <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+              <div class="admin-table-wrap">
               <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                   <tr>
@@ -139,6 +142,7 @@
                   </tr>
                 </tbody>
               </table>
+              </div>
             </div>
           </div>
 

@@ -49,103 +49,74 @@
 
 
 
-        <section class="map-section fade-in" style="min-height: 70vh;">
-          <div class="map-section__header">
+        <section class="map-section fade-in relative" style="min-height: 70vh;">
+          <div class="map-section__header bg-white rounded-t-2xl p-6 shadow-sm z-10 relative">
             <div>
               <h2 class="text-2xl font-semibold text-slate-900">章节地图</h2>
-              <p class="text-slate-600 text-sm">沿着路径前进，点亮篇章，更多故事正等待你解锁。</p>
+              <p class="text-slate-600 text-sm mt-2">沿着路径前进，点亮篇章，更多故事正等待你解锁。</p>
             </div>
           </div>
 
           <div 
-            class="map-container"
-            ref="mapContainer"
-            @mousedown="startDrag"
-            @mousemove="onDrag"
-            @mouseup="endDrag"
-            @mouseleave="endDrag"
-            @touchstart="startDrag"
-            @touchmove="onDrag"
-            @touchend="endDrag"
-          >
-            <!-- 背景图层 -->
-            <div class="map-background"></div>
-            
-            <!-- 地图内容容器 -->
-            <div class="map-content">
-              <div class="map-path" :style="{ transform: `translateY(${currentScrollTop}px)` }">
-                <!-- 主路径 - 白色实地小路 -->
-                <div class="main-path">
-                  <div class="path-path"></div>
-                </div>
-                
-                <!-- 聚光灯效果 -->
-                <div v-if="completedLevels === 0" class="spotlight"></div>
-                
-                <div
-                  v-for="(level, index) in levels"
-                  :key="level.id"
-                  class="map-node"
-                  :class="[`status-${level.status}`, { 'is-current': index === completedLevels }]"
-                  :style="{
-                    top: index === 0 ? '300px' : index === 1 ? '600px' : index === 2 ? '900px' : index === 3 ? '1200px' : '1500px',
-                    left: index === 0 ? '50%' : index === 1 ? '25%' : index === 2 ? '75%' : index === 3 ? '50%' : '50%',
-                    transform: 'translateX(-50%)'
+              class="town-map-container relative bg-white rounded-b-2xl shadow-sm overflow-hidden w-full h-[550px] sm:h-[700px] lg:h-[800px]"
+            >
+              <!-- 背景图 -->
+              <img src="@/assets/custom-map-background.jpg" alt="Sign Town Map" class="absolute top-0 left-0 w-full h-full object-cover object-center" />
+              
+              <!-- 节点容器 -->
+            <div class="absolute top-0 left-0 w-full h-full">
+              <div
+                v-for="(level, index) in levels"
+                :key="level.id"
+                class="map-node absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all duration-300 hover:scale-105 flex flex-col items-center rounded-full"
+                :class="[`status-${level.status}`, { 'is-current': index === completedLevels }]"
+                :style="[getPinStyle(index), { width: windowWidth < 768 ? '50px' : '80px', height: windowWidth < 768 ? '50px' : '80px' }]"
+                :data-level-id="level.id"
+                @mouseenter="hoveredLevel = level.id"
+                @mouseleave="hoveredLevel = null"
+                @click="handleNodeClick(level)"
+              >
+                <!-- 透明交互热区，附带状态光环 -->
+                <div 
+                  class="absolute inset-0 rounded-full transition-all duration-500"
+                  :class="{
+                    'ring-4 ring-blue-400 ring-opacity-50 animate-pulse bg-blue-400/10': index === completedLevels,
+                    'bg-gray-800/40': level.status === 'locked',
+                    'hover:bg-white/20': level.status !== 'locked'
                   }"
-                  @mouseenter="hoveredLevel = level.id"
-                  @mouseleave="hoveredLevel = null"
-                  @click="handleNodeClick(level)"
-                >
-                  <!-- 节点底座 -->
-                  <div class="map-node__base"></div>
-                  
-                  <div class="map-node__circle" :class="{
-                    'current-node': index === completedLevels,
-                    'locked-node': level.status === 'locked',
-                    'completed-node': level.status === 'completed'
-                  }">
-                    <span v-if="level.status === 'locked'" class="map-node__lock">🔒</span>
-                    <span v-else-if="level.status === 'completed'" class="map-node__check">✨</span>
-                    <span v-else class="map-node__icon">{{ level.icon }}</span>
-                    <span v-if="!level.routeName" class="map-node__question">❓</span>
-                  </div>
-                  <div class="map-node__label">
-                    <div class="node-title-container">
-                      <span class="node-icon">{{ level.icon }}</span>
-                      <div class="node-title-content">
-                        <strong>{{ level.title }}</strong>
-                        <span>{{ level.subtitle }}</span>
-                      </div>
-                    </div>
-                    <button
-                      v-if="level.status !== 'locked'"
-                      @click.stop="handleNodeClick(level)"
-                      class="start-button"
-                    >
-                      <span class="start-icon">▶</span>
-                      <span class="start-text">{{ level.status === 'completed' ? '回顾' : '开始' }}</span>
-                    </button>
-                  </div>
-                  <transition name="tooltip">
-                    <div v-if="hoveredLevel === level.id" class="map-node__tooltip">
-                      <span v-if="level.status === 'locked'">解锁条件：完成上一章节</span>
-                      <span v-else-if="!level.routeName">该章节内容即将上线，敬请期待！</span>
-                      <span v-else>{{ level.title }}：{{ level.subtitle }} 学习主题：{{ level.description }}</span>
-                    </div>
-                  </transition>
+                ></div>
+
+                <!-- 关卡图标 -->
+                <div v-if="level.icon" class="flex items-center justify-center w-full h-full text-2xl sm:text-3xl">
+                  {{ level.icon }}
                 </div>
 
-                <div class="map-path__gradient-mask" aria-hidden="true"></div>
+                <!-- 状态标记（仅锁和完成的小图标） -->
+                <div v-if="level.status === 'locked'" class="absolute -top-1 -right-1 bg-gray-800/80 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center shadow-sm backdrop-blur-sm z-20">
+                  🔒
+                </div>
+                <div v-if="level.status === 'completed'" class="absolute -top-1 -right-1 bg-green-500/90 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center shadow-sm z-20">
+                  ✓
+                </div>
+                
+                <!-- Tooltip -->
+                <transition name="tooltip">
+                  <div v-if="hoveredLevel === level.id" class="pin-tooltip absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-gray-900 text-white text-xs rounded-lg p-3 shadow-xl z-50 pointer-events-none">
+                    <span v-if="level.status === 'locked'">解锁条件：完成上一章节</span>
+                    <span v-else-if="!level.routeName">该章节内容即将上线，敬请期待！</span>
+                    <span v-else><strong>{{ level.title }}：{{ level.subtitle }}</strong><br/>{{ level.description }}</span>
+                    <!-- 小箭头 -->
+                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                  </div>
+                </transition>
               </div>
-              <div class="map-overlay-top" aria-hidden="true"></div>
-              <div class="map-overlay-bottom" aria-hidden="true"></div>
             </div>
           </div>
           
           <!-- 章节详情对话框 -->
           <el-dialog
             v-model="levelDialogVisible"
-            width="500px"
+            :width="windowWidth < 768 ? '90%' : '500px'"
             align-center
             class="level-dialog"
             :show-close="false"
@@ -188,7 +159,7 @@
         <!-- 锦囊对话框 -->
         <el-dialog
           v-model="bagDialogVisible"
-          width="600px"
+          :width="windowWidth < 768 ? '95%' : '600px'"
           align-center
           class="bag-dialog"
           :show-close="false"
@@ -309,18 +280,14 @@ export default {
   name: 'ChallengeMode',
   data() {
     return {
-      totalLevels: 5,
+      windowWidth: window.innerWidth,
+      totalLevels: 7,
       completedLevels: 0,
       progressPercent: 0,
       hoveredLevel: null,
       bagDialogVisible: false,
       selectedLevel: null,
       levelDialogVisible: false,
-      isDragging: false,
-      startY: 0,
-      startScrollTop: 0,
-      currentScrollTop: 0,
-      mapContainer: null,
       levels: [
         {
           id: 1,
@@ -335,37 +302,53 @@ export default {
           id: 2,
           title: '篇章二',
           subtitle: '我的新家',
-          status: 'locked',
+          status: 'available',
           routeName: 'HomeMap',
-          description: '探索家中每个房间，学习日常生活用品的手语表达。',
-          icon: '🏠'
+          description: '探索家中每个房间，学习日常生活用品的手语表达。'
         },
         {
           id: 3,
           title: '篇章三',
-          subtitle: '社交礼仪',
+          subtitle: '公共出行',
+          status: 'locked',
+          routeName: null,
+          description: '学习乘坐公交、地铁等公共交通工具时的实用手语。'
+        },
+        {
+          id: 5,
+          title: '篇章五',
+          subtitle: '志愿服务',
+          status: 'locked',
+          routeName: null,
+          description: '掌握志愿服务场景中的沟通技巧与专业手语。',
+          icon: '🙋'
+        },
+        {
+          id: 4,
+          title: '篇章四',
+          subtitle: '社交与礼仪',
           status: 'locked',
           routeName: null,
           description: '学习基本社交场合的手语表达，包括问候、介绍等。',
           icon: '🤝'
         },
         {
-          id: 4,
-          title: '篇章四',
-          subtitle: '外出购物',
-          status: 'locked',
-          routeName: null,
-          description: '掌握购物相关的手语词汇，轻松应对各种购物场景。',
-          icon: '🛍️'
-        },
-        {
-          id: 5,
-          title: '篇章五',
+          id: 6,
+          title: '篇章六',
           subtitle: '职业技能',
           status: 'locked',
           routeName: null,
           description: '学习职场相关的手语表达，提升职业沟通能力。',
           icon: '💼'
+        },
+        {
+          id: 7,
+          title: '篇章七',
+          subtitle: '外出购物',
+          status: 'locked',
+          routeName: null,
+          description: '掌握购物相关的手语词汇，轻松应对各种购物场景。',
+          icon: '🛍️'
         }
       ]
     }
@@ -385,20 +368,49 @@ export default {
   mounted() {
     this.loadProgress()
     window.addEventListener('challenge-progress-changed', this.loadProgress)
+    window.addEventListener('resize', this.handleResize)
   },
   beforeUnmount() {
     window.removeEventListener('challenge-progress-changed', this.loadProgress)
+    window.removeEventListener('resize', this.handleResize)
   },
   methods: {
+    handleResize() {
+      this.windowWidth = window.innerWidth
+    },
+    getPinStyle(index) {
+      const isMobile = this.windowWidth < 768;
+      
+      const desktopPositions = [
+        { top: '14.5%', left: '38%' },   // 篇章一：数字与日历
+        { top: '55%', left: '59.5%' },   // 篇章二：我的新家
+        { top: '29%', left: '60%' },     // 篇章三：公共出行
+        { top: '43.5%', left: '44.5%' }, // 篇章五：志愿服务
+        { top: '45.5%', left: '75.5%' }, // 篇章四：社交与礼仪
+        { top: '69%', left: '38.5%' },   // 篇章六：职业技能
+        { top: '60.5%', left: '83%' }    // 篇章七：外出购物
+      ];
+
+      // 移动端由于宽度变窄（高度为500px左右），按比例重新计算热区，并往中间靠拢
+      const mobilePositions = [
+        { top: '10%', left: '40%' },   // 篇章一：数字与日历
+        { top: '65%', left: '45%' },   // 篇章二：我的新家
+        { top: '25%', left: '65%' },   // 篇章三：公共出行
+        { top: '40%', left: '35%' },   // 篇章五：志愿服务
+        { top: '50%', left: '70%' },   // 篇章四：社交与礼仪
+        { top: '78%', left: '25%' },   // 篇章六：职业技能
+        { top: '85%', left: '75%' }    // 篇章七：外出购物
+      ];
+
+      const positions = isMobile ? mobilePositions : desktopPositions;
+      return positions[index] || { top: '50%', left: '50%' };
+    },
     loadProgress() {
-      const storedCompleted = Number(localStorage.getItem('challengeCompletedLevels') || 0)
+      // 初始设置为完成第一关，以便测试第二关解锁
+      const storedCompleted = Number(localStorage.getItem('challengeCompletedLevels') || 1)
       this.completedLevels = Math.min(storedCompleted, this.totalLevels)
       this.progressPercent = Math.round((this.completedLevels / this.totalLevels) * 100)
       this.updateLevelStatuses()
-      this.$nextTick(() => {
-        this.autoFocusCurrentLevel()
-        this.animatePathProgress()
-      })
     },
     updateLevelStatuses() {
       this.levels = this.levels.map((level, index) => {
@@ -452,69 +464,6 @@ export default {
     },
     closeBagDialog() {
       this.bagDialogVisible = false
-    },
-    // 拖拽功能
-    startDrag(e) {
-      this.isDragging = true
-      this.startY = e.clientY || e.touches[0].clientY
-      this.startScrollTop = this.currentScrollTop
-    },
-    onDrag(e) {
-      if (!this.isDragging) return
-      const currentY = e.clientY || e.touches[0].clientY
-      const deltaY = currentY - this.startY
-      this.currentScrollTop = this.startScrollTop + deltaY
-      
-      // 限制滚动范围
-      const maxScroll = (this.totalLevels - 1) * 280 - 600
-      this.currentScrollTop = Math.max(-maxScroll, Math.min(0, this.currentScrollTop))
-    },
-    endDrag() {
-      this.isDragging = false
-      // 添加惯性效果
-      const finalScroll = this.currentScrollTop
-      setTimeout(() => {
-        if (!this.isDragging) {
-          // 简单的惯性衰减
-          const inertia = finalScroll * 0.8
-          this.currentScrollTop = inertia
-        }
-      }, 50)
-    },
-    // 自动对焦到当前章节
-    autoFocusCurrentLevel() {
-      const targetScroll = -this.completedLevels * 280 + 300
-      this.currentScrollTop = targetScroll
-      
-      // 添加平滑动画
-      let startScroll = this.currentScrollTop
-      const endScroll = targetScroll
-      const duration = 800
-      const startTime = performance.now()
-      
-      const animateScroll = (currentTime) => {
-        const elapsed = currentTime - startTime
-        const progress = Math.min(elapsed / duration, 1)
-        // 使用缓动函数
-        const easeOutCubic = 1 - Math.pow(1 - progress, 3)
-        this.currentScrollTop = startScroll + (endScroll - startScroll) * easeOutCubic
-        
-        if (progress < 1) {
-          requestAnimationFrame(animateScroll)
-        }
-      }
-      
-      requestAnimationFrame(animateScroll)
-    },
-    // 路径点亮动画
-    animatePathProgress() {
-      const progressElement = document.querySelector('.map-path__line__progress')
-      if (progressElement) {
-        progressElement.style.height = '0%'
-        setTimeout(() => {
-          progressElement.style.height = `${(this.completedLevels / (this.totalLevels - 1)) * 100}%`
-        }, 100)
-      }
     }
   }
 }

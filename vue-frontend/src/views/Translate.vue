@@ -41,7 +41,7 @@
               <span class="text-lg font-semibold">📁 输入选择</span>
             </template>
             <div class="space-y-4">
-              <div class="grid grid-cols-2 gap-4">
+              <div class="grid grid-cols-2 gap-4 translate-action-grid">
                 <el-button 
                   type="primary" 
                   :icon="Picture" 
@@ -1365,7 +1365,7 @@ export default {
 }
 
 :deep(.el-card__header) {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background: linear-gradient(135deg, #2f7de0 0%, #56beda 100%) !important;
   color: white !important;
   border-radius: 16px 16px 0 0 !important;
   padding: 16px 20px !important;
@@ -1395,7 +1395,7 @@ export default {
 
 /* 按钮类型美化 */
 :deep(.el-button--primary) {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background: linear-gradient(135deg, #2f7de0 0%, #56beda 100%) !important;
   border: none !important;
 }
 
@@ -1421,7 +1421,7 @@ export default {
 }
 
 :deep(.el-table th) {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background: linear-gradient(135deg, #2f7de0 0%, #56beda 100%) !important;
   color: white !important;
   font-weight: 600 !important;
 }
@@ -1444,12 +1444,12 @@ export default {
 }
 
 :deep(.el-slider__bar) {
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%) !important;
+  background: linear-gradient(90deg, #2f7de0 0%, #56beda 100%) !important;
   border-radius: 10px !important;
 }
 
 :deep(.el-slider__button) {
-  border-color: #667eea !important;
+  border-color: #2f7de0 !important;
   width: 18px !important;
   height: 18px !important;
 }
@@ -1832,7 +1832,7 @@ export default {
 }
 
 .model-select-dialog .el-button--primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background: linear-gradient(135deg, #2f7de0 0%, #56beda 100%) !important;
   border: none !important;
 }
 
@@ -1985,6 +1985,148 @@ export default {
   main {
     padding-top: 8px !important;
     padding-bottom: 68px;
+  }
+}
+
+/* ---- 2026 Unified Translate Refresh ---- */
+.animated-gradient {
+  background:
+    radial-gradient(circle at 9% 16%, rgba(85, 156, 224, 0.22), transparent 30%),
+    radial-gradient(circle at 88% 12%, rgba(82, 192, 216, 0.18), transparent 32%),
+    radial-gradient(circle at 73% 86%, rgba(139, 199, 231, 0.14), transparent 32%),
+    linear-gradient(160deg, #f8fbff 0%, #eef4fa 52%, #e8f0f7 100%);
+  background-size: 180% 180%;
+  animation: gradientShift 12s ease infinite;
+}
+
+:deep(.el-card) {
+  border: 1px solid rgba(106, 138, 181, 0.2) !important;
+  border-radius: 22px !important;
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.94), rgba(243, 248, 253, 0.92)) !important;
+  box-shadow: 0 14px 30px rgba(63, 101, 148, 0.12) !important;
+}
+
+:deep(.el-card__header) {
+  border-bottom: 1px solid rgba(108, 139, 182, 0.16) !important;
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.9), rgba(241, 248, 253, 0.9)) !important;
+  color: #2b486a !important;
+}
+
+:deep(.el-button--primary),
+:deep(.el-button--success),
+:deep(.el-button--warning),
+:deep(.el-button--info) {
+  border: 1px solid rgba(81, 137, 198, 0.28) !important;
+  background: linear-gradient(122deg, #2f7de0, #3f9ee4 70%, #5fc1da) !important;
+  color: #fff !important;
+}
+
+:deep(.el-button--primary.is-plain),
+:deep(.el-button--default) {
+  border: 1px solid rgba(109, 141, 184, 0.22) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: #35668d !important;
+}
+
+.mobile-display-card,
+.mobile-result-card {
+  border-radius: 22px;
+}
+
+.mobile-display-surface {
+  border: 1px solid rgba(109, 140, 184, 0.2);
+  background:
+    linear-gradient(165deg, rgba(255, 255, 255, 0.82), rgba(241, 248, 253, 0.84)),
+    url('../assets/sign-town-background.svg') center/cover no-repeat;
+  background-blend-mode: screen, normal;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.68);
+}
+
+.mobile-bottom-nav {
+  border-top: 1px solid rgba(108, 140, 183, 0.2);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 -8px 18px rgba(64, 103, 149, 0.12);
+}
+
+.mobile-nav-item {
+  color: #667d95;
+}
+
+.mobile-nav-item.active {
+  color: #2f7de0;
+}
+
+.translate-action-grid :deep(.el-button) {
+  min-height: 68px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(109, 141, 184, 0.24) !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  color: #2f4f6f !important;
+  box-shadow: 0 8px 16px rgba(67, 106, 153, 0.08) !important;
+  justify-content: flex-start !important;
+  padding-left: 18px !important;
+  font-size: 17px !important;
+}
+
+.translate-action-grid :deep(.el-button:hover) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(67, 106, 153, 0.14) !important;
+}
+
+.translate-action-grid :deep(.el-button:nth-child(1)) {
+  box-shadow: inset 4px 0 0 #4d8de7, 0 8px 16px rgba(67, 106, 153, 0.08) !important;
+}
+
+.translate-action-grid :deep(.el-button:nth-child(2)) {
+  box-shadow: inset 4px 0 0 #4db5de, 0 8px 16px rgba(67, 106, 153, 0.08) !important;
+}
+
+.translate-action-grid :deep(.el-button:nth-child(3)) {
+  box-shadow: inset 4px 0 0 #57b8b1, 0 8px 16px rgba(67, 106, 153, 0.08) !important;
+}
+
+.translate-action-grid :deep(.el-button:nth-child(4)) {
+  box-shadow: inset 4px 0 0 #e0a66d, 0 8px 16px rgba(67, 106, 153, 0.08) !important;
+}
+
+.mobile-result-content .bg-blue-50 {
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.95), rgba(243, 248, 253, 0.92)) !important;
+  border: 1px solid rgba(110, 142, 184, 0.2) !important;
+}
+
+@media (max-width: 767px) {
+  :deep(.mobile-display-card .el-card__body),
+  :deep(.mobile-result-card .el-card__body) {
+    padding: 12px !important;
+  }
+
+  .mobile-display-surface {
+    min-height: 210px !important;
+  }
+
+  .translate-action-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .translate-action-grid :deep(.el-button) {
+    min-height: 54px !important;
+    padding-left: 14px !important;
+    font-size: 15px !important;
+  }
+
+  .mobile-result-card :deep(.el-dropdown .el-button) {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animated-gradient,
+  :deep(.el-button),
+  :deep(.el-card) {
+    animation: none !important;
+    transition: none !important;
   }
 }
 </style>

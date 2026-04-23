@@ -1383,24 +1383,24 @@ export default {
   border-radius: 24px;
   box-shadow: 0 24px 60px rgba(99, 102, 241, 0.14);
   border: 1px solid rgba(148, 163, 184, 0.2);
-  padding: 28px 32px 36px;
+  padding: 20px 24px 24px;
 }
 .calendar-panel__header {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  margin-bottom: 24px;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 .year-display {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   font-weight: 600;
   color: #312e81;
 }
 .year-button {
   border-radius: 16px;
-  padding: 10px 18px;
+  padding: 7px 14px;
   background: linear-gradient(135deg, #c4b5fd, #a5b4fc);
   color: #fff;
   font-weight: 700;
@@ -1408,16 +1408,19 @@ export default {
 }
 .month-selector {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
 }
 .month-button {
-  padding: 9px 12px;
+  padding: 6px 8px;
   border-radius: 9999px;
   border: 1px solid rgba(129, 140, 248, 0.18);
   background: rgba(248, 250, 252, 0.85);
   color: #4338ca;
+  font-size: 0.83rem;
   font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
   transition: all 0.25s ease;
   position: relative;
   overflow: hidden;
@@ -1473,19 +1476,20 @@ export default {
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 12px;
+  gap: 8px;
 }
 .calendar-weekday {
   text-align: center;
   font-weight: 600;
+  font-size: 0.82rem;
   color: #4338ca;
-  padding-bottom: 6px;
+  padding-bottom: 4px;
   border-bottom: 1px solid rgba(99, 102, 241, 0.18);
 }
 .calendar-day {
   position: relative;
-  aspect-ratio: 1 / 1;
-  border-radius: 18px;
+  height: clamp(40px, 5.5vw, 74px);
+  border-radius: 14px;
   background: rgba(248, 250, 252, 0.9);
   box-shadow: inset 0 0 0 1px rgba(203, 213, 225, 0.45);
   display: flex;
@@ -1502,8 +1506,8 @@ export default {
 }
 
 .calendar-day:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 30px rgba(148, 163, 184, 0.18);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(148, 163, 184, 0.14);
 }
 .calendar-day--empty {
   background: transparent;
@@ -1512,15 +1516,16 @@ export default {
 }
 .day-number {
   position: absolute;
-  top: 10px;
-  left: 12px;
+  top: 5px;
+  left: 7px;
+  font-size: 0.78rem;
   font-weight: 600;
   color: #334155;
 }
 .day-marker {
   position: relative;
-  width: 24px;
-  height: 24px;
+  width: clamp(14px, 1.6vw, 22px);
+  height: clamp(14px, 1.6vw, 22px);
   border-radius: 50%;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3), 0 8px 20px rgba(99, 102, 241, 0.4);
@@ -1592,10 +1597,10 @@ export default {
 /* 引导提示文字 */
 .question-hint {
   position: absolute;
-  bottom: -24px;
+  bottom: 4px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   color: #6366f1;
   white-space: nowrap;
@@ -1617,8 +1622,8 @@ export default {
 }
 
 .calendar-day.is-available:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 40px rgba(99, 102, 241, 0.25);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(99, 102, 241, 0.2);
 }
 
 .calendar-day.is-today {
@@ -2509,8 +2514,45 @@ export default {
   .calendar-info-card {
     grid-template-columns: 1fr;
   }
+  .calendar-panel {
+    padding: 14px 12px 16px;
+  }
+  .calendar-panel__header {
+    gap: 8px;
+    margin-bottom: 10px;
+  }
   .month-selector {
-    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .month-button {
+    font-size: 0.76rem;
+    padding: 6px 4px;
+    border-radius: 999px;
+  }
+  .calendar-grid {
+    gap: 5px;
+  }
+  .calendar-weekday {
+    font-size: 0.72rem;
+    padding-bottom: 2px;
+  }
+  .calendar-day {
+    height: 38px;
+    border-radius: 10px;
+  }
+  .day-number {
+    top: 3px;
+    left: 5px;
+    font-size: 0.68rem;
+  }
+  .day-marker {
+    width: 12px;
+    height: 12px;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3), 0 4px 10px rgba(99, 102, 241, 0.24);
+  }
+  .question-hint {
+    display: none;
   }
   
   .sentence-sort__word {
@@ -2524,4 +2566,3 @@ export default {
   }
 }
 </style>
-

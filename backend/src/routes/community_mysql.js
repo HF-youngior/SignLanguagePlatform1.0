@@ -221,11 +221,15 @@ router.get('/posts/:id', async (req, res) => {
       };
     }));
     
-    // 增加浏览量
-    await query(
-      'UPDATE posts SET views = views + 1 WHERE id = ?',
-      [id]
-    );
+    // 增加浏览量 (忽略由于数据库只读导致的错误)
+    try {
+      await query(
+        'UPDATE posts SET views = views + 1 WHERE id = ?',
+        [id]
+      );
+    } catch (updateError) {
+      console.warn('增加浏览量失败, 可能数据库处于只读模式:', updateError.message);
+    }
     
     res.json({
       success: true,

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-slate-100">
+  <div class="min-h-screen animated-gradient admin-page">
     <nav class="border-b border-slate-200 bg-slate-900 text-white">
       <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <div class="flex items-center gap-6">
@@ -572,28 +572,10 @@ const deleteUser = async (targetUser, callback) => {
 
 const createUser = async (userData) => {
   try {
-<<<<<<< HEAD
-    const response = await fetch(`${getApiBaseUrl()}/admin/users`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${getToken()}`
-      },
-      body: JSON.stringify(userData)
-    })
-    
-    const data = await response.json()
-    if (data.success) {
-      ElMessage.success(data.message)
-      fetchUsers()
-    } else {
-      ElMessage.error(data.message)
-=======
     const response = await apiService.createAdminUser(userData)
     if (response.success) {
       ElMessage.success(response.message)
       await Promise.all([fetchUsers(), fetchStats(), fetchDashboard()])
->>>>>>> origin/yyh
     }
   } catch (error) {
     ElMessage.error(parseApiError(error, '创建用户'))
@@ -643,9 +625,12 @@ const deleteComment = async (comment, callback) => {
 }
 
 const logout = () => {
-  localStorage.clear()
-  router.push('/')
+  localStorage.removeItem('token')
+  localStorage.removeItem('user')
+  sessionStorage.clear()
   ElMessage.success('已退出登录')
+  location.reload()
+  router.push('/')
 }
 
 watch(currentTab, async (tab) => {

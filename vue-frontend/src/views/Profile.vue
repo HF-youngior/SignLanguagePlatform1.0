@@ -73,7 +73,7 @@
                   <div class="text-xs text-gray-500">加入社群</div>
                 </div>
                 <div class="text-center">
-                  <div class="text-lg md:text-xl font-bold text-purple-600">{{ userInfo.friends }}</div>
+                  <div class="text-lg md:text-xl font-bold text-cyan-600">{{ userInfo.friends }}</div>
                   <div class="text-xs text-gray-500">好友数量</div>
                 </div>
                 <div class="hidden md:block text-center">
@@ -98,7 +98,7 @@
               <div class="text-xs text-gray-500">加入社群</div>
             </div>
             <div class="text-center">
-              <div class="text-lg font-bold text-purple-600">{{ userInfo.friends }}</div>
+              <div class="text-lg font-bold text-cyan-600">{{ userInfo.friends }}</div>
               <div class="text-xs text-gray-500">好友数量</div>
             </div>
           </div>
@@ -1107,8 +1107,10 @@ export default {
         // 清除localStorage中的登录信息
         localStorage.removeItem('token')
         localStorage.removeItem('user')
+        sessionStorage.clear()
         ElMessage.success('已退出登录')
-        // 跳转到登录页面
+        // 强制刷新并跳转，确保状态完全清除
+        location.reload()
         router.push('/')
       }).catch(() => {
         ElMessage.info('已取消')
@@ -1581,6 +1583,97 @@ export default {
   /* 帖子卡片间距 */
   .space-y-6 > * + * {
     margin-top: 24px;
+  }
+}
+
+/* ---- 2026 Unified Profile Refresh ---- */
+.animated-gradient {
+  background:
+    radial-gradient(circle at 9% 16%, rgba(85, 156, 224, 0.22), transparent 30%),
+    radial-gradient(circle at 88% 12%, rgba(82, 192, 216, 0.18), transparent 32%),
+    radial-gradient(circle at 72% 86%, rgba(139, 199, 231, 0.14), transparent 32%),
+    linear-gradient(160deg, #f8fbff 0%, #eef4fa 52%, #e8f0f7 100%);
+  background-size: 180% 180%;
+  animation: gradientShift 12s ease infinite;
+}
+
+.profile-summary-card {
+  border-radius: 24px;
+}
+
+.profile-summary-card :deep(.el-card__body) {
+  background:
+    radial-gradient(circle at 88% 14%, rgba(240, 178, 140, 0.14), transparent 28%),
+    linear-gradient(166deg, rgba(255, 255, 255, 0.95), rgba(243, 248, 253, 0.92));
+}
+
+.profile-summary-stats-mobile {
+  border-top: 1px solid rgba(108, 139, 182, 0.16);
+  padding-top: 10px;
+}
+
+:deep(.el-tabs__header) {
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(108, 139, 182, 0.2);
+  border-radius: 14px;
+  padding: 0 8px;
+}
+
+:deep(.el-tabs__item.is-active) {
+  color: #2f7de0 !important;
+}
+
+:deep(.el-tabs__active-bar) {
+  background: linear-gradient(90deg, #2f7de0, #5bc0dc) !important;
+}
+
+:deep(.el-button--primary),
+:deep(.el-button--success),
+:deep(.el-button--warning),
+:deep(.el-button--danger) {
+  border: 1px solid rgba(81, 137, 198, 0.28) !important;
+  background: linear-gradient(122deg, #2f7de0, #3f9ee4 70%, #5fc1da) !important;
+  color: #fff !important;
+}
+
+:deep(.el-button.is-plain) {
+  border: 1px solid rgba(108, 139, 182, 0.22) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #35668d !important;
+}
+
+:deep(.el-tag) {
+  border-radius: 999px !important;
+}
+
+footer {
+  border-top: 1px solid rgba(108, 139, 182, 0.2);
+  background: rgba(255, 255, 255, 0.84) !important;
+  color: #5f758d;
+}
+
+@media (max-width: 768px) {
+  .profile-summary-main h1 {
+    font-size: 1.6rem !important;
+  }
+
+  .profile-summary-main p {
+    font-size: 0.94rem !important;
+  }
+
+  .profile-achievement-mobile-item {
+    border: 1px solid rgba(108, 139, 182, 0.18);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.88);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animated-gradient,
+  :deep(.el-card),
+  :deep(.el-button) {
+    animation: none !important;
+    transition: none !important;
   }
 }
 </style>

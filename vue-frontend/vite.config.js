@@ -79,6 +79,30 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
+    chunkSizeWarningLimit: 1600,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return
+
+          if (id.includes('element-plus') || id.includes('@element-plus/icons-vue')) {
+            return 'vendor-element'
+          }
+
+          if (id.includes('vue-chartjs') || id.includes('chart.js')) {
+            return 'vendor-chart'
+          }
+
+          if (id.includes('@mediapipe/hands')) {
+            return 'vendor-mediapipe'
+          }
+
+          if (id.includes('vue-router') || id.includes('pinia') || id.includes('/vue/')) {
+            return 'vendor-vue'
+          }
+        },
+      },
+    },
   },
   optimizeDeps: {
     exclude: ['@mediapipe/hands'],

@@ -6,11 +6,12 @@
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center space-x-4">
             <el-button @click="goBack" icon="ArrowLeft" circle></el-button>
-            <router-link to="/" class="text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300">
-              👋 手语教学平台
+            <router-link to="/" class="flex items-center text-lg md:text-2xl font-bold text-blue-700 hover:text-blue-800 transition-all duration-300">
+              <img src="@/assets/logo/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-8 h-8 md:w-10 md:h-10 mr-2 md:mr-3 rounded-full" />
+              <span>掌中语-手语小镇</span>
             </router-link>
           </div>
-          <div class="flex items-center space-x-4">
+          <div class="hidden md:flex items-center space-x-4">
             <router-link to="/learn" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">学堂</router-link>
             <router-link to="/translate" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300">译站</router-link>
             <router-link to="/community" class="nav-link text-blue-700 font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full">手语圈</router-link>
@@ -520,7 +521,7 @@ export default {
 }
 
 :deep(.el-card__header) {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background: linear-gradient(135deg, #2f7de0 0%, #56beda 100%) !important;
   color: white !important;
   border-radius: 16px 16px 0 0 !important;
   padding: 16px 20px !important;
@@ -550,7 +551,7 @@ export default {
 
 /* 按钮类型美化 */
 :deep(.el-button--primary) {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background: linear-gradient(135deg, #2f7de0 0%, #56beda 100%) !important;
   border: none !important;
 }
 
@@ -673,12 +674,12 @@ video.rounded:hover {
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #2f7de0 0%, #56beda 100%);
   border-radius: 10px;
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  background: linear-gradient(135deg, #56beda 0%, #2f7de0 100%);
 }
 
 /* 页脚样式 */
@@ -700,6 +701,69 @@ footer {
   
   .grid-cols-2 {
     grid-template-columns: 1fr !important;
+  }
+}
+
+/* ---- 2026 Unified GroupChat Refresh ---- */
+.animated-gradient {
+  background:
+    radial-gradient(circle at 9% 16%, rgba(85, 156, 224, 0.22), transparent 30%),
+    radial-gradient(circle at 88% 12%, rgba(82, 192, 216, 0.18), transparent 32%),
+    radial-gradient(circle at 72% 86%, rgba(139, 199, 231, 0.14), transparent 32%),
+    linear-gradient(160deg, #f8fbff 0%, #eef4fa 52%, #e8f0f7 100%);
+}
+
+.chat-container {
+  border: 1px solid rgba(106, 138, 181, 0.2);
+  background: linear-gradient(170deg, rgba(255, 255, 255, 0.82), rgba(242, 248, 253, 0.84));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.68);
+}
+
+.message-bubble {
+  border-radius: 14px !important;
+  border: 1px solid rgba(108, 139, 182, 0.16);
+}
+
+:deep(.el-button--primary),
+:deep(.el-button--success),
+:deep(.el-button--warning),
+:deep(.el-button--info) {
+  border: 1px solid rgba(81, 137, 198, 0.28) !important;
+  background: linear-gradient(122deg, #2f7de0, #3f9ee4 70%, #5fc1da) !important;
+  color: #fff !important;
+}
+
+footer {
+  border-top: 1px solid rgba(108, 139, 182, 0.2);
+  background: rgba(255, 255, 255, 0.84) !important;
+  color: #5f758d;
+}
+
+.chat-container::-webkit-scrollbar-thumb,
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #2f7de0 0%, #56beda 100%);
+}
+
+.chat-container::-webkit-scrollbar-thumb:hover,
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #56beda 0%, #2f7de0 100%);
+}
+
+@media (max-width: 767px) {
+  nav .text-lg {
+    font-size: 1rem !important;
+  }
+
+  main {
+    padding-top: 12px !important;
+  }
+
+  .chat-container {
+    padding: 10px;
+  }
+
+  :deep(.el-card__body) {
+    padding: 12px !important;
   }
 }
 </style>

@@ -10,6 +10,21 @@ const generateToken = (userId) => {
   });
 };
 
+// Some managed MySQL instances may reject writes in maintenance/read-only windows.
+// Failing to update last_login should not block a successful login.
+const updateLastLoginSafely = async (userId) => {
+  try {
+    await query('UPDATE users SET last_login = NOW() WHERE id = ?', [userId]);
+  } catch (error) {
+    const isWriteBlocked = error?.code === 'ER_OPTION_PREVENTS_STATEMENT' || error?.errno === 1290;
+    if (isWriteBlocked) {
+      console.warn(`Skip last_login update for user ${userId}: ${error.message}`);
+      return;
+    }
+    throw error;
+  }
+};
+
 // 注册
 export const register = async (req, res) => {
   try {
@@ -123,10 +138,7 @@ export const login = async (req, res) => {
     }
 
     // 更新最后登录时间
-    await query(
-      'UPDATE users SET last_login = NOW() WHERE id = ?',
-      [user.id]
-    );
+    await updateLastLoginSafely(user.id);
 
     const token = generateToken(user.id);
 

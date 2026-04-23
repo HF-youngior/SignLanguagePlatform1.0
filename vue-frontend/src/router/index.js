@@ -26,7 +26,6 @@ const routes = [
     name: 'Login',
     component: Login
   },
-
   {
     path: '/learn',
     name: 'Learn',
@@ -45,7 +44,6 @@ const routes = [
     component: ChallengeLevelCalendar,
     meta: { requiresAuth: true }
   },
-  // 第二关：我的新家
   {
     path: '/learn/challenge/level-2',
     name: 'HomeMap',
@@ -125,35 +123,64 @@ const router = createRouter({
   routes
 })
 
-// 路由守卫
-router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('token')
-  const userStr = localStorage.getItem('user')
-  const user = userStr ? JSON.parse(userStr) : null
+function getStoredAuthState() {
+  try {
+    const token = localStorage.getItem('token')
+    const userStr = localStorage.getItem('user')
 
-  // 如果已登录且访问登录页，跳转到学习页
-  if (to.path === '/login' && token) {
-    if (user?.role === 'admin') {
-      next('/admin')
-    } else {
-      next('/learn')
+    if (!token || !userStr) {
+      if (token) localStorage.removeItem('token')
+      if (userStr) localStorage.removeItem('user')
+      return { token: null, user: null }
     }
-    return
-  }
 
-  // 需要登录的页面
-  if (to.meta.requiresAuth && !token) {
+    try {
+      return { token, user: JSON.parse(userStr) }
+    } catch (error) {
+      console.warn('[router] invalid localStorage user payload, clearing it:', error)
+      localStorage.removeItem('user')
+      localStorage.removeItem('token')
+      return { token: null, user: null }
+    }
+  } catch (error) {
+    console.warn('[router] localStorage unavailable:', error)
+    return { token: null, user: null }
+  }
+}
+
+router.beforeEach((to, from, next) => {
+  try {
+    const { token, user } = getStoredAuthState()
+
+    if (to.path === '/login' && token) {
+      if (user?.role === 'admin') {
+        next('/admin')
+      } else {
+        next('/learn')
+      }
+      return
+    }
+
+    if (to.meta.requiresAuth && !token) {
+      next('/login')
+      return
+    }
+
+    if (to.meta.requiresAdmin && user?.role !== 'admin') {
+      next('/learn')
+      return
+    }
+
+    next()
+  } catch (error) {
+    console.error('[router] guard failed, fallback to login:', error)
+    try {
+      localStorage.removeItem('user')
+    } catch (e) {
+      console.warn('[router] failed to clear user cache:', e)
+    }
     next('/login')
-    return
   }
-
-  // 需要管理员权限的页面
-  if (to.meta.requiresAdmin && user?.role !== 'admin') {
-    next('/learn')
-    return
-  }
-
-  next()
 })
 
 export default router

@@ -1,22 +1,22 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen animated-gradient">
     <!-- 导航栏 -->
-    <nav class="bg-white shadow-md">
+    <nav class="backdrop-blur-md bg-white/70 shadow-lg">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center space-x-4">
             <el-button @click="goBack" icon="ArrowLeft" circle></el-button>
-            <router-link to="/" class="flex items-center text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">
+            <router-link to="/" class="flex items-center text-2xl font-bold text-blue-700 hover:text-blue-800 transition-colors duration-300">
               <!-- 使用已有的默认头像图片代替缺失的 logo 文件，避免 Vite 解析错误 -->
               <img src="@/assets/logo/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
               <span>掌中语-手语小镇</span>
             </router-link>
           </div>
-          <div class="flex items-center space-x-4">
-              <router-link to="/learn" class="text-gray-600 hover:text-blue-600">学堂</router-link>
-              <router-link to="/translate" class="text-gray-600 hover:text-blue-600">译站</router-link>
-              <router-link to="/community" class="text-gray-600 hover:text-blue-600">手语圈</router-link>
-              <router-link to="/profile" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+          <div class="hidden md:flex items-center space-x-4">
+              <router-link to="/learn" class="nav-link text-gray-700 hover:text-blue-600">学堂</router-link>
+              <router-link to="/translate" class="nav-link text-gray-700 hover:text-blue-600">译站</router-link>
+              <router-link to="/community" class="nav-link text-blue-700 font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full">手语圈</router-link>
+              <router-link to="/profile" class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">
               我的
             </router-link>
             </div>
@@ -28,7 +28,7 @@
     <main class="pt-8">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- 话题头部 -->
-        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div class="soft-glass rounded-3xl p-6 mb-6">
           <div class="flex items-center space-x-4">
             <div class="text-4xl">#</div>
             <div>
@@ -243,3 +243,50 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+/* ---- 2026 Unified Hashtag Refresh ---- */
+.animated-gradient {
+  background:
+    radial-gradient(circle at 9% 16%, rgba(85, 156, 224, 0.22), transparent 30%),
+    radial-gradient(circle at 88% 12%, rgba(82, 192, 216, 0.18), transparent 32%),
+    radial-gradient(circle at 72% 86%, rgba(139, 199, 231, 0.14), transparent 32%),
+    linear-gradient(160deg, #f8fbff 0%, #eef4fa 52%, #e8f0f7 100%);
+}
+
+:deep(.el-card) {
+  border: 1px solid rgba(106, 138, 181, 0.2) !important;
+  border-radius: 22px !important;
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.94), rgba(243, 248, 253, 0.92)) !important;
+  box-shadow: 0 14px 30px rgba(63, 101, 148, 0.12) !important;
+}
+
+:deep(.el-button--primary) {
+  border: 1px solid rgba(81, 137, 198, 0.28) !important;
+  background: linear-gradient(122deg, #2f7de0, #3f9ee4 70%, #5fc1da) !important;
+  color: #fff !important;
+}
+
+:deep(.el-tag) {
+  border-radius: 999px !important;
+}
+
+.soft-glass {
+  border: 1px solid rgba(106, 138, 181, 0.22);
+  box-shadow: 0 12px 24px rgba(63, 101, 148, 0.1);
+}
+
+@media (max-width: 767px) {
+  nav .text-2xl {
+    font-size: 1.05rem !important;
+  }
+
+  .soft-glass {
+    padding: 14px !important;
+  }
+
+  :deep(.el-card__body) {
+    padding: 12px !important;
+  }
+}
+</style>

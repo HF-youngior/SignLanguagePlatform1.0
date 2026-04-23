@@ -1,68 +1,60 @@
 <template>
   <div id="app">
-    <router-view />
+    <SplashScreen :visible="showSplash" />
+    <router-view v-slot="{ Component, route }">
+      <component :is="Component" v-if="!showSplash" :key="route.fullPath" />
+    </router-view>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'App',
-  mounted() {
-    // 检查localStorage和sessionStorage中的数据
-    console.log('=== 检查localStorage和sessionStorage ===');
-    
-    // 检查localStorage
-    console.log('\n1. localStorage数据:');
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      const value = localStorage.getItem(key);
-      console.log(`  ${key}: ${value}`);
-    }
-    
-    // 检查sessionStorage
-    console.log('\n2. sessionStorage数据:');
-    for (let i = 0; i < sessionStorage.length; i++) {
-      const key = sessionStorage.key(i);
-      const value = sessionStorage.getItem(key);
-      console.log(`  ${key}: ${value}`);
-    }
-    
-    // 检查cookies
-    console.log('\n3. Cookies数据:');
-    document.cookie.split(';').forEach(cookie => {
-      console.log(`  ${cookie.trim()}`);
-    });
+<script setup>
+import { onMounted, ref } from 'vue'
+import SplashScreen from '@/components/SplashScreen.vue'
+
+const showSplash = ref(true)
+
+onMounted(() => {
+  try {
+    const seenSplash = sessionStorage.getItem('zzysplash-seen')
+    const delay = seenSplash ? 900 : 2800
+
+    setTimeout(() => {
+      showSplash.value = false
+      try {
+        sessionStorage.setItem('zzysplash-seen', '1')
+      } catch (e) {
+        console.warn('[app] failed to persist splash state:', e)
+      }
+    }, delay)
+  } catch (error) {
+    console.warn('[app] sessionStorage unavailable, skip splash:', error)
+    showSplash.value = false
   }
-}
+})
 </script>
 
 <style>
 #app {
-  font-family: 'Noto Sans SC', 'Inter', system-ui, sans-serif;
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* 移动端优化 */
 @media (max-width: 768px) {
-  /* 确保触摸目标足够大 */
-  button, a, input, select, textarea {
+  button,
+  a,
+  input,
+  select,
+  textarea {
     min-height: 44px;
     min-width: 44px;
   }
-  
-  /* 优化字体大小 */
+
   body {
     font-size: 16px;
     -webkit-text-size-adjust: 100%;
   }
-  
-  /* 防止横向滚动 */
-  * {
-    max-width: 100%;
-  }
-  
-  /* 优化滚动 */
+
   html {
     -webkit-overflow-scrolling: touch;
   }

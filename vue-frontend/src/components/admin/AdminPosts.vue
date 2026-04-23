@@ -36,6 +36,7 @@
 
     <!-- 帖子列表 -->
     <div class="bg-white shadow rounded-lg overflow-hidden mb-6">
+      <div class="admin-table-wrap">
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
           <tr>
@@ -84,6 +85,7 @@
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
 
     <!-- 评论管理 -->
@@ -108,6 +110,7 @@
           </button>
         </div>
       </div>
+      <div class="admin-table-wrap">
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
           <tr>
@@ -149,6 +152,7 @@
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
 
     <!-- 帖子详情弹窗 -->

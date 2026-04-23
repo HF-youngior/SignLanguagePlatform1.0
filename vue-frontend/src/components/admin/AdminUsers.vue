@@ -39,6 +39,7 @@
 
     <!-- 用户列表 -->
     <div class="bg-white shadow rounded-lg overflow-hidden">
+      <div class="admin-table-wrap">
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
           <tr>
@@ -118,6 +119,7 @@
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
 
     <!-- 新增用户弹窗 -->

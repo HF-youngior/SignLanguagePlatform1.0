@@ -7,10 +7,11 @@
           <div class="flex items-center">
             <router-link
               to="/"
-              class="flex items-center text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300"
+              class="flex items-center text-xl sm:text-2xl font-bold text-blue-700 hover:text-blue-800 hover:scale-105 transition-all duration-300"
             >
-              <img src="@/assets/logo/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-10 h-10 mr-3 rounded-full" />
-              <span>掌中语-手语小镇</span>
+              <img src="@/assets/logo/logo-zhangzhongyu.svg" alt="掌中语 Logo" class="w-8 h-8 sm:w-10 sm:h-10 mr-2 sm:mr-3 rounded-full" />
+              <span class="hidden sm:inline">掌中语-手语小镇</span>
+              <span class="sm:hidden text-lg">掌中语</span>
             </router-link>
           </div>
           <div class="flex items-center space-x-4">
@@ -1105,31 +1106,129 @@ export default {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
+  .status-bar {
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+  }
+  
+  .coin-display, .progress-display {
+    font-size: 1rem;
+  }
+  
+  .coin-icon {
+    font-size: 1.2rem;
+  }
+
+  .room-section {
+    margin-bottom: 10px;
+  }
+  
+  .room-header {
+    padding: 15px 20px 10px;
+  }
+  
+  .room-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .exit-button {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+  
+  .exit-icon {
+    font-size: 1rem;
+    margin-right: 4px;
+  }
+
   .room-scene {
-    height: 400px;
+    height: 320px;
   }
   
-  .furniture-outline {
+  /* 修复家具在移动端的尺寸和位置，避免堆叠 */
+  .furniture-outline.sofa {
+    top: 55%;
+    left: 5%;
+    width: 110px;
+    height: 55px;
+  }
+  
+  .furniture-outline.tv {
+    top: 25%;
+    left: 65%;
+    width: 70px;
+    height: 50px;
+  }
+  
+  .furniture-outline.coffee-table {
+    top: 75%;
+    left: 45%;
     width: 80px;
-    height: 80px;
+    height: 55px;
   }
   
-  .furniture-outline.carpet {
-    width: 150px;
+  .furniture-outline.chandelier {
+    top: 5%;
+    left: 50%;
+    width: 50px;
+    height: 50px;
+  }
+  
+  .furniture-outline.bookshelf {
+    top: 35%;
+    left: 5%;
+    width: 50px;
     height: 100px;
   }
   
-  .furniture-name {
-    font-size: 0.8rem;
+  .furniture-outline.carpet {
+    top: 60%;
+    left: 55%;
+    width: 130px;
+    height: 80px;
   }
   
+  .furniture-outline.window {
+    top: 15%;
+    left: 25%;
+    width: 100px;
+    height: 80px;
+  }
+  
+  .furniture-name {
+    font-size: 0.75rem;
+    bottom: -20px;
+  }
+  
+  /* 优化底部列表按钮尺寸和间距，使之一屏能显示完 */
   .learning-list {
-    flex-wrap: wrap;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 10px;
+  }
+  
+  .list-item {
+    padding: 6px;
+    font-size: 0.8rem;
+    justify-content: center;
+  }
+  
+  .progress-dot {
+    margin-right: 4px;
+    width: 10px;
+    height: 10px;
   }
   
   .quiz-options {
     grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .option-item {
+    min-height: 100px;
+    padding: 15px;
   }
 }
 </style>
